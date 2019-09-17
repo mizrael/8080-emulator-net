@@ -20,12 +20,12 @@ namespace emu8080
         }
 
         public bool Increment(){
-            _pc++;
-            return _pc < _bytes.Length;
+            return this.SetAddress(_pc+1);
         }
 
-        public void SetAddress(int address){
-            _pc = address; // sanity check?
+        public bool SetAddress(int address){
+            _pc = address; 
+            return _pc < _bytes.Length;
         }
     }
 }
