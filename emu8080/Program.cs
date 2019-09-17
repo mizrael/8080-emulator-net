@@ -21,6 +21,9 @@ namespace emu8080
             var cpu = new Cpu(registers);
 
             var gameRomsPath = Path.Combine(romsBasePath, gameName);
+            
+            Console.WriteLine($"loading roms from {gameRomsPath}...");
+
             var files = Directory.GetFiles(gameRomsPath);
             var bytes = new List<byte>();
             foreach (var file in files)

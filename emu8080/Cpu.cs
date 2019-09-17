@@ -19,17 +19,22 @@ namespace emu8080
 
         public void Process(Data data)
         {
-            byte op = bytes[index];
+            do{
+                var op = data.GetCurrent();
 
-            Console.Write($"processing byte '{op:X}': ");
-            if (ops.ContainsKey(op))
-                ops[op](_data);
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("not implemented!");
-                Console.ResetColor();
-            }
+                Console.Write($"processing byte '{op:X}': ");
+
+                if (ops.ContainsKey(op)){
+                    ops[op](data, _registers);
+                }else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("not implemented!");
+                    Console.ResetColor();
+                }
+
+                Console.Write("\n");
+            }while(data.Increment());
         }
     }
 }
