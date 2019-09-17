@@ -23,5 +23,9 @@ namespace emu8080
             _pc++;
             return _pc < _bytes.Length;
         }
+
+        public void SetAddress(int address){
+            _pc = address; // sanity check?
+        }
     }
 }
