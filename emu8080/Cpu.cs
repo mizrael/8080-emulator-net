@@ -5,32 +5,34 @@ namespace emu8080
 {
     public class Cpu
     {
-        private readonly Dictionary<byte, Action<Data, Registers>> _ops;
-        private readonly Registers _registers;
+        private readonly Dictionary<byte, Action<ProgramData, State>> _ops;
+        private readonly State _state;
 
-        public Cpu(Registers registers)
+        public Cpu(State state)
         {
-            _registers = registers;
+            _state = state;
 
-            _ops = new Dictionary<byte, Action<Data, Registers>>();
+            _ops = new Dictionary<byte, Action<ProgramData, State>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
             _ops.Add(0x21, Ops.LXI_H);
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
             _ops.Add(0x43, Ops.MOV_B_E);
+            _ops.Add(0xc2, Ops.JNZ);
             _ops.Add(0xc3, Ops.JMP);
+            _ops.Add(0xcd, Ops.CALL);
         }
 
-        public void Process(Data data)
+        public void Process(ProgramData programData)
         {
             do{
-                var op = data.GetCurrent();
+                var op = programData[_state.ProgramCounter];
 
                 Console.Write($"processing byte '{op:X}': ");
 
                 if (_ops.ContainsKey(op)){
-                    _ops[op](data, _registers);
+                    _ops[op](programData, _state);
                 }else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -39,7 +41,7 @@ namespace emu8080
                 }
 
                 Console.Write("\n");
-            }while(data.Increment());
+            }while(++_state.ProgramCounter < programData.Length);
         }
     }
 }

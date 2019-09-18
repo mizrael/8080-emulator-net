@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace emu8080
 {
@@ -17,7 +18,7 @@ namespace emu8080
             
             var romsBasePath = "roms";
 
-            var registers = new Registers();
+            var registers = new State();
             var cpu = new Cpu(registers);
 
             var gameRomsPath = Path.Combine(romsBasePath, gameName);
@@ -26,13 +27,13 @@ namespace emu8080
 
             var files = Directory.GetFiles(gameRomsPath);
             var bytes = new List<byte>();
-            foreach (var file in files)
+            foreach (var file in files.OrderByDescending(f => f))
             {
                 var romBytes = File.ReadAllBytes(file);
                 bytes.AddRange(romBytes);
             }
             
-            var data = new Data(bytes);
+            var data = new ProgramData(bytes);
             cpu.Process(data);
 
             //for (int index = 0;index<bytes.Length;++index)
