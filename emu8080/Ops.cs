@@ -11,7 +11,7 @@ namespace emu8080
         // 0x00
         public static void NOP(ProgramData programData, State state)
         {
-            Console.Write("NOP");
+            //nopnopnopnopnopnopnopnopnopnop
         }
 
         // 0x01 , B <- byte 3, C <- byte 2
@@ -24,12 +24,25 @@ namespace emu8080
         // 0x0f , A = A >> 1; bit 7 = prev bit 0; CY = prev bit 0
         public static void RRC(ProgramData programData, State state)
         {
-            state.ConditionalFlags.Carry = (state.A & 0x01) == 0x01;
-            
+            state.ConditionalFlags.CalcCarryFlag(state.A);
+
             state.A = (byte) ((state.A >> 1) & 0xff);
 
             if (state.ConditionalFlags.Carry)
                 state.A = (byte)(state.A | 0x80);
+        }
+
+        // 0x1f , A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0
+        public static void RAR(ProgramData programData, State state)
+        {
+            byte temp = (byte)(state.A >> 1);
+            
+            if (state.ConditionalFlags.Carry)
+                temp = (byte)(temp | 0x80);
+            
+            state.ConditionalFlags.CalcCarryFlag(state.A);
+            
+            state.A = temp;
         }
 
         // 0x21 , H <- byte 3, L <- byte 2
@@ -103,7 +116,20 @@ namespace emu8080
 
             SetCounterToAddr(programData, state);
         }
-        
+
+        // 0xfe , A - data
+        public static void CPI(ProgramData programData, State state)
+        {
+            throw new NotImplementedException();
+            var data = programData[++state.ProgramCounter];
+            ushort diff = (ushort) (state.A - data);
+            state.ConditionalFlags.CalcZeroFlag(diff);
+            state.ConditionalFlags.CalcSignFlag(diff);
+            state.ConditionalFlags.CalcParityFlag(diff);
+            state.ConditionalFlags.CalcCarryFlag(state.A);
+            state.ProgramCounter++;
+        }
+
         private static void SetCounterToAddr(ProgramData programData, State state)
         {
             var lo = programData[++state.ProgramCounter];
