@@ -12,87 +12,47 @@ namespace emu8080
         private const byte PARITY_FLAG = 0x04;      // 0=odd, 1=even
         private const byte CARRY_FLAG = 0x01;       // 0=no carry, 1=carry
 
-        public byte Register
+        private byte _register = 0x00;
+        
+        public bool Carry
         {
-            get;
-            set;
+            get => GetBit(CARRY_FLAG);
+            private set => SetBit(CARRY_FLAG, value);
         }
-
-        public ConditionalFlags()
+        public bool Sign
         {
-            // in the real CPU bit 1 is unused and always 1
-            Register = 0x00;
+            get => GetBit(SIGN_FLAG);
+            private set => SetBit(SIGN_FLAG, value);
         }
-
-        public bool CarryFlag
+        public bool Zero
         {
-            get
-            {
-                return GetBit(CARRY_FLAG);
-            }
-            set
-            {
-                SetBit(CARRY_FLAG, value);
-            }
+            get => GetBit(ZERO_FLAG);
+            private set => SetBit(ZERO_FLAG, value);
         }
-        public bool SignFlag
+        public bool AuxCarry
         {
-            get
-            {
-                return GetBit(SIGN_FLAG);
-            }
-            set
-            {
-                SetBit(SIGN_FLAG, value);
-            }
+            get => GetBit(AUX_CARRY_FLAG);
+            private set => SetBit(AUX_CARRY_FLAG, value);
         }
-        public bool ZeroFlag
+        public bool Parity
         {
-            get
-            {
-                return GetBit(ZERO_FLAG);
-            }
-            set
-            {
-                SetBit(ZERO_FLAG, value);
-            }
-        }
-        public bool AuxCarryFlag
-        {
-            get
-            {
-                return GetBit(AUX_CARRY_FLAG);
-            }
-            set
-            {
-                SetBit(AUX_CARRY_FLAG, value);
-            }
-        }
-        public bool ParityFlag
-        {
-            get
-            {
-                return GetBit(PARITY_FLAG);
-            }
-            set
-            {
-                SetBit(PARITY_FLAG, value);
-            }
+            get => GetBit(PARITY_FLAG);
+            private set => SetBit(PARITY_FLAG, value);
         }
 
         public void CalcCarryFlag(UInt16 result)
         {
-            CarryFlag = (result > 0xff);
+            Carry = (result > 0xff);
         }
 
         public void CalcZeroFlag(UInt16 result)
         {
-            ZeroFlag = ((result & 0xff) == 0);
+            Zero = ((result & 0xff) == 0);
         }
 
         public void CalcSignFlag(UInt16 result)
         {
-            SignFlag = ((result & 0x80) == 0x80);
+            Sign = ((result & SIGN_FLAG) == SIGN_FLAG);
         }
 
         public void CalcParityFlag(UInt16 result)
@@ -112,30 +72,30 @@ namespace emu8080
             {
                 num &= (byte)(num - 1);
             }
-            ParityFlag = (total % 2) == 0;
+            Parity = (total % 2) == 0;
         }
 
         public void CalcAuxCarryFlag(byte a, byte b)
         {
-            AuxCarryFlag = (byte)((a & 0x0f) + (b & 0x0f)) > 0x0f;
+            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f)) > 0x0f;
         }
 
         public void CalcAuxCarryFlag(byte a, byte b, byte c)
         {
-            AuxCarryFlag = (byte)((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;
+            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;
         }
 
         private bool GetBit(byte bit)
         {
-            return ((Register & bit) == bit);
+            return ((_register & bit) == bit);
         }
 
         private void SetBit(byte bit, bool set)
         {
             if (set)
-                Register = (byte)(Register | bit);
+                _register = (byte)(_register | bit);
             else
-                Register = (byte)(Register & ~bit);
+                _register = (byte)(_register & ~bit);
         }
 
     }

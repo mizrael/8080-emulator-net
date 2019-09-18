@@ -49,7 +49,7 @@ namespace emu8080
         // 0xc2 , if NZ, ProgramCounter <- adr
         public static void JNZ(ProgramData programData, State state)
         {
-            if (!state.ConditionalFlags.ZeroFlag)
+            if (!state.ConditionalFlags.Zero)
             {
                 SetCounterToAddr(programData, state);
             }
