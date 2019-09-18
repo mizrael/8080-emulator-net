@@ -21,11 +21,28 @@ namespace emu8080
             state.B = programData[++state.ProgramCounter];
         }
 
+        // 0x0f , A = A >> 1; bit 7 = prev bit 0; CY = prev bit 0
+        public static void RRC(ProgramData programData, State state)
+        {
+            state.ConditionalFlags.Carry = (state.A & 0x01) == 0x01;
+            
+            state.A = (byte) ((state.A >> 1) & 0xff);
+
+            if (state.ConditionalFlags.Carry)
+                state.A = (byte)(state.A | 0x80);
+        }
+
         // 0x21 , H <- byte 3, L <- byte 2
         public static void LXI_H(ProgramData programData, State state)
         {
             state.L = programData[++state.ProgramCounter];
             state.H = programData[++state.ProgramCounter];
+        }
+
+        // 0x2F , A <- !A
+        public static void CMA(ProgramData programData, State state)
+        {
+            state.A = (byte) ~state.A;
         }
 
         // 0x41 , B <- C
@@ -65,13 +82,22 @@ namespace emu8080
             SetCounterToAddr(programData, state);
         }
 
+        // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
+        public static void RET(ProgramData programData, State state)
+        {
+            byte lo = state.Stack[state.StackPointer];
+            byte hi = state.Stack[state.StackPointer + 1];
+            state.ProgramCounter = NumbersUtils.GetValue(hi, lo);
+            state.StackPointer += 2;
+        }
+
         // 0xcd , (StackPointer-1)<-ProgramCounter.hi;(StackPointer-2)<-ProgramCounter.lo;StackPointer<-StackPointer-2;ProgramCounter=adr
         public static void CALL(ProgramData programData, State state)
         {
             var retAddr = state.ProgramCounter + 2;
 
-            state.Stack[state.StackPointer - 1] = (byte)((retAddr >> 8) & 0xff);
-            state.Stack[state.StackPointer - 2] = (byte)(retAddr & 0xff);
+            state.Stack[state.StackPointer - 1] = retAddr.GetHigh();
+            state.Stack[state.StackPointer - 2] = retAddr.GetLow();
 
             state.StackPointer -= 2;
 
@@ -80,9 +106,9 @@ namespace emu8080
         
         private static void SetCounterToAddr(ProgramData programData, State state)
         {
-            var addr1 = programData[++state.ProgramCounter];
-            var addr2 = programData[++state.ProgramCounter];
-            state.ProgramCounter = (short)((addr2 << 8) | addr1);
+            var lo = programData[++state.ProgramCounter];
+            var hi = programData[++state.ProgramCounter];
+            state.ProgramCounter = NumbersUtils.GetValue(hi, lo);
         }
     }
 }

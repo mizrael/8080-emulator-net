@@ -14,8 +14,8 @@
         public byte E = 0;
         public byte H = 0;
         public byte L = 0;
-        public short StackPointer = 0;
-        public short ProgramCounter = 0;
+        public ushort StackPointer = 0;
+        public ushort ProgramCounter = 0;
         public readonly ConditionalFlags ConditionalFlags;
         public readonly byte[] Stack;
     }

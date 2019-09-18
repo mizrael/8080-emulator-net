@@ -15,12 +15,15 @@ namespace emu8080
             _ops = new Dictionary<byte, Action<ProgramData, State>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
+            _ops.Add(0x0f, Ops.RRC);
             _ops.Add(0x21, Ops.LXI_H);
+            _ops.Add(0x2f, Ops.CMA);
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
             _ops.Add(0x43, Ops.MOV_B_E);
             _ops.Add(0xc2, Ops.JNZ);
             _ops.Add(0xc3, Ops.JMP);
+            _ops.Add(0xc9, Ops.RET);
             _ops.Add(0xcd, Ops.CALL);
         }
 

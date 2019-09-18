@@ -17,7 +17,7 @@ namespace emu8080
         public bool Carry
         {
             get => GetBit(CARRY_FLAG);
-            private set => SetBit(CARRY_FLAG, value);
+            set => SetBit(CARRY_FLAG, value);
         }
         public bool Sign
         {
