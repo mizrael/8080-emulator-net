@@ -5,14 +5,14 @@ namespace emu8080
 {
     public class Cpu
     {
-        private readonly Dictionary<byte, Action<ProgramData, State>> _ops;
+        private readonly Dictionary<byte, Action<Instructions, State>> _ops;
         private readonly State _state;
 
         public Cpu(State state)
         {
             _state = state;
 
-            _ops = new Dictionary<byte, Action<ProgramData, State>>();
+            _ops = new Dictionary<byte, Action<Instructions, State>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
             _ops.Add(0x0f, Ops.RRC);
@@ -30,7 +30,7 @@ namespace emu8080
             _ops.Add(0xfe, Ops.CPI);
         }
 
-        public void Process(ProgramData programData)
+        public void Process(Instructions programData)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("processing program...");

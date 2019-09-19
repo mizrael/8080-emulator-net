@@ -12,12 +12,12 @@
             return (byte)((value >> 8) & 0xff);
         }
 
-        public static byte GetLow(this short value)
+        public static byte GetLow(this ushort value)
         {
             return (byte)(value & 0xff);
         }
 
-        public static byte GetHigh(this short value)
+        public static byte GetHigh(this ushort value)
         {
             return (byte)((value >> 8) & 0xff);
         }

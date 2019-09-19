@@ -33,7 +33,7 @@ namespace emu8080
                 bytes.AddRange(romBytes);
             }
             
-            var data = new ProgramData(bytes);
+            var data = new Instructions(bytes);
             cpu.Process(data);
 
             //for (int index = 0;index<bytes.Length;++index)

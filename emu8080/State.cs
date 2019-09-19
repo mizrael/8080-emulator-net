@@ -18,5 +18,12 @@
         public ushort ProgramCounter = 0;
         public readonly ConditionalFlags ConditionalFlags;
         public readonly byte[] Stack;
+
+        public void SetCounterToAddr(Instructions instructions)
+        {
+            var lo = instructions[++this.ProgramCounter];
+            var hi = instructions[++this.ProgramCounter];
+            this.ProgramCounter = NumbersUtils.GetValue(hi, lo);
+        }
     }
 }

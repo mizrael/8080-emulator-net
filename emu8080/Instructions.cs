@@ -3,11 +3,11 @@ using System.Linq;
 
 namespace emu8080
 {
-    public class ProgramData
+    public class Instructions
     {
         private readonly byte[] _bytes;
 
-        public ProgramData(IEnumerable<byte> bytes)
+        public Instructions(IEnumerable<byte> bytes)
         {
             _bytes = bytes.ToArray();
         }
