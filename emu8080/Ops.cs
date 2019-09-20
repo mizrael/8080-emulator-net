@@ -11,12 +11,15 @@
         {
             //nopnopnopnopnopnopnopnopnopnop
         }
+        
+        private static ushort LXI(Instructions programData, State state) => NumbersUtils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
+
+        private static byte MVI(Instructions programData, State state) => programData[state.ProgramCounter + 1];
 
         // 0x01 , B <- byte 3, C <- byte 2
         public static void LXI_B(Instructions programData, State state)
         {
-            state.C = programData[++state.ProgramCounter];
-            state.B = programData[++state.ProgramCounter];
+            state.BC = LXI(programData, state);
         }
 
         // 0x05 , B <- B-1
@@ -28,7 +31,7 @@
         // 0x06 , B <- byte 2
         public static void MVI_B(Instructions programData, State state)
         {
-            state.B = programData[++state.ProgramCounter];
+            state.B = MVI(programData, state);
         }
 
         // 0x09 , HL = HL + BC
@@ -46,7 +49,7 @@
         // 0x0e , C <- byte 2
         public static void MVI_C(Instructions programData, State state)
         {
-            state.C = programData[++state.ProgramCounter];
+            state.C = MVI(programData, state);
         }
 
         // 0x0f , A = A >> 1; bit 7 = prev bit 0; CY = prev bit 0
@@ -58,6 +61,30 @@
 
             if (state.ConditionalFlags.Carry)
                 state.A = (byte)(state.A | 0x80);
+        }
+
+        // 0x11 , D <- byte 3, E <- byte 2
+        public static void LXI_D(Instructions programData, State state)
+        {
+            state.DE = LXI(programData, state);
+        }
+
+        // 0x13 , DE <- DE + 1
+        public static void INX_D(Instructions programData, State state)
+        {
+            state.DE++;
+        }
+
+        // 0x19 , HL = HL + DE
+        public static void DAD_D(Instructions programData, State state)
+        {
+            state.DAD(state.DE);
+        }
+
+        // 0x1a , A <- (DE)
+        public static void LDAX_D(Instructions programData, State state)
+        {
+            state.LDAX(state.DE);
         }
 
         // 0x1f , A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0
@@ -76,14 +103,37 @@
         // 0x21 , H <- byte 3, L <- byte 2
         public static void LXI_H(Instructions programData, State state)
         {
-            state.L = programData[++state.ProgramCounter];
-            state.H = programData[++state.ProgramCounter];
+            state.HL = LXI(programData, state);
         }
 
+        // 0x23 , HL <- HL + 1
+        public static void INX_H(Instructions programData, State state)
+        {
+            state.HL++;
+        }
+
+        // 0x26 , H <- byte 2
+        public static void MVI_H(Instructions programData, State state)
+        {
+            state.H = MVI(programData, state);
+        }
+
+        // 0x29 , HL = HL + HI
+        public static void DAD_H(Instructions programData, State state)
+        {
+            state.DAD(state.HL);
+        }
+        
         // 0x2F , A <- !A
         public static void CMA(Instructions programData, State state)
         {
             state.A = (byte) ~state.A;
+        }
+
+        // 0x31 , SP.hi <- byte 3, SP.lo <- byte 2
+        public static void LXI_SP(Instructions programData, State state)
+        {
+            state.StackPointer = LXI(programData, state);
         }
 
         // 0x41 , B <- C
@@ -107,8 +157,9 @@
         // 0xc1 , C <- (sp); B <- (sp+1); sp <- sp+2
         public static void POP(Instructions programData, State state)
         {
-            state.C = state.Stack[state.StackPointer++];
-            state.B = state.Stack[state.StackPointer++];
+            state.C = state.Stack[state.StackPointer+1];
+            state.B = state.Stack[state.StackPointer+2];
+            state.StackPointer += 2;
         }
 
         // 0xc2 , if NZ, ProgramCounter <- adr
@@ -133,8 +184,9 @@
         // 0xc5 , (sp-2)<-C; (sp-1)<-B; sp <- sp - 2
         public static void PUSH(Instructions programData, State state)
         {
-            state.Stack[--state.StackPointer] = state.B;
-            state.Stack[--state.StackPointer] = state.C;
+            state.Stack[state.StackPointer-1] = state.B;
+            state.Stack[state.StackPointer-2] = state.C;
+            state.StackPointer -= 2;
         }
 
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2

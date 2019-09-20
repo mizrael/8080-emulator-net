@@ -18,8 +18,27 @@
         public ushort ProgramCounter = 0;
         public readonly ConditionalFlags ConditionalFlags;
         public readonly byte[] Stack;
+        
+        public ushort BC
+        {
+            get => NumbersUtils.GetValue(this.C, this.B);
+            set
+            {
+                this.C = NumbersUtils.GetHigh(value);
+                this.B = NumbersUtils.GetLow(value);
+            }
+        }
 
-        public ushort BC => NumbersUtils.GetValue(this.C, this.B);
+        public ushort DE
+        {
+            get => NumbersUtils.GetValue(this.E, this.D);
+            set
+            {
+                this.E = NumbersUtils.GetHigh(value);
+                this.D = NumbersUtils.GetLow(value);
+            }
+        }
+
         public ushort HL
         {
             get => NumbersUtils.GetValue(this.H, this.L);
@@ -35,6 +54,11 @@
             var lo = instructions[++this.ProgramCounter];
             var hi = instructions[++this.ProgramCounter];
             this.ProgramCounter = NumbersUtils.GetValue(hi, lo);
+        }
+
+        public void LDAX(ushort stackIndex)
+        {
+            this.A = this.Stack[stackIndex];
         }
 
         public void DAD(ushort value)

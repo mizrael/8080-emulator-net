@@ -21,10 +21,18 @@ namespace emu8080
             _ops.Add(0x0d, Ops.DCR_C);
             _ops.Add(0x0e, Ops.MVI_C);
             _ops.Add(0x0f, Ops.RRC);
+            _ops.Add(0x11, Ops.LXI_D);
+            _ops.Add(0x13, Ops.INX_D);
+            _ops.Add(0x19, Ops.DAD_D);
+            _ops.Add(0x1a, Ops.LDAX_D);
             _ops.Add(0x1f, Ops.RAR);
             _ops.Add(0x20, Ops.NOP);
             _ops.Add(0x21, Ops.LXI_H);
+            _ops.Add(0x23, Ops.INX_H);
+            _ops.Add(0x26, Ops.MVI_H);
+            _ops.Add(0x29, Ops.DAD_H);
             _ops.Add(0x2f, Ops.CMA);
+            _ops.Add(0x31, Ops.LXI_SP);
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
             _ops.Add(0x43, Ops.MOV_B_E);
