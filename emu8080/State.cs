@@ -1,10 +1,11 @@
-﻿namespace emu8080
+﻿using System;
+
+namespace emu8080
 {
     public class State
     {
         public State(){
             this.ConditionalFlags = new ConditionalFlags();
-            this.Stack = new byte[0x10000]; // 16bit
         }
 
         public byte A = 0;
@@ -16,9 +17,7 @@
         public byte L = 0;
         public ushort StackPointer = 0;
         public ushort ProgramCounter = 0;
-        public readonly ConditionalFlags ConditionalFlags;
-        public readonly byte[] Stack;
-        
+        public readonly ConditionalFlags ConditionalFlags;        
         public ushort BC
         {
             get => NumbersUtils.GetValue(this.C, this.B);
@@ -56,9 +55,12 @@
             this.ProgramCounter = NumbersUtils.GetValue(hi, lo);
         }
 
-        public void LDAX(ushort stackIndex)
+        public void Reset()
         {
-            this.A = this.Stack[stackIndex];
+            this.A = this.B = this.C = this.D = this.E = this.H = this.L = 0;
+            this.ProgramCounter = 0;
+            this.StackPointer = 0;
+            this.ConditionalFlags.Reset();
         }
 
         public void DAD(ushort value)
@@ -66,6 +68,10 @@
             ushort res = (ushort)(this.HL + value);
             this.ConditionalFlags.CalcCarryFlag(res);
             this.HL = res;
+        }
+
+        public override string ToString() {
+            return $"SP: {StackPointer} PC: {ProgramCounter} A: {A:X} B: {B:X} C: {C:X} D: {D:X} E: {E:X} H: {H:X} L: {L:X} Flags: {this.ConditionalFlags}";
         }
     }
 }

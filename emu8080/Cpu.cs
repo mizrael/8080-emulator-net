@@ -6,11 +6,11 @@ namespace emu8080
     public class Cpu
     {
         private readonly Dictionary<byte, Action<Instructions, State>> _ops;
-        private readonly State _state;
+        public State State {get;}
 
         public Cpu(State state)
         {
-            _state = state;
+            State = state;
 
             _ops = new Dictionary<byte, Action<Instructions, State>>();
             _ops.Add(0x00, Ops.NOP);
@@ -46,28 +46,22 @@ namespace emu8080
             _ops.Add(0xfe, Ops.CPI);
         }
 
-        public void Process(Instructions programData)
+        public void Reset() => State.Reset();
+
+        public void Step(Instructions programData)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("processing program...");
-
-            do{
-                var op = programData[_state.ProgramCounter];
+            var op = programData[State.ProgramCounter];
                 
-                if (_ops.ContainsKey(op)){
-                    _ops[op](programData, _state);
-                }else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("not implemented!");
-                    Console.ResetColor();
-                }
-            }while(++_state.ProgramCounter < programData.Length);
+            if (_ops.ContainsKey(op)){
+                _ops[op](programData, State);
+            }else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("not implemented!");
+                Console.ResetColor();
+            }
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("done!");
-
-            Console.ResetColor();
+            State.ProgramCounter++;
         }
     }
 }

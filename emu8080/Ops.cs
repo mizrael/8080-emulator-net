@@ -16,6 +16,11 @@
 
         private static byte MVI(Instructions programData, State state) => programData[state.ProgramCounter + 1];
 
+        private static void LDAX(ushort stackIndex, Instructions programData, State state)
+        {
+            state.A = programData[stackIndex];
+        }
+
         // 0x01 , B <- byte 3, C <- byte 2
         public static void LXI_B(Instructions programData, State state)
         {
@@ -84,7 +89,7 @@
         // 0x1a , A <- (DE)
         public static void LDAX_D(Instructions programData, State state)
         {
-            state.LDAX(state.DE);
+            LDAX(state.DE, programData, state);
         }
 
         // 0x1f , A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0
@@ -157,8 +162,8 @@
         // 0xc1 , C <- (sp); B <- (sp+1); sp <- sp+2
         public static void POP(Instructions programData, State state)
         {
-            state.C = state.Stack[state.StackPointer+1];
-            state.B = state.Stack[state.StackPointer+2];
+            state.C = programData[state.StackPointer+1];
+            state.B = programData[state.StackPointer+2];
             state.StackPointer += 2;
         }
 
@@ -184,16 +189,16 @@
         // 0xc5 , (sp-2)<-C; (sp-1)<-B; sp <- sp - 2
         public static void PUSH(Instructions programData, State state)
         {
-            state.Stack[state.StackPointer-1] = state.B;
-            state.Stack[state.StackPointer-2] = state.C;
+            programData[state.StackPointer-1] = state.B;
+            programData[state.StackPointer-2] = state.C;
             state.StackPointer -= 2;
         }
 
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
         public static void RET(Instructions programData, State state)
         {
-            byte lo = state.Stack[state.StackPointer];
-            byte hi = state.Stack[state.StackPointer + 1];
+            byte lo = programData[state.StackPointer];
+            byte hi = programData[state.StackPointer + 1];
             state.ProgramCounter = NumbersUtils.GetValue(hi, lo);
             state.StackPointer += 2;
         }
@@ -203,8 +208,8 @@
         {
             var retAddr = state.ProgramCounter + 2;
 
-            state.Stack[state.StackPointer - 1] = retAddr.GetHigh();
-            state.Stack[state.StackPointer - 2] = retAddr.GetLow();
+            programData[state.StackPointer - 1] = retAddr.GetHigh();
+            programData[state.StackPointer - 2] = retAddr.GetLow();
 
             state.StackPointer -= 2;
 
@@ -214,15 +219,18 @@
         // 0xf1 , flags <- (sp); A <- (sp+1); sp <- sp+2
         public static void POP_PSW(Instructions programData, State state)
         {
-            state.A = state.Stack[state.StackPointer + 1];
-            state.ConditionalFlags.Flags = state.Stack[state.StackPointer];
+            state.A = programData[state.StackPointer + 1];
+            var psw = programData[state.StackPointer];
+
+            state.ConditionalFlags.PSW(psw);
+
             state.StackPointer += 2;
         }
 
         // 0xfe , A - data
         public static void CPI(Instructions programData, State state)
         {
-            MathUtils.Compare(state.A, state.Stack[state.ProgramCounter + 1], state);
+            MathUtils.Compare(state.A, programData[state.ProgramCounter + 1], state);
         }
 
     }

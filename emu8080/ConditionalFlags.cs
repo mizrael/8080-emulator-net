@@ -12,62 +12,11 @@ namespace emu8080
         public const byte ParityFlag = 0x04;      // 0=odd, 1=even
         public const byte CarryFlag = 0x01;       // 0=no carry, 1=carry
 
-        //https://github.com/kade-robertson/Emu8080/blob/master/Emu8080/Objects/CPUFlag.cs
-        public byte Flags
+        private byte _flags;
+       
+        public void Reset()
         {
-            get
-            {
-                byte outb = 0x02; // this bit is always set, bits 3 and 5 are never set
-                if (Carry)
-                {
-                    outb |= (byte)CarryFlag;
-                }
-                else
-                {
-                    outb &= (~(byte)(CarryFlag) & 0xFF);
-                }
-                if (Parity)
-                {
-                    outb |= (byte)ParityFlag;
-                }
-                else
-                {
-                    outb &= (~(byte)(ParityFlag) & 0xFF);
-                }
-                if (AuxCarry)
-                {
-                    outb |= (byte)AuxCarryFlag;
-                }
-                else
-                {
-                    outb &= (~(byte)(AuxCarryFlag) & 0xFF);
-                }
-                if (Zero)
-                {
-                    outb |= (byte)ZeroFlag;
-                }
-                else
-                {
-                    outb &= (~(byte)(ZeroFlag) & 0xFF);
-                }
-                if (Sign)
-                {
-                    outb |= (byte)SignFlag;
-                }
-                else
-                {
-                    outb &= (~(byte)(SignFlag) & 0xFF);
-                }
-                return outb;
-            }
-            set
-            {
-                Carry = (value & (byte)CarryFlag) > 0;
-                Parity = (value & (byte)ParityFlag) > 0;
-                AuxCarry = (value & (byte)AuxCarryFlag) > 0;
-                Zero = (value & (byte)ZeroFlag) > 0;
-                Sign = (value & (byte)SignFlag) > 0;
-            }
+            this._flags = 0;
         }
 
         public bool Carry
@@ -145,18 +94,29 @@ namespace emu8080
             AuxCarry = (byte)((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;
         }
 
+        public void PSW(byte psw){
+            this.Zero  = (0x01 == (psw & 0x01));
+            this.Sign  = (0x02 == (psw & 0x02));
+            this.Parity  = (0x04 == (psw & 0x04));
+            this.Carry = (0x05 == (psw & 0x08));
+            this.AuxCarry = (0x10 == (psw & 0x10));
+        }
+
         private bool GetBit(byte bit)
         {
-            return ((Flags & bit) == bit);
+            return ((_flags & bit) == bit);
         }
 
         private void SetBit(byte bit, bool set)
         {
             if (set)
-                Flags = (byte)(Flags | bit);
+                _flags = (byte)(_flags | bit);
             else
-                Flags = (byte)(Flags & ~bit);
+                _flags = (byte)(_flags & ~bit);
         }
 
+        public override string ToString(){
+            return $"Z: {Zero} S:{Sign} P:{Parity} C:{Carry} AC:{AuxCarry}";
+        }
     }
 }

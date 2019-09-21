@@ -7,12 +7,22 @@ namespace emu8080
     {
         private readonly byte[] _bytes;
 
-        public Instructions(IEnumerable<byte> bytes)
+        private Instructions(byte[] data)
         {
-            _bytes = bytes.ToArray();
+            _bytes = data;
         }
 
-        public byte this[int index] => _bytes[index];
-        public int Length => _bytes.Length;
+        public byte this[int index] {
+            get => _bytes[index];
+            set => _bytes[index] = value;
+        }
+
+        public static Instructions Load(byte[] data){
+            var destBytes = new byte[0x10000]; // 16bit
+            System.Array.Copy(data, destBytes, data.Length);
+
+            var instructions = new Instructions(destBytes);
+            return instructions;
+        }
     }
 }

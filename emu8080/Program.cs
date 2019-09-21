@@ -33,68 +33,21 @@ namespace emu8080
                 bytes.AddRange(romBytes);
             }
             
-            var data = new Instructions(bytes);
-            cpu.Process(data);
+            var instructions = Instructions.Load(bytes.ToArray());
 
-            //for (int index = 0;index<bytes.Length;++index)
-            //{
-            //    cpu.Process(bytes, ref index);
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("processing program...");
 
-                //switch (op)
-                //{
-                //    case 0x00:
-                //        Console.Write("NOP");
-                //        break;
-                //    case 0x21:
-                //        addr1 = bytes[++index];
-                //        addr2 = bytes[++index];
-                //        Console.Write($"LXI H, {addr1:X} {addr2:X}");
-                //        break;
-                //    case 0x32:
-                //        addr1 = bytes[++index];
-                //        addr2 = bytes[++index];
-                //        Console.Write($"STA {addr1:X} {addr2:X}");
-                //        break;
-                //    case 0x35:
-                //        Console.Write("DCR M");
-                //        break;
-                //    case 0x3e:
-                //        addr1 = bytes[++index];
-                //        Console.Write($"MVI A, {addr1:X}");
-                //        break;
-                //    case 0xc3:
-                //        addr1 = bytes[++index];
-                //        addr2 = bytes[++index];
-                //        Console.Write($"JMP {addr1:X} {addr2:X}");
-                //        break;
-                //    case 0xc5:
-                //        Console.Write("PUSH B");
-                //        break;
-                //    case 0xcd:
-                //        addr1 = bytes[++index];
-                //        addr2 = bytes[++index];
-                //        Console.Write($"CALL adr H, {addr1:X} {addr2:X}");
-                //        break;
-                //    case 0xd5:
-                //        Console.Write("PUSH D");
-                //        break;
-                //    case 0xe5:
-                //        Console.Write("PUSH H");
-                //        break;
+            cpu.Reset();
+            int i=0;
+            while(++i<100){
+                cpu.Step(instructions);
+                Console.WriteLine(cpu.State);
+            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("done!");
 
-                //    case 0xf5:
-                //        Console.Write("PUSH PSW");
-                //        break;
-
-                //    default:
-                //        Console.ForegroundColor = ConsoleColor.Red;
-                //        Console.Write("not implemented!");
-                //        Console.ResetColor();
-                //        break;
-                //}
-
-            //    Console.Write("\n");
-            //}
+            Console.ResetColor();
         }
     }
 }
