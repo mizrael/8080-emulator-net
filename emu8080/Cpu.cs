@@ -15,6 +15,7 @@ namespace emu8080
             _ops = new Dictionary<byte, Action<ProgramInstructions, State>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
+            _ops.Add(0x03, Ops.INX_B);
             _ops.Add(0x05, Ops.DCR_B);
             _ops.Add(0x06, Ops.MVI_B);
             _ops.Add(0x09, Ops.DAD_B);
@@ -34,20 +35,27 @@ namespace emu8080
             _ops.Add(0x2f, Ops.CMA);
             _ops.Add(0x31, Ops.LXI_SP);
             _ops.Add(0x32, Ops.STA);
+            _ops.Add(0x36, Ops.MVI_M);
+            _ops.Add(0x3a, Ops.LDA);
             _ops.Add(0x3e, Ops.MVI_A);
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
             _ops.Add(0x43, Ops.MOV_B_E);
             _ops.Add(0x77, Ops.MOV_M_A);
+            _ops.Add(0x7c, Ops.MOV_A_H);
+            _ops.Add(0xa7, Ops.ANA_A);
             _ops.Add(0xaf, Ops.XRA_A);
             _ops.Add(0xc0, Ops.RNZ);
             _ops.Add(0xc1, Ops.POP);
             _ops.Add(0xc2, Ops.JNZ);
             _ops.Add(0xc3, Ops.JMP);
-            _ops.Add(0xc5, Ops.PUSH);
+            _ops.Add(0xc5, Ops.PUSH_CD);
             _ops.Add(0xc9, Ops.RET);
             _ops.Add(0xcd, Ops.CALL);
+            _ops.Add(0xd3, Ops.OUT);
+            _ops.Add(0xd5, Ops.PUSH_DE);
             _ops.Add(0xf1, Ops.POP_PSW);
+            _ops.Add(0xfb, Ops.EI);
             _ops.Add(0xfe, Ops.CPI);
         }
 

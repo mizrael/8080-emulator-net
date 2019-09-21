@@ -40,7 +40,7 @@ namespace emu8080
 
             cpu.Reset();
             int i=0;
-            while(++i<10000){
+            while(++i<40000){
                 var op = cpu.Step(instructions);
                 Console.WriteLine($"{i}) op: {op:X} {cpu.State}");
             }

@@ -31,10 +31,25 @@
             state.ProgramCounter++;
         }
 
+        private static void PUSH(ushort val, ProgramInstructions programData, State state) //TODO check
+        {
+            programData[state.StackPointer-1] = val.GetHigh();
+            programData[state.StackPointer-2] = val.GetLow();
+            state.StackPointer -= 2;
+            state.ProgramCounter +=2;
+        }
+
         // 0x01 , B <- byte 3, C <- byte 2
         public static void LXI_B(ProgramInstructions programData, State state)
         {
             state.BC = LXI(programData, state);
+        }
+
+        // 0x03 , BC <- BC+1
+        public static void INX_B(ProgramInstructions programData, State state)
+        {
+            state.BC++;
+            state.ProgramCounter++;
         }
 
         // 0x05 , B <- B-1
@@ -163,6 +178,21 @@
             state.ProgramCounter += 3;
         }
 
+        // 0x36 , (HL) <- byte 2
+        public static void MVI_M(ProgramInstructions programData, State state)
+        {
+            programData[state.HL] = programData[state.ProgramCounter+1];
+            state.ProgramCounter += 2;
+        }
+
+        // 0x3a , A <- (adr)
+        public static void LDA(ProgramInstructions programData, State state)
+        {
+            var index = NumbersUtils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
+            state.A = programData[index];
+            state.ProgramCounter += 3;
+        }
+
         // 0x3e , A <- byte 2
         public static void MVI_A(ProgramInstructions programData, State state)
         {
@@ -194,14 +224,26 @@
             state.ProgramCounter++;
         }
 
+        // 0x7c , A <- H
+        public static void MOV_A_H(ProgramInstructions programData, State state)
+        {
+            state.A = state.H;
+            state.ProgramCounter++;
+        }
+
+        // 0xa7 , A <- A & A
+        public static void ANA_A(ProgramInstructions programData, State state)
+        {
+            state.A = (byte)((state.A & state.A) & 0xff);
+            state.Flags.CalcSZPC(state.A);
+            state.ProgramCounter++;
+        }
+
         // 0xaf , A <- A ^ A
         public static void XRA_A(ProgramInstructions programData, State state)
         {
             state.A = (byte)((state.A ^ state.A) & 0xff);
-            state.Flags.CalcZeroFlag(state.A);
-            state.Flags.CalcSignFlag(state.A);
-            state.Flags.CalcParityFlag(state.A);
-            state.Flags.CalcCarryFlag(state.A);
+            state.Flags.CalcSZPC(state.A);
             state.ProgramCounter++;
         }
 
@@ -229,7 +271,7 @@
             }
             else
             {
-                state.ProgramCounter += 2;
+                state.ProgramCounter += 3;
             }
         }
 
@@ -240,11 +282,9 @@
         }
 
         // 0xc5 , (sp-2)<-C; (sp-1)<-B; sp <- sp - 2
-        public static void PUSH(ProgramInstructions programData, State state)
+        public static void PUSH_CD(ProgramInstructions programData, State state)
         {
-            programData[state.StackPointer-1] = state.B;
-            programData[state.StackPointer-2] = state.C;
-            state.StackPointer -= 2;
+            PUSH(state.BC, programData, state);
         }
 
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
@@ -252,7 +292,7 @@
         {
             byte lo = programData[state.StackPointer];
             byte hi = programData[state.StackPointer + 1];
-            state.ProgramCounter = NumbersUtils.GetValue(hi, lo);
+            state.ProgramCounter = (ushort)(NumbersUtils.GetValue(hi, lo) + 1);
             state.StackPointer += 2;
         }
 
@@ -269,6 +309,19 @@
             state.SetCounterToAddr(programData);
         }
 
+        // 0xd3
+        public static void OUT(ProgramInstructions programData, State state)
+        {
+            //TODO accumulator is written out to the port
+            state.ProgramCounter++;
+        }
+
+        // 0xd5 , (sp-2)<-E; (sp-1)<-D; sp <- sp - 2
+        public static void PUSH_DE(ProgramInstructions programData, State state)
+        {
+            PUSH(state.DE, programData, state);
+        }
+
         // 0xf1 , flags <- (sp); A <- (sp+1); sp <- sp+2
         public static void POP_PSW(ProgramInstructions programData, State state)
         {
@@ -280,10 +333,19 @@
             state.StackPointer += 2;
         }
 
+        // 0xfb 
+        public static void EI(ProgramInstructions programData, State state)
+        {
+            //TODO enable interrupts
+            state.ProgramCounter++;
+        }
+
         // 0xfe , A - data
         public static void CPI(ProgramInstructions programData, State state)
         {
-            MathUtils.Compare(state.A, programData[state.ProgramCounter + 1], state);
+            var diff = (byte)((state.A - programData[state.ProgramCounter + 1]) & 0xff);
+            state.Flags.CalcSZPC(diff);
+            state.ProgramCounter += 2;
         }
 
     }

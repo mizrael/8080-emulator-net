@@ -72,19 +72,8 @@ namespace emu8080
             CalcParityFlag((byte)(result & 0xff));
         }
         
-        public void CalcParityFlag(byte result) //TODO: check
+        public void CalcParityFlag(byte result) 
         {
-            // parity = 0 is odd
-            // parity = 1 is even
-            // byte num = (byte)(result & 0xff);
-            // byte total = 0;
-            // for (byte i = 0; i < 8; ++i){
-            //     total += (byte)(num & 1);
-            //     num = (byte)(num >> 1);
-            // }
-
-            // Parity = (total & 1) == 0; 
-
             byte num = ( byte ) ( result & 0xff );
             byte total = 0;
             for( total = 0; num > 0; total++ )
@@ -102,6 +91,14 @@ namespace emu8080
         public void CalcAuxCarryFlag(byte a, byte b, byte c)
         {
             AuxCarry = (byte)((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;
+        }
+
+        /// Sign, Zero, Parity, Carry
+        public void CalcSZPC(byte val){
+            this.CalcZeroFlag(val);
+            this.CalcSignFlag(val);
+            this.CalcParityFlag(val);
+            this.CalcCarryFlag(val);
         }
 
         public void PSW(byte psw){
