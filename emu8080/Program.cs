@@ -40,9 +40,9 @@ namespace emu8080
 
             cpu.Reset();
             int i=0;
-            while(++i<50000){
+            while(++i<10000){
                 var op = cpu.Step(instructions);
-                Console.WriteLine($"op: {op:X} {cpu.State}");
+                Console.WriteLine($"{i}) op: {op:X} {cpu.State}");
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("done!");

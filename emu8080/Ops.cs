@@ -155,6 +155,20 @@
             state.StackPointer = LXI(programData, state);
         }
 
+        // 0x32 , (adr) <- A
+        public static void STA(ProgramInstructions programData, State state)
+        {
+            var res = NumbersUtils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
+            programData[res] = state.A;
+            state.ProgramCounter += 3;
+        }
+
+        // 0x3e , A <- byte 2
+        public static void MVI_A(ProgramInstructions programData, State state)
+        {
+            state.A = MVI(programData, state);
+        }
+
         // 0x41 , B <- C
         public static void MOV_B_C(ProgramInstructions programData, State state)
         {
@@ -177,6 +191,17 @@
         public static void MOV_M_A(ProgramInstructions programData, State state)
         {
             programData[state.HL] = state.A;
+            state.ProgramCounter++;
+        }
+
+        // 0xaf , A <- A ^ A
+        public static void XRA_A(ProgramInstructions programData, State state)
+        {
+            state.A = (byte)((state.A ^ state.A) & 0xff);
+            state.Flags.CalcZeroFlag(state.A);
+            state.Flags.CalcSignFlag(state.A);
+            state.Flags.CalcParityFlag(state.A);
+            state.Flags.CalcCarryFlag(state.A);
             state.ProgramCounter++;
         }
 

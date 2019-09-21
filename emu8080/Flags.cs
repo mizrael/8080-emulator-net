@@ -76,13 +76,21 @@ namespace emu8080
         {
             // parity = 0 is odd
             // parity = 1 is even
-            byte num = (byte)(result & 0xff);
-            byte total = 0;
-            for (byte i = 0; i != 8; ++i){
-                total += (byte)(num & 1);
-                num = (byte)(num >> 1);
-            }
+            // byte num = (byte)(result & 0xff);
+            // byte total = 0;
+            // for (byte i = 0; i < 8; ++i){
+            //     total += (byte)(num & 1);
+            //     num = (byte)(num >> 1);
+            // }
 
+            // Parity = (total & 1) == 0; 
+
+            byte num = ( byte ) ( result & 0xff );
+            byte total = 0;
+            for( total = 0; num > 0; total++ )
+            {
+                num &= ( byte ) ( num - 1 );
+            }
             Parity = (total & 1) == 0; 
         }
 
@@ -118,7 +126,7 @@ namespace emu8080
         }
 
         public override string ToString(){
-            return $"Z: {Zero} S:{Sign} P:{Parity} C:{Carry} AC:{AuxCarry}";
+            return $"Z:{Zero} S:{Sign} P:{Parity} C:{Carry} AC:{AuxCarry}";
         }
     }
 }
