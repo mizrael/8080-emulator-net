@@ -3,11 +3,11 @@ using System.Linq;
 
 namespace emu8080
 {
-    public class Instructions
+    public class ProgramInstructions
     {
         private readonly byte[] _bytes;
 
-        private Instructions(byte[] data)
+        private ProgramInstructions(byte[] data)
         {
             _bytes = data;
         }
@@ -17,11 +17,11 @@ namespace emu8080
             set => _bytes[index] = value;
         }
 
-        public static Instructions Load(byte[] data){
+        public static ProgramInstructions Load(byte[] data){
             var destBytes = new byte[0x10000]; // 16bit
             System.Array.Copy(data, destBytes, data.Length);
 
-            var instructions = new Instructions(destBytes);
+            var instructions = new ProgramInstructions(destBytes);
             return instructions;
         }
     }

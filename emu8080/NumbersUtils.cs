@@ -24,7 +24,7 @@
 
         public static ushort GetValue(byte hi, byte lo)
         {
-            return (ushort) (((hi << 8) | lo) & 0xff);
+            return (ushort) ((hi << 8) | lo);
         }
     }
 }

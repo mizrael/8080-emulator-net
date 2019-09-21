@@ -5,14 +5,14 @@ namespace emu8080
 {
     public class Cpu
     {
-        private readonly Dictionary<byte, Action<Instructions, State>> _ops;
+        private readonly Dictionary<byte, Action<ProgramInstructions, State>> _ops;
         public State State {get;}
 
         public Cpu(State state)
         {
             State = state;
 
-            _ops = new Dictionary<byte, Action<Instructions, State>>();
+            _ops = new Dictionary<byte, Action<ProgramInstructions, State>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
             _ops.Add(0x05, Ops.DCR_B);
@@ -32,6 +32,7 @@ namespace emu8080
             _ops.Add(0x26, Ops.MVI_H);
             _ops.Add(0x29, Ops.DAD_H);
             _ops.Add(0x2f, Ops.CMA);
+            _ops.Add(0x30, Ops.RNZ);
             _ops.Add(0x31, Ops.LXI_SP);
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
@@ -48,12 +49,12 @@ namespace emu8080
 
         public void Reset() => State.Reset();
 
-        public void Step(Instructions programData)
+        public byte Step(ProgramInstructions instructions)
         {
-            var op = programData[State.ProgramCounter];
-                
+            var op = instructions[State.ProgramCounter];
+
             if (_ops.ContainsKey(op)){
-                _ops[op](programData, State);
+                _ops[op](instructions, State);
             }else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -61,7 +62,27 @@ namespace emu8080
                 Console.ResetColor();
             }
 
-            State.ProgramCounter++;
+            return op;
+        }
+    }
+
+    public struct Instruction{
+        public Instruction(byte op, byte a1, byte a2){
+            this.Op = op;
+            this.Arg1 = a1;
+            this.Arg2 = a2;
+        }
+
+        public byte Op {get;}
+        public byte Arg1 {get;}
+        public byte Arg2 {get;}
+
+        public static Instruction Build(ProgramInstructions instructions, State state){
+            return new Instruction(
+                instructions[state.ProgramCounter],
+                instructions[state.ProgramCounter+1],
+                instructions[state.ProgramCounter+2]
+            );
         }
     }
 }

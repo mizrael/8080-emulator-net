@@ -7,9 +7,9 @@ namespace emu8080
         public static byte Decrement(byte a, State state)
         {
             byte result = (byte) ((a - 1) & 0xff);
-            state.ConditionalFlags.CalcZeroFlag(result);
-            state.ConditionalFlags.CalcSignFlag(result);
-            state.ConditionalFlags.CalcParityFlag(result);
+            state.Flags.CalcZeroFlag(result);
+            state.Flags.CalcSignFlag(result);
+            state.Flags.CalcParityFlag(result);
 
             return result;
         }
@@ -31,13 +31,13 @@ namespace emu8080
 
             // On subtraction no carry out sets the carry bit
             // this is opposite from the normal calculation           
-            state.ConditionalFlags.CalcCarryFlag(answer);
-            state.ConditionalFlags.Carry = !state.ConditionalFlags.Carry;
+            state.Flags.CalcCarryFlag(answer);
+            state.Flags.Carry = !state.Flags.Carry;
 
-            state.ConditionalFlags.CalcZeroFlag(answer);
-            state.ConditionalFlags.CalcParityFlag(answer);
-            state.ConditionalFlags.CalcSignFlag(answer);
-            state.ConditionalFlags.CalcAuxCarryFlag(a, (byte)(~b & 0xff), 1);
+            state.Flags.CalcZeroFlag(answer);
+            state.Flags.CalcParityFlag(answer);
+            state.Flags.CalcSignFlag(answer);
+            state.Flags.CalcAuxCarryFlag(a, (byte)(~b & 0xff), 1);
             return (byte)(answer & 0xff);
         }
 

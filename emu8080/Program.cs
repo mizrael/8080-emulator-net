@@ -33,16 +33,16 @@ namespace emu8080
                 bytes.AddRange(romBytes);
             }
             
-            var instructions = Instructions.Load(bytes.ToArray());
+            var instructions = ProgramInstructions.Load(bytes.ToArray());
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("processing program...");
 
             cpu.Reset();
             int i=0;
-            while(++i<100){
-                cpu.Step(instructions);
-                Console.WriteLine(cpu.State);
+            while(++i<20){
+                var op = cpu.Step(instructions);
+                Console.WriteLine($"op: {op:X} {cpu.State}");
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("done!");

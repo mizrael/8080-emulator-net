@@ -5,7 +5,7 @@ namespace emu8080
     /// <summary>
     /// https://github.com/amensch/e8080/blob/master/e8080/Intel8080/i8080ConditionalRegister.cs
     /// </summary>
-    public class ConditionalFlags{
+    public class Flags{
         public const byte SignFlag = 0x80;        // 0=positive, 1=negative
         public const byte ZeroFlag = 0x40;        // 0=non-zero, 1=zero
         public const byte AuxCarryFlag = 0x08;   // not implemented for now

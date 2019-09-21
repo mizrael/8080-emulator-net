@@ -5,7 +5,7 @@ namespace emu8080
     public class State
     {
         public State(){
-            this.ConditionalFlags = new ConditionalFlags();
+            this.Flags = new Flags();
         }
 
         public byte A = 0;
@@ -17,24 +17,24 @@ namespace emu8080
         public byte L = 0;
         public ushort StackPointer = 0;
         public ushort ProgramCounter = 0;
-        public readonly ConditionalFlags ConditionalFlags;        
+        public readonly Flags Flags;        
         public ushort BC
         {
-            get => NumbersUtils.GetValue(this.C, this.B);
+            get => NumbersUtils.GetValue(this.B, this.C);
             set
             {
-                this.C = NumbersUtils.GetHigh(value);
-                this.B = NumbersUtils.GetLow(value);
+                this.C = NumbersUtils.GetLow(value);
+                this.B = NumbersUtils.GetHigh(value);
             }
         }
 
         public ushort DE
         {
-            get => NumbersUtils.GetValue(this.E, this.D);
+            get => NumbersUtils.GetValue(this.D, this.E);
             set
             {
-                this.E = NumbersUtils.GetHigh(value);
-                this.D = NumbersUtils.GetLow(value);
+                this.E = NumbersUtils.GetLow(value);
+                this.D = NumbersUtils.GetHigh(value);
             }
         }
 
@@ -48,10 +48,10 @@ namespace emu8080
             }
         }
 
-        public void SetCounterToAddr(Instructions instructions)
+        public void SetCounterToAddr(ProgramInstructions instructions)
         {
-            var lo = instructions[++this.ProgramCounter];
-            var hi = instructions[++this.ProgramCounter];
+            var lo = instructions[this.ProgramCounter+1];
+            var hi = instructions[this.ProgramCounter+2];
             this.ProgramCounter = NumbersUtils.GetValue(hi, lo);
         }
 
@@ -60,18 +60,18 @@ namespace emu8080
             this.A = this.B = this.C = this.D = this.E = this.H = this.L = 0;
             this.ProgramCounter = 0;
             this.StackPointer = 0;
-            this.ConditionalFlags.Reset();
+            this.Flags.Reset();
         }
 
         public void DAD(ushort value)
         {
             ushort res = (ushort)(this.HL + value);
-            this.ConditionalFlags.CalcCarryFlag(res);
+            this.Flags.CalcCarryFlag(res);
             this.HL = res;
         }
 
         public override string ToString() {
-            return $"SP: {StackPointer} PC: {ProgramCounter} A: {A:X} B: {B:X} C: {C:X} D: {D:X} E: {E:X} H: {H:X} L: {L:X} Flags: {this.ConditionalFlags}";
+            return $"SP: {StackPointer:X4} PC: {ProgramCounter:X4} A: {A:X} B: {B:X} C: {C:X} D: {D:X} E: {E:X} H: {H:X} L: {L:X} Flags: {this.Flags}";
         }
     }
 }
