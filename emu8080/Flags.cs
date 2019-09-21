@@ -65,14 +65,9 @@ namespace emu8080
             Sign = ((result & SignFlag) == SignFlag);
         }
 
-        public void CalcParityFlag(UInt16 result)
-        {
-            // parity = 0 is odd
-            // parity = 1 is even
-            CalcParityFlag((byte)(result & 0xff));
-        }
-        
-        public void CalcParityFlag(byte result) 
+        // parity = 0 is odd
+        // parity = 1 is even        
+        public void CalcParityFlag(byte result) // TODO better implementation
         {
             byte num = ( byte ) ( result & 0xff );
             byte total = 0;
