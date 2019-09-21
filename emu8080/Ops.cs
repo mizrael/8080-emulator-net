@@ -41,6 +41,7 @@
         public static void DCR_B(ProgramInstructions programData, State state)
         {
             state.B = MathUtils.Decrement(state.B, state);
+            state.ProgramCounter++;
         }
 
         // 0x06 , B <- byte 2
@@ -59,6 +60,7 @@
         public static void DCR_C(ProgramInstructions programData, State state)
         {
             state.C = MathUtils.Decrement(state.C, state);
+            state.ProgramCounter++;
         }
 
         // 0x0e , C <- byte 2
@@ -88,6 +90,7 @@
         public static void INX_D(ProgramInstructions programData, State state)
         {
             state.DE++;
+            state.ProgramCounter++;
         }
 
         // 0x19 , HL = HL + DE
@@ -125,6 +128,7 @@
         public static void INX_H(ProgramInstructions programData, State state)
         {
             state.HL++;
+            state.ProgramCounter++;
         }
 
         // 0x26 , H <- byte 2
@@ -167,6 +171,13 @@
         public static void MOV_B_E(ProgramInstructions programData, State state)
         {
             state.B = state.E;
+        }
+
+        // 0x77 , (HL) <- A
+        public static void MOV_M_A(ProgramInstructions programData, State state)
+        {
+            programData[state.HL] = state.A;
+            state.ProgramCounter++;
         }
 
         // 0xc0 , if NZ, RET

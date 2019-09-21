@@ -68,10 +68,11 @@ namespace emu8080
             ushort res = (ushort)(this.HL + value);
             this.Flags.CalcCarryFlag(res);
             this.HL = res;
+            this.ProgramCounter++;
         }
 
         public override string ToString() {
-            return $"SP: {StackPointer:X4} PC: {ProgramCounter:X4} A: {A:X} B: {B:X} C: {C:X} D: {D:X} E: {E:X} H: {H:X} L: {L:X} Flags: {this.Flags}";
+            return $"SP: {StackPointer:X4} PC: {ProgramCounter:X4} A: {A:X} BC: {BC:X} DE: {DE:X} HL: {HL:X} Flags: {this.Flags}";
         }
     }
 }

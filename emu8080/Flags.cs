@@ -72,16 +72,18 @@ namespace emu8080
             CalcParityFlag((byte)(result & 0xff));
         }
         
-        public void CalcParityFlag(byte result)
+        public void CalcParityFlag(byte result) //TODO: check
         {
             // parity = 0 is odd
             // parity = 1 is even
             byte num = (byte)(result & 0xff);
             byte total = 0;
-            for (byte i = 0; i != 8; ++i)
-                total += (byte)((num >> i) & 1);
+            for (byte i = 0; i != 8; ++i){
+                total += (byte)(num & 1);
+                num = (byte)(num >> 1);
+            }
 
-            Parity = (total & 1) == 0;
+            Parity = (total & 1) == 0; 
         }
 
         public void CalcAuxCarryFlag(byte a, byte b)

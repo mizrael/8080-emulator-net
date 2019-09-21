@@ -37,6 +37,7 @@ namespace emu8080
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
             _ops.Add(0x43, Ops.MOV_B_E);
+            _ops.Add(0x77, Ops.MOV_M_A);
             _ops.Add(0xc1, Ops.POP);
             _ops.Add(0xc2, Ops.JNZ);
             _ops.Add(0xc3, Ops.JMP);
