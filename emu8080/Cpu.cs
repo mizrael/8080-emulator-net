@@ -41,9 +41,14 @@ namespace emu8080
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
             _ops.Add(0x43, Ops.MOV_B_E);
+            _ops.Add(0x56, Ops.MOV_D_M);
+            _ops.Add(0x5e, Ops.MOV_E_M);
+            _ops.Add(0x66, Ops.MOV_H_M);
             _ops.Add(0x6f, Ops.MOV_L_A);
             _ops.Add(0x77, Ops.MOV_M_A);
+            _ops.Add(0x7a, Ops.MOV_A_D);
             _ops.Add(0x7c, Ops.MOV_A_H);
+            _ops.Add(0x7e, Ops.MOV_A_M);
             _ops.Add(0xa7, Ops.ANA_A);
             _ops.Add(0xaf, Ops.XRA_A);
             _ops.Add(0xc0, Ops.RNZ);
@@ -51,6 +56,7 @@ namespace emu8080
             _ops.Add(0xc2, Ops.JNZ);
             _ops.Add(0xc3, Ops.JMP);
             _ops.Add(0xc5, Ops.PUSH_CD);
+            _ops.Add(0xc6, Ops.ADI);
             _ops.Add(0xc9, Ops.RET);
             _ops.Add(0xcd, Ops.CALL);
             _ops.Add(0xd1, Ops.POP_DE);
@@ -58,8 +64,10 @@ namespace emu8080
             _ops.Add(0xd5, Ops.PUSH_DE);
             _ops.Add(0xe1, Ops.POP_HL);
             _ops.Add(0xe5, Ops.PUSH_HL);
+            _ops.Add(0xe6, Ops.ANI);
             _ops.Add(0xeb, Ops.XCHG);
             _ops.Add(0xf1, Ops.POP_PSW);
+            _ops.Add(0xf5, Ops.PUSH_PSW);
             _ops.Add(0xfb, Ops.EI);
             _ops.Add(0xfe, Ops.CPI);
         }
@@ -80,26 +88,6 @@ namespace emu8080
             }
 
             return op;
-        }
-    }
-
-    public struct Instruction{
-        public Instruction(byte op, byte a1, byte a2){
-            this.Op = op;
-            this.Arg1 = a1;
-            this.Arg2 = a2;
-        }
-
-        public byte Op {get;}
-        public byte Arg1 {get;}
-        public byte Arg2 {get;}
-
-        public static Instruction Build(ProgramInstructions instructions, State state){
-            return new Instruction(
-                instructions[state.ProgramCounter],
-                instructions[state.ProgramCounter+1],
-                instructions[state.ProgramCounter+2]
-            );
         }
     }
 }

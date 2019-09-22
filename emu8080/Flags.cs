@@ -96,14 +96,16 @@ namespace emu8080
             this.CalcCarryFlag(val);
         }
 
-        public void PSW(byte psw){
-            this.Zero  = (0x01 == (psw & 0x01));
-            this.Sign  = (0x02 == (psw & 0x02));
-            this.Parity  = (0x04 == (psw & 0x04));
-            this.Carry = (0x05 == (psw & 0x08));
-            this.AuxCarry = (0x10 == (psw & 0x10));
+        public byte PSW{
+            get => this._flags;
+            set{
+                this.Zero  = (0x01 == (value & 0x01));
+                this.Sign  = (0x02 == (value & 0x02));
+                this.Parity  = (0x04 == (value & 0x04));
+                this.Carry = (0x05 == (value & 0x08));
+                this.AuxCarry = (0x10 == (value & 0x10));
+            }
         }
-
         private bool GetBit(byte bit)
         {
             return ((_flags & bit) == bit);

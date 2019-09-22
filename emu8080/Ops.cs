@@ -102,6 +102,8 @@
 
             if (state.Flags.Carry)
                 state.A = (byte)(state.A | 0x80);
+
+            state.ProgramCounter++;
         }
 
         // 0x11 , D <- byte 3, E <- byte 2
@@ -229,7 +231,29 @@
             state.ProgramCounter++;
         }
 
-        // 0x6f , B <- E
+        // 0x56 , D <- (HL)
+        public static void MOV_D_M(ProgramInstructions programData, State state)
+        {
+            state.D = programData[state.HL];
+            state.ProgramCounter++;
+        }
+
+
+        // 0x5e , E <- (HL)
+        public static void MOV_E_M(ProgramInstructions programData, State state)
+        {
+            state.E = programData[state.HL];
+            state.ProgramCounter++;
+        }
+
+        // 0x66 , H <- (HL)
+        public static void MOV_H_M(ProgramInstructions programData, State state)
+        {
+            state.H = programData[state.HL];
+            state.ProgramCounter++;
+        }
+
+        // 0x6f , 	L <- (HL)
         public static void MOV_L_A(ProgramInstructions programData, State state)
         {
             state.L = state.A;
@@ -243,10 +267,24 @@
             state.ProgramCounter++;
         }
 
+        // 0x7a , A <- D
+        public static void MOV_A_D(ProgramInstructions programData, State state)
+        {
+            state.A = state.D;
+            state.ProgramCounter++;
+        }
+
         // 0x7c , A <- H
         public static void MOV_A_H(ProgramInstructions programData, State state)
         {
             state.A = state.H;
+            state.ProgramCounter++;
+        }
+
+        // 0x7e , A <- (HL)
+        public static void MOV_A_M(ProgramInstructions programData, State state)
+        {
+            state.A = programData[state.HL];
             state.ProgramCounter++;
         }
 
@@ -304,6 +342,15 @@
             PUSH(state.BC, programData, state);
         }
 
+        // 0xc6 , A <- A + byte
+        public static void ADI(ProgramInstructions programData, State state)
+        {
+            ushort data = programData[state.ProgramCounter + 1];
+            state.A = (byte)((ushort)state.A + data);
+            state.Flags.CalcSZPC(state.A);
+            state.ProgramCounter += 2;
+        }
+
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
         public static void RET(ProgramInstructions programData, State state)
         {
@@ -357,6 +404,15 @@
             PUSH(state.HL, programData, state);
         }
 
+        // 0xe6 , A <- A & data
+        public static void ANI(ProgramInstructions programData, State state)
+        {
+            byte data = programData[state.ProgramCounter + 1];
+            state.A = (byte)((state.A & data) & 0xff);
+            state.Flags.CalcSZPC(state.A);
+            state.ProgramCounter++;
+        }
+
         // 0xeb , H <-> D; L <-> E
         public static void XCHG(ProgramInstructions programData, State state)
         {
@@ -377,9 +433,20 @@
             state.A = programData[state.StackPointer + 1];
             var psw = programData[state.StackPointer];
 
-            state.Flags.PSW(psw);
+            state.Flags.PSW = psw;
 
             state.StackPointer += 2;
+            state.ProgramCounter++;
+        }
+
+        // 0xf5 , (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2
+        public static void PUSH_PSW(ProgramInstructions programData, State state)
+        {
+            programData[state.StackPointer - 1] = state.A;
+            programData[state.StackPointer - 2] = state.Flags.PSW;
+
+            state.StackPointer -= 2;
+            state.ProgramCounter++;
         }
 
         // 0xfb 
