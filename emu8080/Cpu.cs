@@ -47,6 +47,7 @@ namespace emu8080
             _ops.Add(0x6f, Ops.MOV_L_A);
             _ops.Add(0x77, Ops.MOV_M_A);
             _ops.Add(0x7a, Ops.MOV_A_D);
+            _ops.Add(0x7b, Ops.MOV_A_E);
             _ops.Add(0x7c, Ops.MOV_A_H);
             _ops.Add(0x7e, Ops.MOV_A_M);
             _ops.Add(0xa7, Ops.ANA_A);

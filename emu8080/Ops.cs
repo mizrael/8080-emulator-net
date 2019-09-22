@@ -274,6 +274,14 @@
             state.ProgramCounter++;
         }
 
+        // 0x7a , A <- E
+        public static void MOV_A_E(ProgramInstructions programData, State state)
+        {
+            state.A = state.E;
+            state.ProgramCounter++;
+        }
+
+
         // 0x7c , A <- H
         public static void MOV_A_H(ProgramInstructions programData, State state)
         {
