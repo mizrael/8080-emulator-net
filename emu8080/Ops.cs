@@ -326,6 +326,12 @@
             state.SetCounterToAddr(programData);
         }
 
+        // 0xd1 , E <- (sp); D <- (sp+1); sp <- sp+2
+        public static void POP_DE(ProgramInstructions programData, State state)
+        {
+            state.DE = POP(programData, state);
+        }
+
         // 0xd3
         public static void OUT(ProgramInstructions programData, State state)
         {

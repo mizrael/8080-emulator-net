@@ -53,6 +53,7 @@ namespace emu8080
             _ops.Add(0xc5, Ops.PUSH_CD);
             _ops.Add(0xc9, Ops.RET);
             _ops.Add(0xcd, Ops.CALL);
+            _ops.Add(0xd1, Ops.POP_DE);
             _ops.Add(0xd3, Ops.OUT);
             _ops.Add(0xd5, Ops.PUSH_DE);
             _ops.Add(0xe1, Ops.POP_HL);
