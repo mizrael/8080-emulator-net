@@ -31,13 +31,22 @@
             state.ProgramCounter++;
         }
 
-        private static void PUSH(ushort val, ProgramInstructions programData, State state) //TODO check
+        private static void PUSH(ushort val, ProgramInstructions programData, State state) 
         {
             programData[state.StackPointer-1] = val.GetHigh();
             programData[state.StackPointer-2] = val.GetLow();
             state.StackPointer -= 2;
-            state.ProgramCounter +=2;
+            state.ProgramCounter += 1;
         }
+
+        private static ushort POP(ProgramInstructions programData, State state)
+        {
+            ushort res = NumbersUtils.GetValue(programData[state.StackPointer+1], programData[state.StackPointer]);
+            state.StackPointer += 2;
+            state.ProgramCounter++;
+            return res;
+        }
+
 
         // 0x01 , B <- byte 3, C <- byte 2
         public static void LXI_B(ProgramInstructions programData, State state)
@@ -203,18 +212,28 @@
         public static void MOV_B_C(ProgramInstructions programData, State state)
         {
             state.B = state.C;
+            state.ProgramCounter++;
         }
 
         // 0x42 , B <- D
         public static void MOV_B_D(ProgramInstructions programData, State state)
         {
             state.B = state.D;
+            state.ProgramCounter++;
         }
 
         // 0x43 , B <- E
         public static void MOV_B_E(ProgramInstructions programData, State state)
         {
             state.B = state.E;
+            state.ProgramCounter++;
+        }
+
+        // 0x6f , B <- E
+        public static void MOV_L_A(ProgramInstructions programData, State state)
+        {
+            state.L = state.A;
+            state.ProgramCounter++;
         }
 
         // 0x77 , (HL) <- A
@@ -255,11 +274,9 @@
         }
 
         // 0xc1 , C <- (sp); B <- (sp+1); sp <- sp+2
-        public static void POP(ProgramInstructions programData, State state)
+        public static void POP_BC(ProgramInstructions programData, State state)
         {
-            state.C = programData[state.StackPointer+1];
-            state.B = programData[state.StackPointer+2];
-            state.StackPointer += 2;
+            state.BC = POP(programData, state);
         }
 
         // 0xc2 , if NZ, ProgramCounter <- adr
@@ -313,13 +330,39 @@
         public static void OUT(ProgramInstructions programData, State state)
         {
             //TODO accumulator is written out to the port
-            state.ProgramCounter++;
+            state.ProgramCounter+=2;
         }
 
         // 0xd5 , (sp-2)<-E; (sp-1)<-D; sp <- sp - 2
         public static void PUSH_DE(ProgramInstructions programData, State state)
         {
             PUSH(state.DE, programData, state);
+        }
+
+        // 0xe1 , L <- (sp); H <- (sp+1); sp <- sp+2
+        public static void POP_HL(ProgramInstructions programData, State state)
+        {
+            state.HL = POP(programData, state);
+        }
+
+        // 0xe5 , (sp-2)<-L; (sp-1)<-H; sp <- sp - 2
+        public static void PUSH_HL(ProgramInstructions programData, State state)
+        {
+            PUSH(state.HL, programData, state);
+        }
+
+        // 0xeb , H <-> D; L <-> E
+        public static void XCHG(ProgramInstructions programData, State state)
+        {
+            byte t = state.H;
+            state.H = state.D;
+            state.D = t;
+
+            t = state.L;
+            state.L = state.E;
+            state.E = t;
+
+            state.ProgramCounter++;
         }
 
         // 0xf1 , flags <- (sp); A <- (sp+1); sp <- sp+2

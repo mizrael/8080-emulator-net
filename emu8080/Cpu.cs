@@ -41,12 +41,13 @@ namespace emu8080
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
             _ops.Add(0x43, Ops.MOV_B_E);
+            _ops.Add(0x6f, Ops.MOV_L_A);
             _ops.Add(0x77, Ops.MOV_M_A);
             _ops.Add(0x7c, Ops.MOV_A_H);
             _ops.Add(0xa7, Ops.ANA_A);
             _ops.Add(0xaf, Ops.XRA_A);
             _ops.Add(0xc0, Ops.RNZ);
-            _ops.Add(0xc1, Ops.POP);
+            _ops.Add(0xc1, Ops.POP_BC);
             _ops.Add(0xc2, Ops.JNZ);
             _ops.Add(0xc3, Ops.JMP);
             _ops.Add(0xc5, Ops.PUSH_CD);
@@ -54,6 +55,9 @@ namespace emu8080
             _ops.Add(0xcd, Ops.CALL);
             _ops.Add(0xd3, Ops.OUT);
             _ops.Add(0xd5, Ops.PUSH_DE);
+            _ops.Add(0xe1, Ops.POP_HL);
+            _ops.Add(0xe5, Ops.PUSH_HL);
+            _ops.Add(0xeb, Ops.XCHG);
             _ops.Add(0xf1, Ops.POP_PSW);
             _ops.Add(0xfb, Ops.EI);
             _ops.Add(0xfe, Ops.CPI);

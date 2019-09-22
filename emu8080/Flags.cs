@@ -118,7 +118,7 @@ namespace emu8080
         }
 
         public override string ToString(){
-            return $"Z:{Zero} S:{Sign} P:{Parity} C:{Carry} AC:{AuxCarry}";
+            return $"{(Zero?"Z":string.Empty)} {(Sign?"S":string.Empty)} {(Parity?"P":string.Empty)} {(Carry?"C":string.Empty)} {(AuxCarry?"AC":string.Empty)}";
         }
     }
 }
