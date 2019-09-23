@@ -65,22 +65,24 @@ namespace emu8080
             Zero = ((result & 0xff) == 0);
         }
 
+        public void CalcZeroFlag(byte result)
+        {
+            Zero = (result == 0);
+        }
+
         public void CalcSignFlag(UInt16 result)
         {
             Sign = ((result & SignFlag) == SignFlag);
         }
 
-        // parity = 0 is odd
-        // parity = 1 is even        
-        public void CalcParityFlag(byte result) // TODO better implementation
+        public void CalcSignFlag(byte result)
         {
-            byte num = ( byte ) ( result & 0xff );
-            byte total = 0;
-            for( total = 0; num > 0; total++ )
-            {
-                num &= ( byte ) ( num - 1 );
-            }
-            Parity = (total & 1) == 0; 
+            Sign = (result >> 7) == 1;
+        }
+
+        public void CalcParityFlag(byte result)
+        {
+            Parity = NumbersUtils.GetParity(result);
         }
 
         public void CalcAuxCarryFlag(byte a, byte b)
@@ -101,14 +103,25 @@ namespace emu8080
             this.CalcCarryFlag(val);
         }
 
+        /// Sign, Zero, Parity, Carry
+        public void CalcSZPC(byte val)
+        {
+            this.CalcZeroFlag(val);
+            this.CalcSignFlag(val);
+            this.CalcParityFlag(val);
+            this.CalcCarryFlag(val);
+        }
+
         public byte PSW{
             get => this._flags;
-            set{
-                this.Zero  = (0x01 == (value & 0x01));
-                this.Sign  = (0x02 == (value & 0x02));
-                this.Parity  = (0x04 == (value & 0x04));
-                this.Carry = (0x05 == (value & 0x08));
-                this.AuxCarry = (0x10 == (value & 0x10));
+            set
+            {
+                this._flags = value;
+                //this.Zero  = (0x01 == (value & 0x01));
+                //this.Sign  = (0x02 == (value & 0x02));
+                //this.Parity  = (0x04 == (value & 0x04));
+                //this.Carry = (0x05 == (value & 0x08));
+                //this.AuxCarry = (0x10 == (value & 0x10));
             }
         }
         private bool GetBit(byte bit)

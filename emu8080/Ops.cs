@@ -353,9 +353,10 @@
         // 0xc6 , A <- A + byte
         public static void ADI(ProgramInstructions programData, State state)
         {
-            ushort data = programData[state.ProgramCounter + 1];
-            state.A = (byte)((ushort)state.A + data);
-            state.Flags.CalcSZPC(data);
+            byte data = programData[state.ProgramCounter + 1];
+            ushort sum = (ushort) (state.A + data);
+            state.A = (byte)(sum & 0xFF);
+            state.Flags.CalcSZPC(sum);
             state.ProgramCounter += 2;
         }
 
@@ -415,10 +416,10 @@
         // 0xe6 , A <- A & data
         public static void ANI(ProgramInstructions programData, State state)
         {
-            byte data = programData[state.ProgramCounter + 1];
-            state.A = (byte)((state.A & data) & 0xff);
+            var data = programData[state.ProgramCounter + 1];
+            state.A = (byte)(state.A & data);
             state.Flags.CalcSZPC(state.A);
-            state.ProgramCounter+=2;
+            state.ProgramCounter += 2;
         }
 
         // 0xeb , H <-> D; L <-> E
