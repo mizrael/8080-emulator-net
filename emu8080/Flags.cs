@@ -45,6 +45,11 @@ namespace emu8080
             private set => SetBit(ParityFlag, value);
         }
 
+        public void CalcCarryFlag(int result)
+        {
+            Carry = ((result & 0xffff0000) != 0);
+        }
+
         public void CalcCarryFlag(UInt16 result)
         {
             Carry = (result > 0xff);
@@ -89,10 +94,10 @@ namespace emu8080
         }
 
         /// Sign, Zero, Parity, Carry
-        public void CalcSZPC(byte val){
+        public void CalcSZPC(ushort val){
             this.CalcZeroFlag(val);
             this.CalcSignFlag(val);
-            this.CalcParityFlag(val);
+            this.CalcParityFlag( (byte)(val&0xff));
             this.CalcCarryFlag(val);
         }
 

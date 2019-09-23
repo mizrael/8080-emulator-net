@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace emu8080
 {
@@ -37,12 +38,26 @@ namespace emu8080
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("processing program...");
-
+            
             cpu.Reset();
             int i=0;
-            while(++i<45000){
-                var op = cpu.Step(instructions);
-                Console.WriteLine($"{i}) op: {op:X} {cpu.State}");
+            var sb = new StringBuilder();
+            while (++i<45000)
+            {
+                sb.Append(i);
+                sb.Append(" ) ");
+                sb.Append(cpu.State);
+
+                cpu.Step(instructions);
+                
+                sb.Append(cpu.State.ProgramCounter.ToString("X"));
+                sb.Append(" : ");
+                sb.Append(instructions[cpu.State.ProgramCounter].ToString("X"));
+                sb.Append(instructions[cpu.State.ProgramCounter+1].ToString("X"));
+                sb.Append(instructions[cpu.State.ProgramCounter+2].ToString("X"));
+
+                Console.WriteLine(sb.ToString());
+                sb.Clear();
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("done!");

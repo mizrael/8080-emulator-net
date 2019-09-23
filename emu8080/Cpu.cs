@@ -75,7 +75,7 @@ namespace emu8080
 
         public void Reset() => State.Reset();
 
-        public byte Step(ProgramInstructions instructions)
+        public void Step(ProgramInstructions instructions)
         {
             var op = instructions[State.ProgramCounter];
 
@@ -87,8 +87,6 @@ namespace emu8080
                 Console.Write("not implemented!");
                 Console.ResetColor();
             }
-
-            return op;
         }
     }
 }

@@ -355,7 +355,7 @@
         {
             ushort data = programData[state.ProgramCounter + 1];
             state.A = (byte)((ushort)state.A + data);
-            state.Flags.CalcSZPC(state.A);
+            state.Flags.CalcSZPC(data);
             state.ProgramCounter += 2;
         }
 
@@ -418,7 +418,7 @@
             byte data = programData[state.ProgramCounter + 1];
             state.A = (byte)((state.A & data) & 0xff);
             state.Flags.CalcSZPC(state.A);
-            state.ProgramCounter++;
+            state.ProgramCounter+=2;
         }
 
         // 0xeb , H <-> D; L <-> E

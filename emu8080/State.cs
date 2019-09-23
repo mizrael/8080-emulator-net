@@ -65,9 +65,10 @@ namespace emu8080
 
         public void DAD(ushort value)
         {
-            ushort res = (ushort)(this.HL + value);
+            int res = this.HL + value;
+            this.H = (byte) ((res & 0xFF00) >> 8);
+            this.L = (byte) (res & 0xff);
             this.Flags.CalcCarryFlag(res);
-            this.HL = res;
             this.ProgramCounter++;
         }
 
