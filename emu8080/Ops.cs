@@ -6,15 +6,10 @@
     /// </summary>
     public class Ops
     {
-        // 0x00
-        public static void NOP(ProgramInstructions programData, State state)
-        {
-            //nopnopnopnopnopnopnopnopnopnop
-            state.ProgramCounter++;
-        }
-        
+        #region Private methods
+
         private static ushort LXI(ProgramInstructions programData, State state) {
-            var res = NumbersUtils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
+            var res = Utils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
             state.ProgramCounter += 3;
             return res;
         }
@@ -41,10 +36,19 @@
 
         private static ushort POP(ProgramInstructions programData, State state)
         {
-            ushort res = NumbersUtils.GetValue(programData[state.StackPointer+1], programData[state.StackPointer]);
+            ushort res = Utils.GetValue(programData[state.StackPointer+1], programData[state.StackPointer]);
             state.StackPointer += 2;
             state.ProgramCounter++;
             return res;
+        }
+
+        #endregion Private methods
+
+        // 0x00
+        public static void NOP(ProgramInstructions programData, State state)
+        {
+            //nopnopnopnopnopnopnopnopnopnop
+            state.ProgramCounter++;
         }
 
 
@@ -64,7 +68,7 @@
         // 0x05 , B <- B-1
         public static void DCR_B(ProgramInstructions programData, State state)
         {
-            state.B = MathUtils.Decrement(state.B, state);
+            state.B = Utils.Decrement(state.B, state);
             state.ProgramCounter++;
         }
 
@@ -83,7 +87,7 @@
         // 0x0d , C <-C-1
         public static void DCR_C(ProgramInstructions programData, State state)
         {
-            state.C = MathUtils.Decrement(state.C, state);
+            state.C = Utils.Decrement(state.C, state);
             state.ProgramCounter++;
         }
 
@@ -184,7 +188,7 @@
         // 0x32 , (adr) <- A
         public static void STA(ProgramInstructions programData, State state)
         {
-            var res = NumbersUtils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
+            var res = Utils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
             programData[res] = state.A;
             state.ProgramCounter += 3;
         }
@@ -199,7 +203,7 @@
         // 0x3a , A <- (adr)
         public static void LDA(ProgramInstructions programData, State state)
         {
-            var index = NumbersUtils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
+            var index = Utils.GetValue(programData[state.ProgramCounter+2], programData[state.ProgramCounter+1]);
             state.A = programData[index];
             state.ProgramCounter += 3;
         }
@@ -365,7 +369,7 @@
         {
             byte lo = programData[state.StackPointer];
             byte hi = programData[state.StackPointer + 1];
-            state.ProgramCounter = (ushort)(NumbersUtils.GetValue(hi, lo) + 1);
+            state.ProgramCounter = (ushort)(Utils.GetValue(hi, lo) + 1);
             state.StackPointer += 2;
         }
 

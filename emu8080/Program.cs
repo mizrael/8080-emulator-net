@@ -40,6 +40,7 @@ namespace emu8080
             Console.WriteLine("processing program...");
             
             cpu.Reset();
+
             int i=0;
             var sb = new StringBuilder();
             while (++i<45000)
@@ -49,15 +50,17 @@ namespace emu8080
                 sb.Append(cpu.State);
 
                 cpu.Step(instructions);
-                
+
                 sb.Append(cpu.State.ProgramCounter.ToString("X"));
                 sb.Append(" : ");
                 sb.Append(instructions[cpu.State.ProgramCounter].ToString("X"));
-                sb.Append(instructions[cpu.State.ProgramCounter+1].ToString("X"));
-                sb.Append(instructions[cpu.State.ProgramCounter+2].ToString("X"));
+                sb.Append(instructions[cpu.State.ProgramCounter + 1].ToString("X"));
+                sb.Append(instructions[cpu.State.ProgramCounter + 2].ToString("X"));
 
                 Console.WriteLine(sb.ToString());
                 sb.Clear();
+
+                //cpu.Step(instructions);
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("done!");

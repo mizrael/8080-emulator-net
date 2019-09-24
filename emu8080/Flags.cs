@@ -82,7 +82,7 @@ namespace emu8080
 
         public void CalcParityFlag(byte result)
         {
-            Parity = NumbersUtils.GetParity(result);
+            Parity = Utils.GetParity(result);
         }
 
         public void CalcAuxCarryFlag(byte a, byte b)

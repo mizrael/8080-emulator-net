@@ -20,31 +20,31 @@ namespace emu8080
         public readonly Flags Flags;        
         public ushort BC
         {
-            get => NumbersUtils.GetValue(this.B, this.C);
+            get => Utils.GetValue(this.B, this.C);
             set
             {
-                this.C = NumbersUtils.GetLow(value);
-                this.B = NumbersUtils.GetHigh(value);
+                this.C = Utils.GetLow(value);
+                this.B = Utils.GetHigh(value);
             }
         }
 
         public ushort DE
         {
-            get => NumbersUtils.GetValue(this.D, this.E);
+            get => Utils.GetValue(this.D, this.E);
             set
             {
-                this.E = NumbersUtils.GetLow(value);
-                this.D = NumbersUtils.GetHigh(value);
+                this.E = Utils.GetLow(value);
+                this.D = Utils.GetHigh(value);
             }
         }
 
         public ushort HL
         {
-            get => NumbersUtils.GetValue(this.H, this.L);
+            get => Utils.GetValue(this.H, this.L);
             set
             {
-                this.H = NumbersUtils.GetHigh(value);
-                this.L = NumbersUtils.GetLow(value);
+                this.H = Utils.GetHigh(value);
+                this.L = Utils.GetLow(value);
             }
         }
 
@@ -52,7 +52,7 @@ namespace emu8080
         {
             var lo = instructions[this.ProgramCounter+1];
             var hi = instructions[this.ProgramCounter+2];
-            this.ProgramCounter = NumbersUtils.GetValue(hi, lo);
+            this.ProgramCounter = Utils.GetValue(hi, lo);
         }
 
         public void Reset()
