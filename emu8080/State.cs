@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace emu8080
+﻿namespace emu8080
 {
     public class State
     {
@@ -48,10 +46,10 @@ namespace emu8080
             }
         }
 
-        public void SetCounterToAddr(ProgramInstructions instructions)
+        public void SetCounterToAddr(Memory memory)
         {
-            var lo = instructions[this.ProgramCounter+1];
-            var hi = instructions[this.ProgramCounter+2];
+            var lo = memory[this.ProgramCounter+1];
+            var hi = memory[this.ProgramCounter+2];
             this.ProgramCounter = Utils.GetValue(hi, lo);
         }
 

@@ -5,14 +5,14 @@ namespace emu8080
 {
     public class Cpu
     {
-        private readonly Dictionary<byte, Action<ProgramInstructions, State>> _ops;
+        private readonly Dictionary<byte, Action<Memory, State>> _ops;
         public State State {get;}
 
         public Cpu(State state)
         {
             State = state;
 
-            _ops = new Dictionary<byte, Action<ProgramInstructions, State>>();
+            _ops = new Dictionary<byte, Action<Memory, State>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
             _ops.Add(0x03, Ops.INX_B);
@@ -75,12 +75,12 @@ namespace emu8080
 
         public void Reset() => State.Reset();
 
-        public void Step(ProgramInstructions instructions)
+        public void Step(Memory memory)
         {
-            var op = instructions[State.ProgramCounter];
+            var op = memory[State.ProgramCounter];
 
             if (_ops.ContainsKey(op)){
-                _ops[op](instructions, State);
+                _ops[op](memory, State);
             }else
             {
                 Console.ForegroundColor = ConsoleColor.Red;

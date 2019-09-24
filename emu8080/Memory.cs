@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace emu8080
+﻿namespace emu8080
 {
-    public class ProgramInstructions
+    public class Memory
     {
         private readonly byte[] _bytes;
 
-        private ProgramInstructions(byte[] data)
+        private Memory(byte[] data)
         {
             _bytes = data;
         }
@@ -17,12 +14,12 @@ namespace emu8080
             set => _bytes[index] = value;
         }
 
-        public static ProgramInstructions Load(byte[] data){
+        public static Memory Load(byte[] data){
             var destBytes = new byte[0x10000]; // 16bit
             System.Array.Copy(data, destBytes, data.Length);
 
-            var instructions = new ProgramInstructions(destBytes);
-            return instructions;
+            var memory = new Memory(destBytes);
+            return memory;
         }
     }
 }

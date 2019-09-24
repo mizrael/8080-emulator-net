@@ -34,7 +34,7 @@ namespace emu8080
                 bytes.AddRange(romBytes);
             }
             
-            var instructions = ProgramInstructions.Load(bytes.ToArray());
+            var memory = Memory.Load(bytes.ToArray());
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("processing program...");
@@ -49,13 +49,13 @@ namespace emu8080
                 sb.Append(" ) ");
                 sb.Append(cpu.State);
 
-                cpu.Step(instructions);
+                cpu.Step(memory);
 
                 sb.Append(cpu.State.ProgramCounter.ToString("X"));
                 sb.Append(" : ");
-                sb.Append(instructions[cpu.State.ProgramCounter].ToString("X"));
-                sb.Append(instructions[cpu.State.ProgramCounter + 1].ToString("X"));
-                sb.Append(instructions[cpu.State.ProgramCounter + 2].ToString("X"));
+                sb.Append(memory[cpu.State.ProgramCounter].ToString("X"));
+                sb.Append(memory[cpu.State.ProgramCounter + 1].ToString("X"));
+                sb.Append(memory[cpu.State.ProgramCounter + 2].ToString("X"));
 
                 Console.WriteLine(sb.ToString());
                 sb.Clear();
