@@ -1,4 +1,6 @@
-﻿namespace emu8080.Core
+﻿using System;
+
+namespace emu8080.Core
 {
 
     /// <summary>
@@ -60,6 +62,14 @@
             else
                 cpu.State.ProgramCounter += 3;
         }
+        
+        private static void RET_FLAG(Memory memory, Cpu cpu, bool flag)
+        {
+            if (flag)
+                RET(memory, cpu);
+            else
+                cpu.State.ProgramCounter++;
+        }
 
         #endregion Private methods
 
@@ -69,12 +79,18 @@
             //nopnopnopnopnopnopnopnopnopnop
             cpu.State.ProgramCounter++;
         }
-
-
+        
         // 0x01 , B <- byte 3, C <- byte 2
         public static void LXI_B(Memory memory, Cpu cpu)
         {
             cpu.State.BC = LXI(memory, cpu);
+        }
+
+        // 0x02 , (BC) <- A
+        public static void STAX_B(Memory memory, Cpu cpu)
+        {
+            WriteMemory(memory, cpu.State.BC, cpu.State.A);
+            cpu.State.ProgramCounter++;
         }
 
         // 0x03 , BC <- BC+1
@@ -97,12 +113,24 @@
             cpu.State.B = MVI(memory, cpu);
         }
 
+        // 0x07 , 	A = A << 1; bit 0 = prev bit 7; CY = prev bit 7
+        public static void RLC(Memory memory, Cpu cpu)
+        {
+            throw new NotImplementedException();
+        }
+
         // 0x09 , HL = HL + BC
         public static void DAD_B(Memory memory, Cpu cpu)
         {
             cpu.State.DAD(cpu.State.BC);
         }
 
+        // 0x0a , 	A <- (BC)
+        public static void LDAX_A(Memory memory, Cpu cpu)
+        {
+            LDAX(cpu.State.BC, memory, cpu);
+        }
+        
         // 0x0d , C <-C-1
         public static void DCR_C(Memory memory, Cpu cpu)
         {
@@ -199,7 +227,13 @@
         {
             cpu.State.DAD(cpu.State.HL);
         }
-        
+
+        // 0x2e , L <- byte 2
+        public static void MVI_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.L = MVI(memory, cpu);
+        }
+
         // 0x2F , A <- !A
         public static void CMA(Memory memory, Cpu cpu)
         {
@@ -220,11 +254,26 @@
             cpu.State.ProgramCounter += 3;
         }
 
+        // 0x35 , (HL) <- (HL)-1
+        public static void DCR_M(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = (byte) (memory[cpu.State.HL] - 1);
+            cpu.State.Flags.CalcSZPC(memory[cpu.State.HL]);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x36 , (HL) <- byte 2
         public static void MVI_M(Memory memory, Cpu cpu)
         {
             memory[cpu.State.HL] = memory[cpu.State.ProgramCounter+1];
             cpu.State.ProgramCounter += 2;
+        }
+
+        // 0x37 , CY = 1
+        public static void STC(Memory memory, Cpu cpu)
+        {
+            cpu.State.Flags.Carry = true;
+            cpu.State.ProgramCounter++;
         }
 
         // 0x3a , A <- (adr)
@@ -233,6 +282,13 @@
             var index = Utils.GetValue(memory[cpu.State.ProgramCounter+2], memory[cpu.State.ProgramCounter+1]);
             cpu.State.A = memory[index];
             cpu.State.ProgramCounter += 3;
+        }
+
+        // 0x3d , 	A <- A-1
+        public static void DCR_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = Utils.Decrement(cpu.State.A, cpu.State);
+            cpu.State.ProgramCounter++;
         }
 
         // 0x3e , A <- byte 2
@@ -269,6 +325,13 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0x4e , C <- (HL)
+        public static void MOV_C_M(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = memory[cpu.State.HL];
+            cpu.State.ProgramCounter++;
+        }
+        
         // 0x4f , C <- A
         public static void MOV_C_A(Memory memory, Cpu cpu)
         {
@@ -283,6 +346,19 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0x57 , D <- A
+        public static void MOV_D_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x5f , E <- A
+        public static void MOV_E_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
 
         // 0x5e , E <- (HL)
         public static void MOV_E_M(Memory memory, Cpu cpu)
@@ -291,10 +367,24 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0x61 , H <- C
+        public static void MOV_H_C(Memory memory, Cpu cpu)
+        {
+            cpu.State.H = cpu.State.C;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x66 , H <- (HL)
         public static void MOV_H_M(Memory memory, Cpu cpu)
         {
             cpu.State.H = memory[cpu.State.HL];
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x67 , H <- A
+        public static void MOV_H_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.H = cpu.State.A;
             cpu.State.ProgramCounter++;
         }
 
@@ -341,6 +431,13 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0x7d , A <- L
+        public static void MOV_A_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = cpu.State.L;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x7e , A <- (HL)
         public static void MOV_A_M(Memory memory, Cpu cpu)
         {
@@ -376,6 +473,15 @@
         public static void ORA_B(Memory memory, Cpu cpu)
         {
             cpu.State.B = (byte)((cpu.State.A | cpu.State.B) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xb6 , A <- A | (HL)
+        public static void ORA_M(Memory memory, Cpu cpu)
+        {
+            var m = memory[cpu.State.HL];
+            cpu.State.A = (byte)((cpu.State.A | m) & 0xff);
             cpu.State.Flags.CalcSZPC(cpu.State.A);
             cpu.State.ProgramCounter++;
         }
@@ -490,6 +596,25 @@
             PUSH(cpu.State.DE, memory, cpu);
         }
 
+        // 0xd8 , if CY, RET
+        public static void RC(Memory memory, Cpu cpu)
+        {
+            RET_FLAG(memory, cpu, cpu.State.Flags.Carry);
+        }
+
+        // 0xda , if CY, PC<-adr
+        public static void JC(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, cpu.State.Flags.Carry);
+        }
+
+        // 0xdb
+        public static void IN_D8(Memory memory, Cpu cpu)
+        {
+            //TODO ?
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xe1 , L <- (sp); H <- (sp+1); sp <- sp+2
         public static void POP_HL(Memory memory, Cpu cpu)
         {
@@ -592,8 +717,8 @@
         // 0xff , CALL $38
         public static void RST_7(Memory memory, Cpu cpu)
         {
-            //TODO
-            //CALL();
+            CALL(memory, cpu);
+            cpu.State.ProgramCounter = 0x38;
         }
 
     }
