@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace emu8080
+namespace emu8080.Core
 {
     /// <summary>
     /// https://github.com/amensch/e8080/blob/master/e8080/Intel8080/i8080ConditionalRegister.cs

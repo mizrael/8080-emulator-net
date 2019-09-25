@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace emu8080
+﻿namespace emu8080.Core
 {
     public class Memory
     {

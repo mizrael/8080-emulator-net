@@ -1,4 +1,4 @@
-﻿namespace emu8080
+﻿namespace emu8080.Core
 {
 
     /// <summary>

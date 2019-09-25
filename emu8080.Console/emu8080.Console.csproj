@@ -6,9 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="4.6.0" />
-    <PackageReference Include="OpenTK" Version="3.1.0" />
-    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
+    <ProjectReference Include="..\emu8080.Core\emu8080.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

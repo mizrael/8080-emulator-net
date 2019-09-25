@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace emu8080
+namespace emu8080.Core
 {
     public class Bus{
         public void Interrupt()
