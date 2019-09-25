@@ -28,11 +28,15 @@ namespace emu8080.Game
         static readonly ushort SCREEN_WIDTH = 224;
         static readonly ushort SCREEN_HEIGHT = 256;
 
-        private bool _canUpdateCpu = true;
+        private bool _isProgramLoading = true;
+        private int _interruptToGenerate = 1;
+        private TimeSpan _lastInterruptTime = TimeSpan.Zero;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferWidth = SCREEN_WIDTH;
+            _graphics.PreferredBackBufferHeight = SCREEN_HEIGHT;
             Content.RootDirectory = "Content";
         }
 
@@ -75,7 +79,7 @@ namespace emu8080.Game
             }
             _memory = Memory.Load(bytes.ToArray());
 
-            while(_canUpdateCpu)
+            while(_isProgramLoading)
                 _cpu.Step(_memory);
         }
 
@@ -97,35 +101,62 @@ namespace emu8080.Game
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
+
+            var canGenerateInterrupt = _cpu.Bus.InterruptEnabled && (gameTime.TotalGameTime - _lastInterruptTime).TotalMilliseconds > 8;
+            if (canGenerateInterrupt)
+            {
+                _lastInterruptTime = gameTime.TotalGameTime;
+
+                GenerateInterrupt(_interruptToGenerate);
+
+                _interruptToGenerate = (1 == _interruptToGenerate) ? 2 : 1;
+
+                _memory.UpdateVideoBuffer();
+                UpdateVideoTexture();
+            }
+
+            int cycles = 2000;
+            while (0 != cycles--)
+            {
+                _cpu.Step(_memory);
+            }
+
             base.Update(gameTime);
         }
 
-        private void Bus_InterruptChanged()
+        private void Bus_InterruptChanged(bool value)
         {
-            _memory.UpdateVideoBuffer();
+            _isProgramLoading = false;
+        }
+        
+        private void GenerateInterrupt(int interruptNum)
+        {
+            Ops.PUSH_PC(_memory, _cpu);
+            
+            Ops.DI(_memory, _cpu);
 
-            UpdateVideoTexture();
-            _canUpdateCpu = false;
+            //Set the PC to the low memory vector.    
+            //This is identical to an "RST interrupt_num" instruction.    
+            _cpu.State.ProgramCounter = (ushort)(8 * interruptNum);
         }
 
         private void UpdateVideoTexture()
         {
-            var screen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
-            var screeni = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, System.Drawing.Imaging.PixelFormat.Format1bppIndexed,
-                screen);
-            screeni.RotateFlip(RotateFlipType.Rotate90FlipX);
-            var screend = screeni.LockBits(new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
-                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
 
-            int bufferSize = screend.Height * screend.Stride;
-            byte[] bytes = new byte[bufferSize];
+            var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
+            bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
+            var bmpBits = bmp.LockBits(new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
+                                      ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-            Marshal.Copy(screend.Scan0, bytes, 0, bytes.Length);
+            var bufferSize = bmpBits.Height * bmpBits.Stride;
+            var bytes = new byte[bufferSize];
+
+            Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
 
             _texture.SetData(bytes);
 
-            screeni.UnlockBits(screend);
+            bmp.UnlockBits(bmpBits);
         }
 
         /// <summary>

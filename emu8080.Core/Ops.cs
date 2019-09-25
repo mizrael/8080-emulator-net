@@ -7,7 +7,7 @@
     public class Ops
     {
         #region Private methods
-
+        
         private static ushort LXI(Memory memory, Cpu cpu) {
             var res = Utils.GetValue(memory[cpu.State.ProgramCounter+2], memory[cpu.State.ProgramCounter+1]);
             cpu.State.ProgramCounter += 3;
@@ -26,10 +26,22 @@
             cpu.State.ProgramCounter++;
         }
 
+        private static void WriteMemory(Memory memory, ushort address, byte value)
+        {
+            if (address < 0x2000)
+                return; // Writing ROM not allowed
+
+            if (address >= 0x4000)
+                return; // Writing out of Space Invaders RAM not allowed
+
+            memory[address] = value;
+        }
+
         private static void PUSH(ushort val, Memory memory, Cpu cpu) 
         {
-            memory[cpu.State.StackPointer-1] = val.GetHigh();
-            memory[cpu.State.StackPointer-2] = val.GetLow();
+            WriteMemory(memory, (ushort)(cpu.State.StackPointer - 1), val.GetHigh());
+            WriteMemory(memory,(ushort)(cpu.State.StackPointer - 2), val.GetLow());
+
             cpu.State.StackPointer -= 2;
             cpu.State.ProgramCounter += 1;
         }
@@ -40,6 +52,13 @@
             cpu.State.StackPointer += 2;
             cpu.State.ProgramCounter++;
             return res;
+        }
+        private static void JUMP_FLAG(Memory memory, Cpu cpu, bool flag)
+        {
+            if (flag)
+                cpu.State.SetCounterToAddr(memory);
+            else
+                cpu.State.ProgramCounter += 3;
         }
 
         #endregion Private methods
@@ -133,6 +152,14 @@
         public static void LDAX_D(Memory memory, Cpu cpu)
         {
             LDAX(cpu.State.DE, memory, cpu);
+        }
+
+        // 0x1c , E <-E+1
+        public static void INR_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = (byte) (cpu.State.E + 1);
+            cpu.State.Flags.CalcSZPC(cpu.State.E);
+            cpu.State.ProgramCounter++;
         }
 
         // 0x1f , A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0
@@ -235,6 +262,20 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0x46 , B <- (HL)
+        public static void MOV_B_M(Memory memory, Cpu cpu)
+        {
+            cpu.State.B = memory[cpu.State.HL];
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x4f , C <- A
+        public static void MOV_C_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x56 , D <- (HL)
         public static void MOV_D_M(Memory memory, Cpu cpu)
         {
@@ -271,6 +312,13 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0x79 , A <- C
+        public static void MOV_A_C(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = cpu.State.C;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x7a , A <- D
         public static void MOV_A_D(Memory memory, Cpu cpu)
         {
@@ -300,6 +348,14 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0x90 , A <- A - B
+        public static void SUB_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A - cpu.State.B) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xa7 , A <- A & A
         public static void ANA_A(Memory memory, Cpu cpu)
         {
@@ -316,11 +372,21 @@
             cpu.State.ProgramCounter++;
         }
 
+        // 0xb0 , A <- A | B
+        public static void ORA_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.B = (byte)((cpu.State.A | cpu.State.B) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xc0 , if NZ, RET
         public static void RNZ(Memory memory, Cpu cpu)
         {
             if(!cpu.State.Flags.Zero)
                 RET(memory, cpu);
+            else
+                cpu.State.StackPointer++;
         }
 
         // 0xc1 , C <- (sp); B <- (sp+1); sp <- sp+2
@@ -332,14 +398,7 @@
         // 0xc2 , if NZ, ProgramCounter <- adr
         public static void JNZ(Memory memory, Cpu cpu)
         {
-            if (!cpu.State.Flags.Zero)
-            {
-                cpu.State.SetCounterToAddr(memory);
-            }
-            else
-            {
-                cpu.State.ProgramCounter += 3;
-            }
+            JUMP_FLAG(memory, cpu, !cpu.State.Flags.Zero);
         }
 
         // 0xc3 , PC <= adr
@@ -354,6 +413,11 @@
             PUSH(cpu.State.BC, memory, cpu);
         }
 
+        public static void PUSH_PC(Memory memory, Cpu cpu)
+        {
+            PUSH(cpu.State.ProgramCounter, memory, cpu);
+        }
+
         // 0xc6 , A <- A + byte
         public static void ADI(Memory memory, Cpu cpu)
         {
@@ -364,6 +428,15 @@
             cpu.State.ProgramCounter += 2;
         }
 
+        // 0xc8 , if Z, RET
+        public static void RZ(Memory memory, Cpu cpu)
+        {
+            if (cpu.State.Flags.Zero)
+                RET(memory, cpu);
+            else
+                cpu.State.ProgramCounter++;
+        }
+
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
         public static void RET(Memory memory, Cpu cpu)
         {
@@ -371,6 +444,12 @@
             byte hi = memory[cpu.State.StackPointer + 1];
             cpu.State.ProgramCounter = (ushort)(Utils.GetValue(hi, lo) + 1);
             cpu.State.StackPointer += 2;
+        }
+
+        // 0xca , if Z, PC <- adr
+        public static void JZ(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, cpu.State.Flags.Zero);
         }
 
         // 0xcd , (SP-1)<-PC.hi;(SP-2)<-PC.lo;SP<-SP-2;PC=adr
@@ -392,6 +471,12 @@
             cpu.State.DE = POP(memory, cpu);
         }
 
+        // 0xd2 , 	if NCY, PC<-adr
+        public static void JNC(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, cpu.State.Flags.Carry);
+        }
+
         // 0xd3
         public static void OUT(Memory memory, Cpu cpu)
         {
@@ -411,6 +496,20 @@
             cpu.State.HL = POP(memory, cpu);
         }
 
+        // 0xe3 , L <-> (SP); H <-> (SP+1)
+        public static void XTHL(Memory memory, Cpu cpu)
+        {
+            byte t = cpu.State.L;
+            cpu.State.L = memory[cpu.State.StackPointer];
+            memory[cpu.State.StackPointer] = t;
+
+            t = cpu.State.H;
+            cpu.State.H = memory[cpu.State.StackPointer+1];
+            memory[cpu.State.StackPointer+1] = t;
+
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xe5 , (sp-2)<-L; (sp-1)<-H; sp <- sp - 2
         public static void PUSH_HL(Memory memory, Cpu cpu)
         {
@@ -424,6 +523,12 @@
             cpu.State.A = (byte)(cpu.State.A & data);
             cpu.State.Flags.CalcSZPC(cpu.State.A);
             cpu.State.ProgramCounter += 2;
+        }
+
+        // 0xe9 , PC.hi <- H; PC.lo <- L
+        public static void PCHL(Memory memory, Cpu cpu)
+        {
+            cpu.State.ProgramCounter = cpu.State.HL;
         }
 
         // 0xeb , H <-> D; L <-> E
@@ -455,7 +560,7 @@
         // 0xfe
         public static void DI(Memory memory, Cpu cpu)
         {
-            //TODO disable interrupts
+            cpu.Bus.Interrupt(false);
             cpu.State.ProgramCounter++;
         }
 
@@ -472,7 +577,7 @@
         // 0xfb 
         public static void EI(Memory memory, Cpu cpu)
         {
-            cpu.Bus.Interrupt();
+            cpu.Bus.Interrupt(true);
             cpu.State.ProgramCounter++;
         }
 
@@ -482,6 +587,13 @@
             var diff = (byte)((cpu.State.A - memory[cpu.State.ProgramCounter + 1]) & 0xff);
             cpu.State.Flags.CalcSZPC(diff);
             cpu.State.ProgramCounter += 2;
+        }
+
+        // 0xff , CALL $38
+        public static void RST_7(Memory memory, Cpu cpu)
+        {
+            //TODO
+            //CALL();
         }
 
     }
