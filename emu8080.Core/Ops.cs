@@ -116,7 +116,7 @@ namespace emu8080.Core
         // 0x07 , 	A = A << 1; bit 0 = prev bit 7; CY = prev bit 7
         public static void RLC(Memory memory, Cpu cpu)
         {
-            throw new NotImplementedException();
+          //  throw new NotImplementedException();
         }
 
         // 0x09 , HL = HL + BC

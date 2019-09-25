@@ -5,15 +5,10 @@ namespace emu8080.Core
 {
     public class Cpu
     {
-        private readonly Dictionary<byte, Action<Memory, Cpu>> _ops;
-        public State State {get;}
-        public Bus Bus { get; }
+        private static readonly Dictionary<byte, Action<Memory, Cpu>> _ops;
 
-        public Cpu(State state, Bus bus)
+        static Cpu()
         {
-            State = state;
-            Bus = bus;
-
             _ops = new Dictionary<byte, Action<Memory, Cpu>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
@@ -108,6 +103,15 @@ namespace emu8080.Core
             _ops.Add(0xff, Ops.RST_7);
         }
 
+        public State State {get;}
+        public Bus Bus { get; }
+
+        public Cpu(State state, Bus bus)
+        {
+            State = state;
+            Bus = bus;
+        }
+
         public void Reset() => State.Reset();
 
         public void Step(Memory memory)
@@ -120,8 +124,8 @@ namespace emu8080.Core
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"not implemented: {op:X}");
-
                 Console.ResetColor();
+                this.State.ProgramCounter++;
             }
         }
     }
