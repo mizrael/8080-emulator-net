@@ -27,7 +27,6 @@ namespace emu8080.Core
         public void UpdateVideoBuffer()
         {
             System.Buffer.BlockCopy(_bytes, videoBufferStartAddress, _videoBuffer, 0, videoBufferSize);
-            //_videoBuffer = _bytes.Skip(videoBufferStartAddress).Take(videoBufferEndAddress - videoBufferStartAddress).Reverse().ToArray();
         }
 
         public static Memory Load(byte[] data){

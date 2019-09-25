@@ -5,10 +5,12 @@ using System.Linq;
 using System.Text;
 using emu8080.Core;
 
-namespace emu8080
+namespace emu8080.Console
 {
     class Program
     {
+        private const string dumpFilename = "dump.txt";
+
         /// <summary>
         /// http://www.emulator101.com/
         /// </summary>
@@ -21,7 +23,7 @@ namespace emu8080
 
             var gameRomsPath = Path.Combine(romsBasePath, gameName);
 
-            Console.WriteLine($"loading roms from {gameRomsPath}...");
+            System.Console.WriteLine($"loading roms from {gameRomsPath}...");
 
             var files = Directory.GetFiles(gameRomsPath);
             var bytes = new List<byte>();
@@ -33,29 +35,50 @@ namespace emu8080
 
             var memory = Memory.Load(bytes.ToArray());
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("processing program, press ESC to quit");
+            System.Console.ForegroundColor = ConsoleColor.Yellow;
+            System.Console.WriteLine("processing program, press ESC to quit");
 
             var registers = new State();
             var bus = new Bus();
-            var canStop = false;
-            bus.InterruptChanged += () => canStop = true;
-
+            
             var cpu = new Cpu(registers, bus);
             cpu.Reset();
-
-            while (!canStop)
+            
+            var currentDump = CreateDump(cpu, memory);
+            var workingDump = File.ReadAllText(dumpFilename);
+            if (currentDump == workingDump)
             {
-                cpu.Step(memory);
-                memory.UpdateVideoBuffer();
+                System.Console.ForegroundColor = ConsoleColor.Green;
+                System.Console.WriteLine("emulator OK");
+            }
+            else
+            {
+                System.Console.ForegroundColor = ConsoleColor.Green;
+                System.Console.WriteLine("emulator FAILED");
             }
 
-            // Debug(cpu, memory);
+            System.Console.ForegroundColor = ConsoleColor.Green;
+            System.Console.WriteLine("done!");
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("done!");
+            System.Console.ResetColor();
+        }
 
-            Console.ResetColor();
+        private static void SaveDump(string dump)
+        {
+            File.WriteAllText(dumpFilename, dump);
+        }
+
+        private static string CreateDump(Cpu cpu, Memory memory)
+        {
+            int i = 0;
+            var sb = new StringBuilder();
+            while (++i < 41000)
+            {
+                cpu.Step(memory);
+                sb.AppendLine(Newtonsoft.Json.JsonConvert.SerializeObject(cpu.State));
+            }
+
+            return sb.ToString();
         }
 
         private static void Debug(Cpu cpu, Memory memory)
@@ -77,7 +100,7 @@ namespace emu8080
                 sb.Append(memory[cpu.State.ProgramCounter + 1].ToString("X"));
                 sb.Append(memory[cpu.State.ProgramCounter + 2].ToString("X"));
 
-                Console.WriteLine(sb.ToString());
+                System.Console.WriteLine(sb.ToString());
                 sb.Clear();
             }
         }

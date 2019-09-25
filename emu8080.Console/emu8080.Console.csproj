@@ -6,10 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\emu8080.Core\emu8080.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="dump.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="roms\invaders\invaders.e">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
