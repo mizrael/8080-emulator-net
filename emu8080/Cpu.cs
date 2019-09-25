@@ -3,16 +3,28 @@ using System.Collections.Generic;
 
 namespace emu8080
 {
+    public class Bus{
+        public void Interrupt()
+        {
+            InterruptChanged?.Invoke();
+        }
+
+        public delegate void InterruptChangedHandler();
+        public event InterruptChangedHandler InterruptChanged;
+    }
+
     public class Cpu
     {
-        private readonly Dictionary<byte, Action<Memory, State>> _ops;
+        private readonly Dictionary<byte, Action<Memory, Cpu>> _ops;
         public State State {get;}
+        public Bus Bus { get; }
 
-        public Cpu(State state)
+        public Cpu(State state, Bus bus)
         {
             State = state;
+            Bus = bus;
 
-            _ops = new Dictionary<byte, Action<Memory, State>>();
+            _ops = new Dictionary<byte, Action<Memory, Cpu>>();
             _ops.Add(0x00, Ops.NOP);
             _ops.Add(0x01, Ops.LXI_B);
             _ops.Add(0x03, Ops.INX_B);
@@ -68,6 +80,7 @@ namespace emu8080
             _ops.Add(0xe6, Ops.ANI);
             _ops.Add(0xeb, Ops.XCHG);
             _ops.Add(0xf1, Ops.POP_PSW);
+            _ops.Add(0xf3, Ops.DI);
             _ops.Add(0xf5, Ops.PUSH_PSW);
             _ops.Add(0xfb, Ops.EI);
             _ops.Add(0xfe, Ops.CPI);
@@ -80,7 +93,7 @@ namespace emu8080
             var op = memory[State.ProgramCounter];
 
             if (_ops.ContainsKey(op)){
-                _ops[op](memory, State);
+                _ops[op](memory, this);
             }else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
