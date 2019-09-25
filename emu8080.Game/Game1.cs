@@ -68,8 +68,7 @@ namespace emu8080.Game
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             var gameName = "invaders";
-            var romsBasePath = "Content\\roms";
-            var gameRomsPath = Path.Combine(romsBasePath, gameName);
+            var gameRomsPath = Path.Combine(Content.RootDirectory, "roms", gameName);
             var files = Directory.GetFiles(gameRomsPath);
             var bytes = new List<byte>();
             foreach (var file in files.OrderByDescending(f => f))
@@ -78,9 +77,6 @@ namespace emu8080.Game
                 bytes.AddRange(romBytes);
             }
             _memory = Memory.Load(bytes.ToArray());
-
-            while(_isProgramLoading)
-                _cpu.Step(_memory);
         }
 
         /// <summary>
