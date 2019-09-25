@@ -16,11 +16,11 @@ namespace emu8080
         static void Main(string[] args)
         {
             var gameName = "invaders";
-            
+
             var romsBasePath = "roms";
-            
+
             var gameRomsPath = Path.Combine(romsBasePath, gameName);
-            
+
             Console.WriteLine($"loading roms from {gameRomsPath}...");
 
             var files = Directory.GetFiles(gameRomsPath);
@@ -30,7 +30,7 @@ namespace emu8080
                 var romBytes = File.ReadAllBytes(file);
                 bytes.AddRange(romBytes);
             }
-            
+
             var memory = Memory.Load(bytes.ToArray());
 
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -38,10 +38,19 @@ namespace emu8080
 
             var registers = new State();
             var bus = new Bus();
+            var canStop = false;
+            bus.InterruptChanged += () => canStop = true;
+
             var cpu = new Cpu(registers, bus);
             cpu.Reset();
 
-            Debug(cpu, memory);
+            while (!canStop)
+            {
+                cpu.Step(memory);
+                memory.UpdateVideoBuffer();
+            }
+
+            // Debug(cpu, memory);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("done!");
@@ -60,6 +69,7 @@ namespace emu8080
                 sb.Append(cpu.State);
 
                 cpu.Step(memory);
+                memory.UpdateVideoBuffer();
 
                 sb.Append(cpu.State.ProgramCounter.ToString("X"));
                 sb.Append(" : ");

@@ -124,6 +124,7 @@ namespace emu8080.Core
                 //this.AuxCarry = (0x10 == (value & 0x10));
             }
         }
+
         private bool GetBit(byte bit)
         {
             return ((_flags & bit) == bit);
