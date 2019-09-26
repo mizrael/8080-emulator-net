@@ -182,8 +182,15 @@ namespace emu8080.Core
         // 0x14 , D <- D+1
         public static void INR_D(Memory memory, Cpu cpu)
         {
-            cpu.State.D++;
+            cpu.State.D = Utils.Increment(cpu.State.D, cpu.State);
             cpu.State.Flags.CalcSZPC(cpu.State.D);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x15 , D <- D-1
+        public static void DCR_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = Utils.Decrement(cpu.State.D, cpu.State);
             cpu.State.ProgramCounter++;
         }
 
@@ -374,6 +381,13 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x4a , C <- D
+        public static void MOV_C_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = cpu.State.D;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x4e , C <- (HL)
         public static void MOV_C_M(Memory memory, Cpu cpu)
         {
@@ -385,6 +399,13 @@ namespace emu8080.Core
         public static void MOV_C_A(Memory memory, Cpu cpu)
         {
             cpu.State.C = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x54 , D <- H
+        public static void MOV_D_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = cpu.State.H;
             cpu.State.ProgramCounter++;
         }
 
@@ -509,6 +530,14 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x88 , 	A <- A + B + CY
+        public static void ADC_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + cpu.State.B + (cpu.State.Flags.Carry?1:0)) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x90 , A <- A - B
         public static void SUB_B(Memory memory, Cpu cpu)
         {
@@ -537,6 +566,14 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xaa , A <- A ^ D
+        public static void XRA_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A ^ cpu.State.D) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xaf , A <- A ^ A
         public static void XRA_A(Memory memory, Cpu cpu)
         {
@@ -559,6 +596,15 @@ namespace emu8080.Core
             var m = memory[cpu.State.HL];
             cpu.State.A = (byte)((cpu.State.A | m) & 0xff);
             cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xbe , A - (HL)
+        public static void CMP_M(Memory memory, Cpu cpu)
+        {
+            var mem = (ushort)memory[cpu.State.HL];
+            ushort res = (ushort) (cpu.State.A - mem);
+            cpu.State.Flags.CalcSZPC(res);
             cpu.State.ProgramCounter++;
         }
 

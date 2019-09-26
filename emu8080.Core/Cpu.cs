@@ -28,6 +28,7 @@ namespace emu8080.Core
             _ops.Add(0x11, Ops.LXI_D);
             _ops.Add(0x13, Ops.INX_D);
             _ops.Add(0x14, Ops.INR_D);
+            _ops.Add(0x15, Ops.DCR_D);
             _ops.Add(0x19, Ops.DAD_D);
             _ops.Add(0x1a, Ops.LDAX_D);
             _ops.Add(0x1c, Ops.INR_E);
@@ -57,8 +58,10 @@ namespace emu8080.Core
             _ops.Add(0x44, Ops.MOV_B_H);
             _ops.Add(0x46, Ops.MOV_B_M);
             _ops.Add(0x49, Ops.MOV_C_C);
+            _ops.Add(0x4a, Ops.MOV_C_D);
             _ops.Add(0x4e, Ops.MOV_C_M);
             _ops.Add(0x4f, Ops.MOV_C_A);
+            _ops.Add(0x54, Ops.MOV_D_H);
             _ops.Add(0x56, Ops.MOV_D_M);
             _ops.Add(0x57, Ops.MOV_D_A);
             _ops.Add(0x5f, Ops.MOV_E_A);
@@ -76,11 +79,14 @@ namespace emu8080.Core
             _ops.Add(0x7d, Ops.MOV_A_L);
             _ops.Add(0x7e, Ops.MOV_A_M);
             _ops.Add(0x81, Ops.ADD_C);
+            _ops.Add(0x88, Ops.ADC_B);
             _ops.Add(0x90, Ops.SUB_B);
             _ops.Add(0x9e, Ops.SBB_M);
+            _ops.Add(0xaa, Ops.XRA_D);
             _ops.Add(0xa7, Ops.ANA_A);
             _ops.Add(0xaf, Ops.XRA_A);
             _ops.Add(0xb0, Ops.ORA_B);
+            _ops.Add(0xbe, Ops.CMP_M);
             _ops.Add(0xb6, Ops.ORA_M);
             _ops.Add(0xc0, Ops.RNZ);
             _ops.Add(0xc1, Ops.POP_BC);
