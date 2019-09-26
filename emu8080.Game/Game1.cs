@@ -25,18 +25,19 @@ namespace emu8080.Game
         private Memory _memory;
         private Texture2D _texture;
 
-        static readonly ushort SCREEN_WIDTH = 224;
-        static readonly ushort SCREEN_HEIGHT = 256;
+        private const ushort SCREEN_WIDTH = 224;
+        private const ushort SCREEN_HEIGHT = 256;
 
-        private bool _isProgramLoading = true;
+        private int _scale = 2;
+
         private int _interruptToGenerate = 1;
         private TimeSpan _lastInterruptTime = TimeSpan.Zero;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.PreferredBackBufferWidth = SCREEN_WIDTH;
-            _graphics.PreferredBackBufferHeight = SCREEN_HEIGHT;
+            _graphics.PreferredBackBufferWidth = SCREEN_WIDTH * _scale;
+            _graphics.PreferredBackBufferHeight = SCREEN_HEIGHT * _scale;
             Content.RootDirectory = "Content";
         }
 
@@ -122,7 +123,6 @@ namespace emu8080.Game
 
         private void Bus_InterruptChanged(bool value)
         {
-            _isProgramLoading = false;
         }
         
         private void GenerateInterrupt(int interruptNum)
@@ -165,7 +165,8 @@ namespace emu8080.Game
       
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
+            _spriteBatch.Draw(_texture, Vector2.Zero, null, Color.White, 0f, 
+                            Vector2.Zero, Vector2.One * _scale, SpriteEffects.None, 0);
           
             _spriteBatch.End();
 
