@@ -5,7 +5,7 @@ namespace emu8080.Core
     public class Memory
     {
         private readonly byte[] _bytes;
-        private byte[] _videoBuffer;
+        private readonly byte[] _videoBuffer;
 
         public const ushort videoBufferStartAddress = 0x2400;
         public const ushort videoBufferEndAddress = 0x4000;
@@ -29,9 +29,9 @@ namespace emu8080.Core
             System.Buffer.BlockCopy(_bytes, videoBufferStartAddress, _videoBuffer, 0, videoBufferSize);
         }
 
-        public static Memory Load(byte[] data){
+        public static Memory Load(byte[] data, int memoryStartOffset = 0){
             var destBytes = new byte[0x10000]; // 16bit
-            System.Array.Copy(data, destBytes, data.Length);
+            System.Array.Copy(data, 0, destBytes, memoryStartOffset, data.Length);
 
             var memory = new Memory(destBytes);
             return memory;
