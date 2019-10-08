@@ -5,9 +5,14 @@ namespace emu8080.Core
 {
     public class Cpu
     {
-        private static readonly Dictionary<byte, Action<Memory, Cpu>> _ops;
+        private static Dictionary<byte, Action<Memory, Cpu>> _ops;
 
         static Cpu()
+        {
+            SetupOpcodes();
+        }
+
+        static void SetupOpcodes()
         {
             _ops = new Dictionary<byte, Action<Memory, Cpu>>();
             _ops.Add(0x00, Ops.NOP);
@@ -128,7 +133,19 @@ namespace emu8080.Core
             Bus = bus;
         }
 
-        public void Reset() => State.Reset();
+        public void Reset()
+        {
+            SetupOpcodes(); 
+            State.Reset();
+        }
+
+        public void ReplaceOpcode(byte op, Action<Memory, Cpu> func)
+        {
+            if (!_ops.ContainsKey(op))
+                _ops.Add(op, func);
+            else
+                _ops[op] = func;
+        }
 
         public void Step(Memory memory)
         {

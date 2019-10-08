@@ -71,33 +71,17 @@ namespace emu8080.Console
             }
 
             var memory = Memory.Load(bytes.ToArray(), memoryStartOffset);
-
-            if (gameName == "cpudiag")
-            {
-                //Fix the first instruction to be JMP 0x100    
-                memory[0] = 0xc3;
-                memory[1] = 0;
-                memory[2] = 0x01;
-
-                //Fix the stack pointer from 0x6ad to 0x7ad    
-                // this 0x06 byte 112 in the code, which is    
-                // byte 112 + 0x100 = 368 in memory    
-                memory[368] = 0x7;
-
-                //Skip DAA test    
-                memory[0x59c] = 0xc3; //JMP    
-                memory[0x59d] = 0xc2;
-                memory[0x59e] = 0x05;
-            }
-
-            System.Console.ForegroundColor = ConsoleColor.Yellow;
-            System.Console.WriteLine("processing program, press any key to stop...");
-
+            
             var registers = new State();
             var bus = new Bus();
 
             var cpu = new Cpu(registers, bus);
             cpu.Reset();
+
+            SetupProgram(gameName, memory, cpu);
+            
+            System.Console.ForegroundColor = ConsoleColor.Yellow;
+            System.Console.WriteLine("processing program, press any key to stop...");
 
             var tokenSource = new CancellationTokenSource();
             
@@ -125,6 +109,83 @@ namespace emu8080.Console
 
             System.Console.ResetColor();
             System.Console.WriteLine("done! Press any key to continue...");
+        }
+
+        private static void SetupProgram(string gameName, Memory memory, Cpu cpu)
+        {
+            if (gameName != "cpudiag") 
+                return;
+
+            //Fix the first instruction to be JMP 0x100    
+            memory[0] = 0xc3;
+            memory[1] = 0;
+            memory[2] = 0x01;
+
+            //Fix the stack pointer from 0x6ad to 0x7ad    
+            // this 0x06 byte 112 in the code, which is    
+            // byte 112 + 0x100 = 368 in memory    
+            memory[368] = 0x7;
+
+            //Skip DAA test    
+            memory[0x59c] = 0xc3; //JMP    
+            memory[0x59d] = 0xc2;
+            memory[0x59e] = 0x05;
+
+            cpu.ReplaceOpcode(0xcd, (m, c) =>
+            {
+                var hi = m[c.State.ProgramCounter + 2];
+                var lo = m[c.State.ProgramCounter + 1];
+                var value = Utils.GetValue(hi, lo);
+                if (5 == value)
+                {
+                    if (9 == c.State.C)
+                    {
+                        // https://github.com/ezet/i8080-emulator/blob/master/diag/CPUDIAG.DOC
+
+                        var sb = new StringBuilder();
+                        var index = c.State.DE + 3;
+                        var letter = (char)m[index];
+                        while (letter != '$')
+                        {
+                            sb.Append(letter);
+                            letter = (char)m[++index];
+                        }
+
+                        var text = sb.ToString();
+                        var isFailure = text.Contains("fail", StringComparison.InvariantCultureIgnoreCase);
+
+                        if (isFailure)
+                        {
+                            letter = (char)m[++index];
+                            while (letter != (char)173) 
+                            {
+                                sb.Append(letter);
+                                letter = (char)m[++index];
+                            } 
+                            text = sb.ToString();
+                        }
+
+                        System.Console.WriteLine(sb);
+
+                        if (isFailure)
+                            throw new Exception(text);
+                    }
+                    else if (2 == c.State.C)
+                    {
+                        System.Console.WriteLine("printing something else");
+                    }
+
+                    c.State.ProgramCounter += 3;
+                }
+                else if (0 == value)
+                {
+                    return;
+                }
+                else
+                {
+                    Ops.CALL(m, c);
+                }
+            });
         }
 
         private static void SaveDump(string dump)

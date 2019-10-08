@@ -702,7 +702,7 @@ namespace emu8080.Core
         // 0xd2 , 	if NCY, PC<-adr
         public static void JNC(Memory memory, Cpu cpu)
         {
-            JUMP_FLAG(memory, cpu, cpu.State.Flags.Carry);
+            JUMP_FLAG(memory, cpu, !cpu.State.Flags.Carry);
         }
 
         // 0xd3
@@ -781,13 +781,9 @@ namespace emu8080.Core
         // 0xeb , H <-> D; L <-> E
         public static void XCHG(Memory memory, Cpu cpu)
         {
-            byte t = cpu.State.H;
-            cpu.State.H = cpu.State.D;
-            cpu.State.D = t;
-
-            t = cpu.State.L;
-            cpu.State.L = cpu.State.E;
-            cpu.State.E = t;
+            var tmp = cpu.State.DE;
+            cpu.State.DE = cpu.State.HL;
+            cpu.State.HL = tmp;
 
             cpu.State.ProgramCounter++;
         }
