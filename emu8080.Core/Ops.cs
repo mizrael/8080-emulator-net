@@ -114,6 +114,22 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
             return (byte)result;
         }
+        
+        private static byte AND(Cpu cpu, ushort first, ushort second)
+        {
+            ushort result = (ushort)(first & second);
+            cpu.State.Flags.CalcSZPC(result);
+            cpu.State.ProgramCounter++;
+            return (byte)(result & 0xff);
+        }
+
+        private static void CALL_FLAG(Memory memory, Cpu cpu, bool flag)
+        {
+            if (flag)
+                CALL(memory, cpu);
+            else
+                cpu.State.ProgramCounter += 3;
+        }
 
         #endregion Private methods
 
@@ -502,6 +518,13 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x68 , L <- C
+        public static void MOV_L_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.L = cpu.State.B;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x69 , L <- C
         public static void MOV_L_C(Memory memory, Cpu cpu)
         {
@@ -600,12 +623,22 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xa0 , A <- A & B
+        public static void ANA_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = AND(cpu, cpu.State.A, cpu.State.B);
+        }
+
+        // 0xa6 , A <- A & (HL)
+        public static void ANA_M(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = AND(cpu, cpu.State.A, memory[cpu.State.HL]);
+        }
+
         // 0xa7 , A <- A & A
         public static void ANA_A(Memory memory, Cpu cpu)
         {
-            cpu.State.A = (byte)((cpu.State.A & cpu.State.A) & 0xff);
-            cpu.State.Flags.CalcSZPC(cpu.State.A);
-            cpu.State.ProgramCounter++;
+            cpu.State.A = AND(cpu, cpu.State.A, cpu.State.A);
         }
 
         // 0xaa , A <- A ^ D
@@ -673,6 +706,12 @@ namespace emu8080.Core
             JUMP_FLAG(memory, cpu, true);
         }
 
+        // 0xc4, if NZ, CALL adr
+        public static void CNZ(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, !cpu.State.Flags.Zero);
+        }
+
         // 0xc5 , (sp-2)<-C; (sp-1)<-B; sp <- sp - 2
         public static void PUSH_CD(Memory memory, Cpu cpu)
         {
@@ -714,6 +753,12 @@ namespace emu8080.Core
             JUMP_FLAG(memory, cpu, cpu.State.Flags.Zero);
         }
 
+        // 0xcc, 	if Z, CALL adr
+        public static void CZ(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, cpu.State.Flags.Zero);
+        }
+
         // 0xcd , (SP-1)<-PC.hi;(SP-2)<-PC.lo;SP<-SP-2;PC=adr
         public static void CALL(Memory memory, Cpu cpu)
         {
@@ -736,6 +781,12 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xd0 , if NCY, RET
+        public static void RNC(Memory memory, Cpu cpu)
+        {
+            RET_FLAG(memory, cpu, !cpu.State.Flags.Carry);
+        }
+
         // 0xd1 , E <- (sp); D <- (sp+1); sp <- sp+2
         public static void POP_DE(Memory memory, Cpu cpu)
         {
@@ -753,6 +804,12 @@ namespace emu8080.Core
         {
             //TODO accumulator is written out to the port
             cpu.State.ProgramCounter+=2;
+        }
+
+        // 0xd4, if NCY, CALL adr
+        public static void CNC(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, !cpu.State.Flags.Carry);
         }
 
         // 0xd5 , (sp-2)<-E; (sp-1)<-D; sp <- sp - 2 - ok
@@ -780,6 +837,12 @@ namespace emu8080.Core
             JUMP_FLAG(memory, cpu, cpu.State.Flags.Carry);
         }
 
+        // 0xdc , if CY, CALL adr
+        public static void CC(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, cpu.State.Flags.Carry);
+        }
+
         // 0xdb
         public static void IN_D8(Memory memory, Cpu cpu)
         {
@@ -794,6 +857,12 @@ namespace emu8080.Core
             if (cpu.State.Flags.Carry) second++;
             cpu.State.A = SUB(cpu, cpu.State.A, second);
             cpu.State.ProgramCounter++; // reading from memory, need to increment PC again
+        }
+
+        // 0xe0 , if PO, RET
+        public static void RPO(Memory memory, Cpu cpu)
+        {
+            RET_FLAG(memory, cpu, !cpu.State.Flags.Parity);
         }
 
         // 0xe1 , L <- (sp); H <- (sp+1); sp <- sp+2
@@ -822,6 +891,12 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xe4 , if PO, CALL adr
+        public static void CPO(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, !cpu.State.Flags.Parity);
+        }
+
         // 0xe5 , (sp-2)<-L; (sp-1)<-H; sp <- sp - 2
         public static void PUSH_HL(Memory memory, Cpu cpu)
         {
@@ -835,6 +910,12 @@ namespace emu8080.Core
             cpu.State.A = (byte)(cpu.State.A & data);
             cpu.State.Flags.CalcSZPC(cpu.State.A);
             cpu.State.ProgramCounter += 2;
+        }
+
+        // 0xe8 , if PE, RET
+        public static void RPE(Memory memory, Cpu cpu)
+        {
+            RET_FLAG(memory, cpu, cpu.State.Flags.Parity);
         }
 
         // 0xe9 , PC.hi <- H; PC.lo <- L - ok
@@ -859,12 +940,24 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xec , 	if PE, CALL adr
+        public static void CPE(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, cpu.State.Flags.Parity);
+        }
+
         // 0xee , A <- A ^ data
         public static void XRI(Memory memory, Cpu cpu)
         {
             var second = memory[cpu.State.ProgramCounter];
             cpu.State.A = XOR(cpu, cpu.State.A, second);
             cpu.State.ProgramCounter++;
+        }
+
+        // 0xf0 , if P, RET
+        public static void RP(Memory memory, Cpu cpu)
+        {
+            RET_FLAG(memory, cpu, !cpu.State.Flags.Sign);
         }
 
         // 0xf1 , flags <- (sp); A <- (sp+1); sp <- sp+2
@@ -898,6 +991,12 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xf4, if P, CALL adr
+        public static void CP(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, !cpu.State.Flags.Sign);
+        }
+
         // 0xf5 , (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2
         public static void PUSH_PSW(Memory memory, Cpu cpu)
         {
@@ -917,11 +1016,23 @@ namespace emu8080.Core
             cpu.State.ProgramCounter+=2;
         }
 
+        // 0xf8 , if M, RET
+        public static void RM(Memory memory, Cpu cpu)
+        {
+            RET_FLAG(memory, cpu, cpu.State.Flags.Sign);
+        }
+
         // 0xfb 
         public static void EI(Memory memory, Cpu cpu)
         {
             cpu.Bus.Interrupt(true);
             cpu.State.ProgramCounter++;
+        }
+
+        // 0xfc, 	if M, CALL adr
+        public static void CM(Memory memory, Cpu cpu)
+        {
+            CALL_FLAG(memory, cpu, cpu.State.Flags.Sign);
         }
 
         // 0xfe , A - data - ok
