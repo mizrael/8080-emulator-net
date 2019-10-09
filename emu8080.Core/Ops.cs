@@ -71,6 +71,50 @@ namespace emu8080.Core
                 cpu.State.ProgramCounter++;
         }
 
+        private static byte SUM(byte a, byte b, Cpu cpu)
+        {
+            ushort sum = (ushort)(a + b);
+            cpu.State.Flags.CalcSZPC(sum);
+            cpu.State.ProgramCounter += 2;
+
+            return (byte)(sum & 0xFF);
+        }
+
+        private static byte SUB(Cpu cpu, ushort first, ushort second)
+        {
+            // Subtract using 2's compliment
+
+            ushort answer = (ushort)(first + (~second & 0xff) + 1);
+            cpu.State.Flags.CalcSZPC(answer);
+
+            // On subtraction no carry out sets the carry bit
+            // this is opposite from the normal calculation           
+            cpu.State.Flags.Carry = !cpu.State.Flags.Carry;
+            cpu.State.ProgramCounter++;
+
+            return (byte)(answer & 0xff);
+        }
+        
+        private static byte ADD_With_Carry(Cpu cpu, byte first, byte second)
+        {
+            var answer = (ushort)(first + second);
+            if (cpu.State.Flags.Carry)
+                answer++;
+            cpu.State.Flags.CalcSZPC(answer);
+
+            cpu.State.ProgramCounter++;
+
+            return (byte)(answer & 0xff);
+        }
+        
+        private static byte XOR(Cpu cpu, ushort first, ushort second)
+        {
+            ushort result = (ushort)((first ^ second) & 0xff);
+            cpu.State.Flags.CalcSZPC(result);
+            cpu.State.ProgramCounter++;
+            return (byte)result;
+        }
+
         #endregion Private methods
 
         // 0x00
@@ -541,9 +585,7 @@ namespace emu8080.Core
         // 0x90 , A <- A - B
         public static void SUB_B(Memory memory, Cpu cpu)
         {
-            cpu.State.A = (byte)((cpu.State.A - cpu.State.B) & 0xff);
-            cpu.State.Flags.CalcSZPC(cpu.State.A);
-            cpu.State.ProgramCounter++;
+            cpu.State.A = SUB(cpu, cpu.State.A, cpu.State.B);
         }
 
         // 0x9e , A <- A - (HL) - CY
@@ -569,23 +611,19 @@ namespace emu8080.Core
         // 0xaa , A <- A ^ D
         public static void XRA_D(Memory memory, Cpu cpu)
         {
-            cpu.State.A = (byte)((cpu.State.A ^ cpu.State.D) & 0xff);
-            cpu.State.Flags.CalcSZPC(cpu.State.A);
-            cpu.State.ProgramCounter++;
+            cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.D);
         }
 
         // 0xaf , A <- A ^ A
         public static void XRA_A(Memory memory, Cpu cpu)
         {
-            cpu.State.A = (byte)((cpu.State.A ^ cpu.State.A) & 0xff);
-            cpu.State.Flags.CalcSZPC(cpu.State.A);
-            cpu.State.ProgramCounter++;
+            cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.A);
         }
 
-        // 0xb0 , A <- A | B
+        // 0xb0 , A <- A | B - ok
         public static void ORA_B(Memory memory, Cpu cpu)
         {
-            cpu.State.B = (byte)((cpu.State.A | cpu.State.B) & 0xff);
+            cpu.State.A = (byte)((cpu.State.A | cpu.State.B) & 0xff);
             cpu.State.Flags.CalcSZPC(cpu.State.A);
             cpu.State.ProgramCounter++;
         }
@@ -623,16 +661,16 @@ namespace emu8080.Core
             cpu.State.BC = POP(memory, cpu);
         }
 
-        // 0xc2 , if NZ, ProgramCounter <- adr
+        // 0xc2 , if NZ, ProgramCounter <- adr - ok
         public static void JNZ(Memory memory, Cpu cpu)
         {
             JUMP_FLAG(memory, cpu, !cpu.State.Flags.Zero);
         }
 
-        // 0xc3 , PC <= adr
+        // 0xc3 , PC <= adr - ok
         public static void JMP(Memory memory, Cpu cpu)
         {
-            cpu.State.SetCounterToAddr(memory);
+            JUMP_FLAG(memory, cpu, true);
         }
 
         // 0xc5 , (sp-2)<-C; (sp-1)<-B; sp <- sp - 2
@@ -646,14 +684,10 @@ namespace emu8080.Core
             PUSH(cpu.State.ProgramCounter, memory, cpu);
         }
 
-        // 0xc6 , A <- A + byte
+        // 0xc6 , A <- A + byte - ok
         public static void ADI(Memory memory, Cpu cpu)
         {
-            byte data = memory[cpu.State.ProgramCounter + 1];
-            ushort sum = (ushort) (cpu.State.A + data);
-            cpu.State.A = (byte)(sum & 0xFF);
-            cpu.State.Flags.CalcSZPC(sum);
-            cpu.State.ProgramCounter += 2;
+            cpu.State.A = SUM(cpu.State.A, memory[cpu.State.ProgramCounter + 1], cpu);
         }
 
         // 0xc8 , if Z, RET
@@ -670,11 +704,11 @@ namespace emu8080.Core
         {
             byte lo = memory[cpu.State.StackPointer];
             byte hi = memory[cpu.State.StackPointer + 1];
-            cpu.State.ProgramCounter = (ushort)(Utils.GetValue(hi, lo) + 1);
+            cpu.State.ProgramCounter = Utils.GetValue(hi, lo);
             cpu.State.StackPointer += 2;
         }
 
-        // 0xca , if Z, PC <- adr
+        // 0xca , if Z, PC <- adr - ok
         public static void JZ(Memory memory, Cpu cpu)
         {
             JUMP_FLAG(memory, cpu, cpu.State.Flags.Zero);
@@ -693,13 +727,22 @@ namespace emu8080.Core
             cpu.State.SetCounterToAddr(memory);
         }
 
+        // 0xce , A <- A + data + CY
+        public static void ACI(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = ADD_With_Carry(cpu, cpu.State.A, memory[cpu.State.ProgramCounter + 1]);
+
+            // reading from memory, need to increment PC again
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xd1 , E <- (sp); D <- (sp+1); sp <- sp+2
         public static void POP_DE(Memory memory, Cpu cpu)
         {
             cpu.State.DE = POP(memory, cpu);
         }
 
-        // 0xd2 , 	if NCY, PC<-adr
+        // 0xd2 , 	if NCY, PC<-adr - ok
         public static void JNC(Memory memory, Cpu cpu)
         {
             JUMP_FLAG(memory, cpu, !cpu.State.Flags.Carry);
@@ -712,10 +755,17 @@ namespace emu8080.Core
             cpu.State.ProgramCounter+=2;
         }
 
-        // 0xd5 , (sp-2)<-E; (sp-1)<-D; sp <- sp - 2
+        // 0xd5 , (sp-2)<-E; (sp-1)<-D; sp <- sp - 2 - ok
         public static void PUSH_DE(Memory memory, Cpu cpu)
         {
             PUSH(cpu.State.DE, memory, cpu);
+        }
+
+        // 0xd6 , A <- A - data
+        public static void SUI(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = SUB(cpu, cpu.State.A, memory[cpu.State.ProgramCounter + 1]);
+            cpu.State.ProgramCounter++; // reading from memory, need to increment PC again
         }
 
         // 0xd8 , if CY, RET
@@ -724,7 +774,7 @@ namespace emu8080.Core
             RET_FLAG(memory, cpu, cpu.State.Flags.Carry);
         }
 
-        // 0xda , if CY, PC<-adr
+        // 0xda , if CY, PC<-adr - ok
         public static void JC(Memory memory, Cpu cpu)
         {
             JUMP_FLAG(memory, cpu, cpu.State.Flags.Carry);
@@ -737,10 +787,25 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xde , A <- A - data - CY
+        public static void SBI(Memory memory, Cpu cpu)
+        {
+            ushort second = memory[cpu.State.ProgramCounter + 1];
+            if (cpu.State.Flags.Carry) second++;
+            cpu.State.A = SUB(cpu, cpu.State.A, second);
+            cpu.State.ProgramCounter++; // reading from memory, need to increment PC again
+        }
+
         // 0xe1 , L <- (sp); H <- (sp+1); sp <- sp+2
         public static void POP_HL(Memory memory, Cpu cpu)
         {
             cpu.State.HL = POP(memory, cpu);
+        }
+
+        // 0xe2 , if PO, PC <- adr - ok
+        public static void JPO(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, !cpu.State.Flags.Parity);
         }
 
         // 0xe3 , L <-> (SP); H <-> (SP+1)
@@ -772,19 +837,33 @@ namespace emu8080.Core
             cpu.State.ProgramCounter += 2;
         }
 
-        // 0xe9 , PC.hi <- H; PC.lo <- L
+        // 0xe9 , PC.hi <- H; PC.lo <- L - ok
         public static void PCHL(Memory memory, Cpu cpu)
         {
             cpu.State.ProgramCounter = cpu.State.HL;
         }
 
-        // 0xeb , H <-> D; L <-> E
+        // 0xea , if PE, PC <- adr
+        public static void JPE(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, cpu.State.Flags.Parity);
+        }
+
+        // 0xeb , H <-> D; L <-> E - ok
         public static void XCHG(Memory memory, Cpu cpu)
         {
             var tmp = cpu.State.DE;
             cpu.State.DE = cpu.State.HL;
             cpu.State.HL = tmp;
 
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xee , A <- A ^ data
+        public static void XRI(Memory memory, Cpu cpu)
+        {
+            var second = memory[cpu.State.ProgramCounter];
+            cpu.State.A = XOR(cpu, cpu.State.A, second);
             cpu.State.ProgramCounter++;
         }
 
@@ -798,6 +877,18 @@ namespace emu8080.Core
 
             cpu.State.StackPointer += 2;
             cpu.State.ProgramCounter++;
+        }
+
+        // 0xf2 , if P=1 PC <- adr - ok
+        public static void JP(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, !cpu.State.Flags.Sign);
+        }
+
+        // 0xfa , if M, PC <- adr - ok
+        public static void JM(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, cpu.State.Flags.Sign);
         }
 
         // 0xfe
@@ -817,6 +908,15 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xf6 , A <- A | data - ok
+        public static void ORI(Memory memory, Cpu cpu)
+        {
+            var m = memory[cpu.State.ProgramCounter + 1];
+            cpu.State.A = (byte)((cpu.State.A | m) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter+=2;
+        }
+
         // 0xfb 
         public static void EI(Memory memory, Cpu cpu)
         {
@@ -824,14 +924,15 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
-        // 0xfe , A - data
+        // 0xfe , A - data - ok
         public static void CPI(Memory memory, Cpu cpu)
         {
-            var diff = (byte)((cpu.State.A - memory[cpu.State.ProgramCounter + 1]) & 0xff);
-            cpu.State.Flags.CalcSZPC(diff);
-            cpu.State.ProgramCounter += 2;
-        }
+            SUB(cpu, cpu.State.A, memory[cpu.State.ProgramCounter + 1]);
 
+            // CPI is reading for memory, need to increment PC again
+            cpu.State.ProgramCounter++;
+        }
+        
         // 0xff , CALL $38
         public static void RST_7(Memory memory, Cpu cpu)
         {
