@@ -55,6 +55,7 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
             return res;
         }
+
         private static void JUMP_FLAG(Memory memory, Cpu cpu, bool flag)
         {
             if (flag)
@@ -119,6 +120,8 @@ namespace emu8080.Core
         {
             ushort result = (ushort)(first & second);
             cpu.State.Flags.CalcSZPC(result);
+            cpu.State.Flags.Carry = false;
+            cpu.State.Flags.AuxCarry = false;
             cpu.State.ProgramCounter++;
             return (byte)(result & 0xff);
         }
@@ -448,6 +451,13 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x4b , C <- E
+        public static void MOV_C_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = cpu.State.E;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x4e , C <- (HL)
         public static void MOV_C_M(Memory memory, Cpu cpu)
         {
@@ -466,6 +476,13 @@ namespace emu8080.Core
         public static void MOV_D_H(Memory memory, Cpu cpu)
         {
             cpu.State.D = cpu.State.H;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x55 , D <- L
+        public static void MOV_D_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = cpu.State.L;
             cpu.State.ProgramCounter++;
         }
 
@@ -536,6 +553,12 @@ namespace emu8080.Core
         public static void MOV_L_A(Memory memory, Cpu cpu)
         {
             cpu.State.L = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x76 
+        public static void HLT(Memory memory, Cpu cpu)
+        {
             cpu.State.ProgramCounter++;
         }
 
@@ -762,7 +785,7 @@ namespace emu8080.Core
         // 0xcd , (SP-1)<-PC.hi;(SP-2)<-PC.lo;SP<-SP-2;PC=adr
         public static void CALL(Memory memory, Cpu cpu)
         {
-            var retAddr = cpu.State.ProgramCounter + 2;
+            var retAddr = cpu.State.ProgramCounter + 3;
 
             memory[cpu.State.StackPointer - 1] = retAddr.GetHigh();
             memory[cpu.State.StackPointer - 2] = retAddr.GetLow();
@@ -906,10 +929,9 @@ namespace emu8080.Core
         // 0xe6 , A <- A & data
         public static void ANI(Memory memory, Cpu cpu)
         {
-            var data = memory[cpu.State.ProgramCounter + 1];
-            cpu.State.A = (byte)(cpu.State.A & data);
-            cpu.State.Flags.CalcSZPC(cpu.State.A);
-            cpu.State.ProgramCounter += 2;
+            var second = memory[cpu.State.ProgramCounter + 1];
+            cpu.State.A = AND(cpu, cpu.State.A, second);
+            cpu.State.ProgramCounter++; // reading from memory so need to increment PC again
         }
 
         // 0xe8 , if PE, RET

@@ -37,7 +37,7 @@ namespace emu8080.Core
         public bool AuxCarry
         {
             get => GetBit(AuxCarryFlag);
-            private set => SetBit(AuxCarryFlag, value);
+            set => SetBit(AuxCarryFlag, value);
         }
         public bool Parity
         {
