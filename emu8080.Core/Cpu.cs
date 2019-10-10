@@ -27,6 +27,7 @@ namespace emu8080.Core
             _ops.Add(0x09, Ops.DAD_B);
             _ops.Add(0x0a, Ops.LDAX_A);
             _ops.Add(0x0b, Ops.DCX_B);
+            _ops.Add(0x0c, Ops.INR_C);
             _ops.Add(0x0d, Ops.DCR_C);
             _ops.Add(0x0e, Ops.MVI_C);
             _ops.Add(0x0f, Ops.RRC);

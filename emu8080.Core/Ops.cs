@@ -216,6 +216,14 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x0c , C <- C+1
+        public static void INR_C(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = Utils.Increment(cpu.State.C, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.D);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x0d , C <-C-1
         public static void DCR_C(Memory memory, Cpu cpu)
         {
