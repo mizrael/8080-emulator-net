@@ -354,6 +354,13 @@ namespace emu8080.Core
             cpu.State.ProgramCounter += 3;
         }
 
+        // 0x2b , 	HL = HL-1
+        public static void DCX_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.HL = (ushort)(cpu.State.HL - 1); //TODO: check
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x2e , L <- byte 2
         public static void MVI_L(Memory memory, Cpu cpu)
         {
@@ -741,10 +748,47 @@ namespace emu8080.Core
             cpu.State.A = AND(cpu, cpu.State.A, cpu.State.A);
         }
 
+        // 0xa8 , A <- A ^ B
+        public static void XRA_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.B);
+        }
+
+        // 0xa9 , A <- A ^ C
+        public static void XRA_C(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.C);
+        }
+
         // 0xaa , A <- A ^ D
         public static void XRA_D(Memory memory, Cpu cpu)
         {
             cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.D);
+        }
+
+        // 0xab , A <- A ^ E
+        public static void XRA_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.E);
+        }
+
+        // 0xac , A <- A ^ H
+        public static void XRA_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.H);
+        }
+
+        // 0xad , A <- A ^ L
+        public static void XRA_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = XOR(cpu, cpu.State.A, cpu.State.L);
+        }
+
+        // 0xae , A <- A ^ M
+        public static void XRA_M(Memory memory, Cpu cpu)
+        {
+            var data = memory[cpu.State.HL];
+            cpu.State.A = XOR(cpu, cpu.State.A, data);
         }
 
         // 0xaf , A <- A ^ A
