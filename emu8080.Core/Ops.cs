@@ -816,10 +816,66 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x80 , A <- A + B
+        public static void ADD_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + cpu.State.B) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x81 , A <- A + C
         public static void ADD_C(Memory memory, Cpu cpu)
         {
             cpu.State.A = (byte)((cpu.State.A + cpu.State.C) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x82 , A <- A + D
+        public static void ADD_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + cpu.State.D) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x83 , A <- A + E
+        public static void ADD_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + cpu.State.E) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x84 , A <- A + H
+        public static void ADD_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + cpu.State.H) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x85 , A <- A + L
+        public static void ADD_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + cpu.State.L) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x86 , A <- A + M
+        public static void ADD_M(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + memory[cpu.State.HL]) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x87 , A <- A + A
+        public static void ADD_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A + cpu.State.A) & 0xff);
             cpu.State.Flags.CalcSZPC(cpu.State.A);
             cpu.State.ProgramCounter++;
         }
