@@ -480,10 +480,31 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x45 , B <- L
+        public static void MOV_B_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.B = cpu.State.L;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x46 , B <- (HL)
         public static void MOV_B_M(Memory memory, Cpu cpu)
         {
             cpu.State.B = memory[cpu.State.HL];
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x47 , B <- A
+        public static void MOV_B_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.B = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x48 , C <- B
+        public static void MOV_C_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = cpu.State.B;
             cpu.State.ProgramCounter++;
         }
 
@@ -508,6 +529,20 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x4C , C <- E
+        public static void MOV_C_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = cpu.State.H;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x4D , C <- L
+        public static void MOV_C_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.C = cpu.State.L;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x4e , C <- (HL)
         public static void MOV_C_M(Memory memory, Cpu cpu)
         {
@@ -519,6 +554,34 @@ namespace emu8080.Core
         public static void MOV_C_A(Memory memory, Cpu cpu)
         {
             cpu.State.C = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x50 , D <- B
+        public static void MOV_D_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = cpu.State.B;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x51 , D <- C
+        public static void MOV_D_C(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = cpu.State.C;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x52 , D <- D
+        public static void MOV_D_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = cpu.State.D;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x53 , D <- E
+        public static void MOV_D_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = cpu.State.E;
             cpu.State.ProgramCounter++;
         }
 
@@ -550,10 +613,45 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
-        // 0x5f , E <- A
-        public static void MOV_E_A(Memory memory, Cpu cpu)
+        // 0x58 , E <- B
+        public static void MOV_E_B(Memory memory, Cpu cpu)
         {
-            cpu.State.E = cpu.State.A;
+            cpu.State.E = cpu.State.B;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x59 , E <- C
+        public static void MOV_E_C(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = cpu.State.C;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x5a , E <- D
+        public static void MOV_E_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = cpu.State.D;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x5b , E <- E
+        public static void MOV_E_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = cpu.State.E;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x5c , E <- H
+        public static void MOV_E_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = cpu.State.H;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x5d , E <- L
+        public static void MOV_E_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = cpu.State.L;
             cpu.State.ProgramCounter++;
         }
 
@@ -561,6 +659,13 @@ namespace emu8080.Core
         public static void MOV_E_M(Memory memory, Cpu cpu)
         {
             cpu.State.E = memory[cpu.State.HL];
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x5f , E <- A
+        public static void MOV_E_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = cpu.State.A;
             cpu.State.ProgramCounter++;
         }
 
