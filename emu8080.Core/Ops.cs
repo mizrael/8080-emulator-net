@@ -369,6 +369,21 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x2c , L <-L+1
+        public static void INR_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.L++;
+            cpu.State.Flags.CalcSZPC(cpu.State.L);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x2d , L <- L-1
+        public static void DCR_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.L = Utils.Decrement(cpu.State.L, cpu.State);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x2e , L <- byte 2
         public static void MVI_L(Memory memory, Cpu cpu)
         {

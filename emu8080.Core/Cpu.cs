@@ -50,6 +50,8 @@ namespace emu8080.Core
             _ops.Add(0x29, Ops.DAD_H);
             _ops.Add(0x2a, Ops.LHLD);
             _ops.Add(0x2b, Ops.DCX_H);
+            _ops.Add(0x2c, Ops.INR_L);
+            _ops.Add(0x2d, Ops.DCR_L);
             _ops.Add(0x2e, Ops.MVI_L);
             _ops.Add(0x2f, Ops.CMA);
             _ops.Add(0x30, Ops.NOP);
