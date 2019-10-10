@@ -163,6 +163,14 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x04 , B <- B+1
+        public static void INR_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.B = Utils.Increment(cpu.State.B, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.D);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x05 , B <- B-1
         public static void DCR_B(Memory memory, Cpu cpu)
         {
@@ -179,9 +187,14 @@ namespace emu8080.Core
         // 0x07 , 	A = A << 1; bit 0 = prev bit 7; CY = prev bit 7
         public static void RLC(Memory memory, Cpu cpu)
         {
-            byte x = cpu.State.A;
-            cpu.State.A = (byte) (((x & 0x80) >> 7) | (x << 1));
-            cpu.State.Flags.Carry = (0x80 == (x & 0x80));
+            cpu.State.Flags.Carry = (cpu.State.A & 0x80) == 0x80;
+
+            cpu.State.A = (byte)((cpu.State.A << 1) & 0xff);
+
+            if (cpu.State.Flags.Carry) 
+                cpu.State.A = (byte)(cpu.State.A | 0x01);
+
+            cpu.State.ProgramCounter++;
         }
 
         // 0x09 , HL = HL + BC
@@ -257,6 +270,12 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x16 , D <- byte 2
+        public static void MVI_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.D = MVI(memory, cpu);
+        }
+
         // 0x19 , HL = HL + DE
         public static void DAD_D(Memory memory, Cpu cpu)
         {
@@ -288,6 +307,8 @@ namespace emu8080.Core
             cpu.State.Flags.CalcCarryFlag(cpu.State.A);
             
             cpu.State.A = temp;
+
+            cpu.State.ProgramCounter++;
         }
 
         // 0x21 , H <- byte 3, L <- byte 2
@@ -298,11 +319,10 @@ namespace emu8080.Core
 
         // 0x22 , (adr) <-L; (adr+1)<-H
         public static void SHLD(Memory memory, Cpu cpu)
-        {
-            //TODO: check
-            var address = Utils.GetValue(memory[cpu.State.ProgramCounter + 1], memory[cpu.State.ProgramCounter]);
+        {   
+            var address = Utils.GetValue(memory[cpu.State.ProgramCounter + 2], memory[cpu.State.ProgramCounter + 1]);
             WriteMemory(memory, address, cpu.State.L);
-            WriteMemory(memory, (ushort) (address+1), cpu.State.H);
+            WriteMemory(memory, (ushort)(address + 1), cpu.State.H);
 
             cpu.State.ProgramCounter += 3;
         }
@@ -324,6 +344,14 @@ namespace emu8080.Core
         public static void DAD_H(Memory memory, Cpu cpu)
         {
             cpu.State.DAD(cpu.State.HL);
+        }
+
+        // 0x2a , L <- (adr); H<-(adr+1)
+        public static void LHLD(Memory memory, Cpu cpu)
+        {
+            cpu.State.HL = Utils.GetValue(memory[cpu.State.ProgramCounter + 2], memory[cpu.State.ProgramCounter + 1]);
+
+            cpu.State.ProgramCounter += 3;
         }
 
         // 0x2e , L <- byte 2
@@ -556,6 +584,48 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x70 , (HL) <- B
+        public static void MOV_M_B(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = cpu.State.B;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x71 , (HL) <- C
+        public static void MOV_M_C(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = cpu.State.C;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x72 , (HL) <- D
+        public static void MOV_M_D(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = cpu.State.D;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x73 , (HL) <- E
+        public static void MOV_M_E(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = cpu.State.E;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x74 , (HL) <- H
+        public static void MOV_M_H(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = cpu.State.H;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x75 , (HL) <- L
+        public static void MOV_M_L(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = cpu.State.L;
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x76 
         public static void HLT(Memory memory, Cpu cpu)
         {
@@ -566,6 +636,13 @@ namespace emu8080.Core
         public static void MOV_M_A(Memory memory, Cpu cpu)
         {
             memory[cpu.State.HL] = cpu.State.A;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x78 , A <- B
+        public static void MOV_A_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = cpu.State.B;
             cpu.State.ProgramCounter++;
         }
 
