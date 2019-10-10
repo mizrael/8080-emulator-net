@@ -54,6 +54,8 @@ namespace emu8080.Core
             _ops.Add(0x30, Ops.NOP);
             _ops.Add(0x31, Ops.LXI_SP);
             _ops.Add(0x32, Ops.STA);
+            _ops.Add(0x33, Ops.INX_SP);
+            _ops.Add(0x34, Ops.INR_M);
             _ops.Add(0x35, Ops.DCR_M);
             _ops.Add(0x36, Ops.MVI_M);
             _ops.Add(0x37, Ops.STC);
@@ -146,7 +148,14 @@ namespace emu8080.Core
             _ops.Add(0xb5, Ops.ORA_L);
             _ops.Add(0xb6, Ops.ORA_M);
             _ops.Add(0xb7, Ops.ORA_A);
+            _ops.Add(0xb8, Ops.CMP_B);
+            _ops.Add(0xb9, Ops.CMP_C);
+            _ops.Add(0xba, Ops.CMP_D);
+            _ops.Add(0xbb, Ops.CMP_E);
+            _ops.Add(0xbc, Ops.CMP_H);
+            _ops.Add(0xbd, Ops.CMP_L);
             _ops.Add(0xbe, Ops.CMP_M);
+            _ops.Add(0xbf, Ops.CMP_A);
             _ops.Add(0xc0, Ops.RNZ);
             _ops.Add(0xc1, Ops.POP_BC);
             _ops.Add(0xc2, Ops.JNZ);

@@ -371,6 +371,7 @@ namespace emu8080.Core
         public static void CMA(Memory memory, Cpu cpu)
         {
             cpu.State.A = (byte) ~cpu.State.A;
+            cpu.State.ProgramCounter++;
         }
 
         // 0x31 , SP.hi <- byte 3, SP.lo <- byte 2
@@ -385,6 +386,21 @@ namespace emu8080.Core
             var res = Utils.GetValue(memory[cpu.State.ProgramCounter+2], memory[cpu.State.ProgramCounter+1]);
             memory[res] = cpu.State.A;
             cpu.State.ProgramCounter += 3;
+        }
+
+        // 0x33 , SP = SP + 1
+        public static void INX_SP(Memory memory, Cpu cpu)
+        {
+            cpu.State.StackPointer++;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x34 , (HL) <- (HL)+1
+        public static void INR_M(Memory memory, Cpu cpu)
+        {
+            memory[cpu.State.HL] = (byte)(memory[cpu.State.HL] + 1);
+            cpu.State.Flags.CalcSZPC(memory[cpu.State.HL]);
+            cpu.State.ProgramCounter++;
         }
 
         // 0x35 , (HL) <- (HL)-1
@@ -1038,11 +1054,67 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xb8 , A - B
+        public static void CMP_B(Memory memory, Cpu cpu)
+        {
+            ushort res = (ushort)(cpu.State.A - cpu.State.B);
+            cpu.State.Flags.CalcSZPC(res);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xb9 , A - C
+        public static void CMP_C(Memory memory, Cpu cpu)
+        {
+            ushort res = (ushort)(cpu.State.A - cpu.State.C);
+            cpu.State.Flags.CalcSZPC(res);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xba , A - D
+        public static void CMP_D(Memory memory, Cpu cpu)
+        {
+            ushort res = (ushort)(cpu.State.A - cpu.State.D);
+            cpu.State.Flags.CalcSZPC(res);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xbb , A - E
+        public static void CMP_E(Memory memory, Cpu cpu)
+        {
+            ushort res = (ushort)(cpu.State.A - cpu.State.E);
+            cpu.State.Flags.CalcSZPC(res);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xbc , A - H
+        public static void CMP_H(Memory memory, Cpu cpu)
+        {
+            ushort res = (ushort)(cpu.State.A - cpu.State.H);
+            cpu.State.Flags.CalcSZPC(res);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xbd , A - L
+        public static void CMP_L(Memory memory, Cpu cpu)
+        {
+            ushort res = (ushort)(cpu.State.A - cpu.State.L);
+            cpu.State.Flags.CalcSZPC(res);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xbe , A - (HL)
         public static void CMP_M(Memory memory, Cpu cpu)
         {
             var mem = (ushort)memory[cpu.State.HL];
             ushort res = (ushort) (cpu.State.A - mem);
+            cpu.State.Flags.CalcSZPC(res);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xbf , A - A
+        public static void CMP_A(Memory memory, Cpu cpu)
+        {
+            ushort res = (ushort)(cpu.State.A - cpu.State.A);
             cpu.State.Flags.CalcSZPC(res);
             cpu.State.ProgramCounter++;
         }
