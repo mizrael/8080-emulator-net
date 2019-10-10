@@ -417,6 +417,21 @@ namespace emu8080.Core
             cpu.State.ProgramCounter += 3;
         }
 
+        // 0x2b , 	SP = SP-1
+        public static void DCX_SP(Memory memory, Cpu cpu)
+        {
+            cpu.State.StackPointer = (ushort)(cpu.State.StackPointer - 1); 
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x3c , A <-A+1
+        public static void INR_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.A++;
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x3d , 	A <- A-1
         public static void DCR_A(Memory memory, Cpu cpu)
         {
@@ -805,11 +820,59 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xb1 , A <- A | C 
+        public static void ORA_C(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A | cpu.State.C) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xb2 , A <- A | D
+        public static void ORA_D(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A | cpu.State.D) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xb3 , A <- A | E
+        public static void ORA_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A | cpu.State.E) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xb4 , A <- A | H
+        public static void ORA_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A | cpu.State.H) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xb5 , A <- A | L
+        public static void ORA_L(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A | cpu.State.L) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0xb6 , A <- A | (HL)
         public static void ORA_M(Memory memory, Cpu cpu)
         {
             var m = memory[cpu.State.HL];
             cpu.State.A = (byte)((cpu.State.A | m) & 0xff);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0xb7 , A <- A | A
+        public static void ORA_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = (byte)((cpu.State.A | cpu.State.A) & 0xff);
             cpu.State.Flags.CalcSZPC(cpu.State.A);
             cpu.State.ProgramCounter++;
         }
@@ -829,7 +892,7 @@ namespace emu8080.Core
             if(!cpu.State.Flags.Zero)
                 RET(memory, cpu);
             else
-                cpu.State.StackPointer++;
+                cpu.State.ProgramCounter++;
         }
 
         // 0xc1 , C <- (sp); B <- (sp+1); sp <- sp+2
