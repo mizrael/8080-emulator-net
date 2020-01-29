@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,7 +8,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Color = Microsoft.Xna.Framework.Color;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace emu8080.Game
 {
@@ -138,21 +135,21 @@ namespace emu8080.Game
 
         private void UpdateVideoTexture()
         {
-            var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
+            // var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
 
-            var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
-            bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
-            var bmpBits = bmp.LockBits(new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
-                                      ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            // var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
+            // bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
+            // var bmpBits = bmp.LockBits(new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
+            //                           ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-            var bufferSize = bmpBits.Height * bmpBits.Stride;
-            var bytes = new byte[bufferSize];
+            // var bufferSize = bmpBits.Height * bmpBits.Stride;
+            // var bytes = new byte[bufferSize];
 
-            Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
+            // Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
 
-            _texture.SetData(bytes);
+            // _texture.SetData(bytes);
 
-            bmp.UnlockBits(bmpBits);
+            // bmp.UnlockBits(bmpBits);
         }
 
         /// <summary>
