@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/emu8080/bin/Debug/netcoreapp2.2/emu8080.dll",
+            "program": "${workspaceFolder}/emu8080.Game/bin/Debug/netcoreapp3.0/emu8080.Game.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/emu8080",
+            "cwd": "${workspaceFolder}/emu8080.Game",
             "console": "internalConsole",
             "stopAtEntry": false
         },
