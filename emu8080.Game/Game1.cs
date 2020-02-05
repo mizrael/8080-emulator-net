@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -135,21 +137,22 @@ namespace emu8080.Game
 
         private void UpdateVideoTexture()
         {
-            // var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
+            var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
 
-            // var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
-            // bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
-            // var bmpBits = bmp.LockBits(new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
-            //                           ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
+            bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
 
-            // var bufferSize = bmpBits.Height * bmpBits.Stride;
-            // var bytes = new byte[bufferSize];
+            var rect = new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            var bmpBits = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-            // Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
+            var bufferSize = bmpBits.Height * bmpBits.Stride;
+            var bytes = new byte[bufferSize];
 
-            // _texture.SetData(bytes);
+            Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
 
-            // bmp.UnlockBits(bmpBits);
+            _texture.SetData(bytes);
+
+            bmp.UnlockBits(bmpBits);
         }
 
         /// <summary>
