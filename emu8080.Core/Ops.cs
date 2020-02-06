@@ -100,10 +100,19 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0x4 , B <- B+1
+        public static void INR_B(Memory memory, Cpu cpu)
+        {
+            cpu.State.B = Utils.Increment(cpu.State.B, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.D);
+            cpu.State.ProgramCounter++;
+        }
+
         // 0x05 , B <- B-1
         public static void DCR_B(Memory memory, Cpu cpu)
         {
             cpu.State.B = Utils.Decrement(cpu.State.B, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.B);
             cpu.State.ProgramCounter++;
         }
 
@@ -144,6 +153,7 @@ namespace emu8080.Core
         public static void DCR_C(Memory memory, Cpu cpu)
         {
             cpu.State.C = Utils.Decrement(cpu.State.C, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.C);
             cpu.State.ProgramCounter++;
         }
 
@@ -191,6 +201,7 @@ namespace emu8080.Core
         public static void DCR_D(Memory memory, Cpu cpu)
         {
             cpu.State.D = Utils.Decrement(cpu.State.D, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.D);
             cpu.State.ProgramCounter++;
         }
 
@@ -248,6 +259,22 @@ namespace emu8080.Core
         public static void INX_H(Memory memory, Cpu cpu)
         {
             cpu.State.HL++;
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x24 , D <- D+1
+        public static void INR_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.H = Utils.Increment(cpu.State.H, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.H);
+            cpu.State.ProgramCounter++;
+        }
+
+        // 0x25 , D <- D-1
+        public static void DCR_H(Memory memory, Cpu cpu)
+        {
+            cpu.State.H = Utils.Decrement(cpu.State.H, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.H);
             cpu.State.ProgramCounter++;
         }
 
@@ -323,6 +350,7 @@ namespace emu8080.Core
         public static void DCR_A(Memory memory, Cpu cpu)
         {
             cpu.State.A = Utils.Decrement(cpu.State.A, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
             cpu.State.ProgramCounter++;
         }
 
@@ -331,6 +359,14 @@ namespace emu8080.Core
         {
             cpu.State.A = MVI(memory, cpu);
         }
+
+        // 0x3f , CY=!CY
+        public static void CMC(Memory memory, Cpu cpu)
+        {
+            cpu.State.Flags.Carry = !cpu.State.Flags.Carry;
+            cpu.State.ProgramCounter++;
+        }
+
 
         // 0x40 , B <- C
         public static void MOV_B_B(Memory memory, Cpu cpu)
@@ -702,7 +738,7 @@ namespace emu8080.Core
         // 0xd2 , 	if NCY, PC<-adr
         public static void JNC(Memory memory, Cpu cpu)
         {
-            JUMP_FLAG(memory, cpu, cpu.State.Flags.Carry);
+            JUMP_FLAG(memory, cpu, !cpu.State.Flags.Carry);
         }
 
         // 0xd3
@@ -821,11 +857,26 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
+        // 0xfa JM adr 
+        public static void JM(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, cpu.State.Flags.Sign);
+        }
+
         // 0xfb 
         public static void EI(Memory memory, Cpu cpu)
         {
             cpu.Bus.Interrupt(true);
             cpu.State.ProgramCounter++;
+        }
+
+        // 0xfc CM adr 
+        public static void CM(Memory memory, Cpu cpu)
+        {
+            if(cpu.State.Flags.Sign)
+                CALL(memory, cpu);
+            else
+                cpu.State.ProgramCounter += 3;
         }
 
         // 0xfe , A - data

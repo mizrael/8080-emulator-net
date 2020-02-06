@@ -14,6 +14,7 @@ namespace emu8080.Core
             _ops.Add(0x01, Ops.LXI_B);
             _ops.Add(0x02, Ops.STAX_B);
             _ops.Add(0x03, Ops.INX_B);
+            _ops.Add(0x04, Ops.INR_B);
             _ops.Add(0x05, Ops.DCR_B);
             _ops.Add(0x06, Ops.MVI_B);
             _ops.Add(0x07, Ops.RLC);
@@ -37,6 +38,8 @@ namespace emu8080.Core
             _ops.Add(0x21, Ops.LXI_H);
             _ops.Add(0x22, Ops.SHLD);
             _ops.Add(0x23, Ops.INX_H);
+            _ops.Add(0x24, Ops.INR_H);
+            _ops.Add(0x25, Ops.DCR_H);
             _ops.Add(0x26, Ops.MVI_H);
             _ops.Add(0x28, Ops.NOP);
             _ops.Add(0x29, Ops.DAD_H);
@@ -51,6 +54,7 @@ namespace emu8080.Core
             _ops.Add(0x3a, Ops.LDA);
             _ops.Add(0x3d, Ops.DCR_A);
             _ops.Add(0x3e, Ops.MVI_A);
+            _ops.Add(0x3f, Ops.CMC);
             _ops.Add(0x40, Ops.MOV_B_B);
             _ops.Add(0x41, Ops.MOV_B_C);
             _ops.Add(0x42, Ops.MOV_B_D);
@@ -114,7 +118,9 @@ namespace emu8080.Core
             _ops.Add(0xf1, Ops.POP_PSW);
             _ops.Add(0xf3, Ops.DI);
             _ops.Add(0xf5, Ops.PUSH_PSW);
+            _ops.Add(0xfa, Ops.JM);
             _ops.Add(0xfb, Ops.EI);
+            _ops.Add(0xfc, Ops.CM);
             _ops.Add(0xfe, Ops.CPI);
             _ops.Add(0xff, Ops.RST_7);
         }
@@ -139,7 +145,7 @@ namespace emu8080.Core
             }else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($"not implemented: {op:X}");
+                Console.Write($"not implemented: {op:X} ");
                 Console.ResetColor();
                 this.State.ProgramCounter++;
             }
