@@ -220,9 +220,15 @@ namespace emu8080.Core
         // 0x1c , E <-E+1
         public static void INR_E(Memory memory, Cpu cpu)
         {
-            cpu.State.E++;
+            cpu.State.E = Utils.Increment(cpu.State.E, cpu.State);
             cpu.State.Flags.CalcSZPC(cpu.State.E);
             cpu.State.ProgramCounter++;
+        }
+
+        // 0x1e , E <- byte 2
+        public static void MVI_E(Memory memory, Cpu cpu)
+        {
+            cpu.State.E = MVI(memory, cpu);
         }
 
         // 0x1f , A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0
@@ -344,6 +350,14 @@ namespace emu8080.Core
             var index = Utils.GetValue(memory[cpu.State.ProgramCounter+2], memory[cpu.State.ProgramCounter+1]);
             cpu.State.A = memory[index];
             cpu.State.ProgramCounter += 3;
+        }
+
+        // 0x3c , A <-A+1
+        public static void INR_A(Memory memory, Cpu cpu)
+        {
+            cpu.State.A = Utils.Increment(cpu.State.A, cpu.State);
+            cpu.State.Flags.CalcSZPC(cpu.State.A);
+            cpu.State.ProgramCounter++;
         }
 
         // 0x3d , 	A <- A-1
@@ -889,6 +903,12 @@ namespace emu8080.Core
             cpu.State.HL = POP(memory, cpu);
         }
 
+        // 0xe2 JPO adr 
+        public static void JPO(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, !cpu.State.Flags.Parity);
+        }
+
         // 0xe3 , L <-> (SP); H <-> (SP+1)
         public static void XTHL(Memory memory, Cpu cpu)
         {
@@ -924,6 +944,12 @@ namespace emu8080.Core
             cpu.State.ProgramCounter = cpu.State.HL;
         }
 
+        // 0xea JPE adr 
+        public static void JPE(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, cpu.State.Flags.Parity);
+        }
+
         // 0xeb , H <-> D; L <-> E
         public static void XCHG(Memory memory, Cpu cpu)
         {
@@ -950,17 +976,26 @@ namespace emu8080.Core
             cpu.State.ProgramCounter++;
         }
 
-        // 0xfe
+        // 0xf2 JP adr 
+        public static void JP(Memory memory, Cpu cpu)
+        {
+            JUMP_FLAG(memory, cpu, !cpu.State.Flags.Sign);
+        }
+
+        // 0xf3
         public static void DI(Memory memory, Cpu cpu)
         {
             cpu.Bus.Interrupt(false);
             cpu.State.ProgramCounter++;
         }
-
-        // 0xf4 JP adr 
-        public static void JP(Memory memory, Cpu cpu)
+      
+        // 0xf4 CP adr 
+        public static void CP(Memory memory, Cpu cpu)
         {
-            JUMP_FLAG(memory, cpu, cpu.State.Flags.Parity);
+            if (cpu.State.Flags.Parity)
+                CALL(memory, cpu);
+            else
+                cpu.State.ProgramCounter += 3;
         }
 
         // 0xf5 , (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2

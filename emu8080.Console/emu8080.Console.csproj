@@ -17,6 +17,9 @@
     <None Update="dump.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="roms\cpudiag\cpudiag.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="roms\CPUTEST\CPUTEST.COM">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

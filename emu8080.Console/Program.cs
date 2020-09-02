@@ -17,7 +17,7 @@ namespace emu8080.Console
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            var gameName = "TST8080";
+            var gameName = "cpudiag";
 
             var romsBasePath = "roms";
 
@@ -33,7 +33,15 @@ namespace emu8080.Console
                 bytes.AddRange(romBytes);
             }
 
-            var memory = Memory.Load(bytes.ToArray(), 0x100);
+            ushort startPos = 0x100;
+            var memory = Memory.Load(bytes.ToArray(), startPos);
+
+            memory[368] = 0x7;
+
+            // Skip DAA test (not implemented).
+            memory[0x59c] = 0xc3; //JMP
+            memory[0x59d] = 0xc2;
+            memory[0x59e] = 0x05;
 
             System.Console.ForegroundColor = ConsoleColor.Yellow;
             System.Console.WriteLine("processing program, press ESC to quit");
@@ -43,19 +51,9 @@ namespace emu8080.Console
             
             var cpu = new Cpu(registers, bus);
             cpu.Reset();
-            
-            var currentDump = CreateDump(cpu, memory);
-            var workingDump = File.ReadAllText(dumpFilename);
-            if (currentDump == workingDump)
-            {
-                System.Console.ForegroundColor = ConsoleColor.Green;
-                System.Console.WriteLine("emulator OK");
-            }
-            else
-            {
-                System.Console.ForegroundColor = ConsoleColor.Green;
-                System.Console.WriteLine("emulator FAILED");
-            }
+            cpu.State.ProgramCounter = startPos;
+           
+            Run(cpu, memory);
 
             System.Console.ForegroundColor = ConsoleColor.Green;
             System.Console.WriteLine("done!");
@@ -68,40 +66,44 @@ namespace emu8080.Console
             File.WriteAllText(dumpFilename, dump);
         }
 
-        private static string CreateDump(Cpu cpu, Memory memory)
+        private static void Run(Cpu cpu, Memory memory)
         {
-            int i = 0;
-            var sb = new StringBuilder();
-            while (++i < 41000)
+            while (true)
             {
-                cpu.Step(memory);
-                sb.AppendLine(Newtonsoft.Json.JsonConvert.SerializeObject(cpu.State));
-            }
+                if (cpu.State.ProgramCounter == 0x0000)
+                    break;
+                else if (cpu.State.ProgramCounter == 0x689) //CPUER
+                {
+                    byte lo = memory[cpu.State.StackPointer];
+                    byte hi = memory[cpu.State.StackPointer + 1];
+                    var errLoc = (ushort)(Utils.GetValue(hi, lo) + 1);
+                    var errOp = memory[errLoc];
+                    System.Console.WriteLine($"cpu failed at op {errOp:X}");
 
-            return sb.ToString();
-        }
+                    break;
+                }
+                else if (cpu.State.ProgramCounter == 0x0005)
+                {
+                    if (cpu.State.C == 0x02)
+                        System.Console.Write(Encoding.ASCII.GetString(new[] {cpu.State.E}));
+                    else if (cpu.State.C == 0x09)
+                    {
+                        var ptr = cpu.State.DE;
+                        var sb = new StringBuilder();
+                        while (true)
+                        {
+                            var c = (char)memory[ptr];
+                            if (c == '$') break;
+                            sb.Append(c);
+                            ptr++;
+                        }
+                        System.Console.Write(sb);
+                    }
 
-        private static void Debug(Cpu cpu, Memory memory)
-        {
-            int i = 0;
-            var sb = new StringBuilder();
-            while (++i < 45000)
-            {
-                sb.Append(i);
-                sb.Append(" ) ");
-                sb.Append(cpu.State);
-
-                cpu.Step(memory);
-                memory.UpdateVideoBuffer();
-
-                sb.Append(cpu.State.ProgramCounter.ToString("X"));
-                sb.Append(" : ");
-                sb.Append(memory[cpu.State.ProgramCounter].ToString("X"));
-                sb.Append(memory[cpu.State.ProgramCounter + 1].ToString("X"));
-                sb.Append(memory[cpu.State.ProgramCounter + 2].ToString("X"));
-
-                System.Console.WriteLine(sb.ToString());
-                sb.Clear();
+                    cpu.State.ProgramCounter++;
+                }
+                else
+                    cpu.Step(memory);
             }
         }
     }
