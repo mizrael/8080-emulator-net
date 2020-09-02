@@ -37,7 +37,7 @@ namespace emu8080.Core
         public bool AuxCarry
         {
             get => GetBit(AuxCarryFlag);
-            private set => SetBit(AuxCarryFlag, value);
+            set => SetBit(AuxCarryFlag, value);
         }
         public bool Parity
         {
@@ -50,9 +50,9 @@ namespace emu8080.Core
             Carry = ((result & 0xffff0000) != 0);
         }
 
-        public void CalcCarryFlag(UInt16 result)
+        public void CalcCarryFlag(UInt16 value)
         {
-            Carry = (result > 0xff);
+            Carry = (value > 0xff);
         }
 
         public void CalcCarryFlag(byte data)
@@ -60,41 +60,31 @@ namespace emu8080.Core
             Carry = (data & 0x01) == 0x01;
         }
 
-        public void CalcZeroFlag(UInt16 result)
+        public void CalcZeroFlag(UInt16 value)
         {
-            Zero = ((result & 0xff) == 0);
+            Zero = ((value & 0xff) == 0);
         }
 
-        public void CalcZeroFlag(byte result)
+        public void CalcZeroFlag(byte value)
         {
-            Zero = (result == 0);
+            Zero = ((value & 0xff) == 0);
         }
 
-        public void CalcSignFlag(UInt16 result)
+        public void CalcSignFlag(UInt16 value)
         {
-            Sign = ((result & SignFlag) == SignFlag);
+            Sign = ((value & SignFlag) == SignFlag);
         }
 
-        public void CalcSignFlag(byte result)
+        public void CalcSignFlag(byte value)
         {
-            Sign = (result >> 7) == 1;
+            Sign = ((value & SignFlag) == SignFlag);
         }
 
         public void CalcParityFlag(byte result)
         {
             Parity = Utils.GetParity(result);
         }
-
-        public void CalcAuxCarryFlag(byte a, byte b)
-        {
-            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f)) > 0x0f;
-        }
-
-        public void CalcAuxCarryFlag(byte a, byte b, byte c)
-        {
-            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;
-        }
-
+        
         /// Sign, Zero, Parity, Carry
         public void CalcSZPC(ushort val){
             this.CalcZeroFlag(val);

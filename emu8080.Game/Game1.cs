@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using emu8080.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -48,10 +50,17 @@ namespace emu8080.Game
         /// </summary>
         protected override void Initialize()
         {
+            var services = new ServiceCollection();
+            services.AddLogging(configure => configure.AddConsole());
+
+            var sp = services.BuildServiceProvider();
+
             var registers = new State();
             var bus = new Bus();
             bus.InterruptChanged += Bus_InterruptChanged;
-            _cpu = new Cpu(registers, bus);
+
+            var logger = sp.GetRequiredService<ILogger<Cpu>>();
+            _cpu = new Cpu(registers, bus, logger);
 
             _texture = new Texture2D(this.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color);
 
@@ -67,7 +76,7 @@ namespace emu8080.Game
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            var gameName = "CPUTEST";
+            var gameName = "invaders";
             var gameRomsPath = Path.Combine(Content.RootDirectory, "roms", gameName);
             var files = Directory.GetFiles(gameRomsPath);
             var bytes = new List<byte>();

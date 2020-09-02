@@ -4,12 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using emu8080.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace emu8080.Console
 {
     class Program
     {
-        private const string dumpFilename = "dump.txt";
+        private const string RomsBasePath = "roms";
+
+        private static ILogger<Program> _logger;
 
         /// <summary>
         /// http://www.emulator101.com/
@@ -17,13 +21,13 @@ namespace emu8080.Console
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            var provider = BuildServiceProvider();
+            _logger = provider.GetRequiredService<ILogger<Program>>();
+
             var gameName = "cpudiag";
+            var gameRomsPath = Path.Combine(RomsBasePath, gameName);
 
-            var romsBasePath = "roms";
-
-            var gameRomsPath = Path.Combine(romsBasePath, gameName);
-
-            System.Console.WriteLine($"loading roms from {gameRomsPath}...");
+            _logger.LogWarning($"loading roms from {gameRomsPath}...");
 
             var files = Directory.GetFiles(gameRomsPath);
             var bytes = new List<byte>();
@@ -36,34 +40,34 @@ namespace emu8080.Console
             ushort startPos = 0x100;
             var memory = Memory.Load(bytes.ToArray(), startPos);
 
-            memory[368] = 0x7;
+            //memory[368] = 0x7;
 
-            // Skip DAA test (not implemented).
-            memory[0x59c] = 0xc3; //JMP
-            memory[0x59d] = 0xc2;
-            memory[0x59e] = 0x05;
-
-            System.Console.ForegroundColor = ConsoleColor.Yellow;
-            System.Console.WriteLine("processing program, press ESC to quit");
+            //// Skip DAA test (not implemented).
+            //memory[0x59c] = 0xc3; //JMP
+            //memory[0x59d] = 0xc2;
+            //memory[0x59e] = 0x05;
+            
+            _logger.LogWarning("processing program, press ESC to quit");
 
             var registers = new State();
             var bus = new Bus();
-            
-            var cpu = new Cpu(registers, bus);
+
+            var logger = provider.GetService<ILogger<Cpu>>();
+            var cpu = new Cpu(registers, bus, logger);
             cpu.Reset();
             cpu.State.ProgramCounter = startPos;
            
             Run(cpu, memory);
-
-            System.Console.ForegroundColor = ConsoleColor.Green;
-            System.Console.WriteLine("done!");
-
-            System.Console.ResetColor();
+            
+            _logger.LogInformation("done!");
         }
 
-        private static void SaveDump(string dump)
+        private static ServiceProvider BuildServiceProvider()
         {
-            File.WriteAllText(dumpFilename, dump);
+            var services = new ServiceCollection();
+            services.AddLogging(configure => configure.AddConsole());
+
+            return services.BuildServiceProvider();
         }
 
         private static void Run(Cpu cpu, Memory memory)
@@ -79,7 +83,6 @@ namespace emu8080.Console
                     var errLoc = (ushort)(Utils.GetValue(hi, lo) + 1);
                     var errOp = memory[errLoc];
                     System.Console.WriteLine($"cpu failed at op {errOp:X}");
-
                     break;
                 }
                 else if (cpu.State.ProgramCounter == 0x0005)
@@ -88,7 +91,7 @@ namespace emu8080.Console
                         System.Console.Write(Encoding.ASCII.GetString(new[] {cpu.State.E}));
                     else if (cpu.State.C == 0x09)
                     {
-                        var ptr = cpu.State.DE;
+                        var ptr = cpu.State.DE+3; // skipping prefix ( \f\r\n )
                         var sb = new StringBuilder();
                         while (true)
                         {
@@ -97,7 +100,7 @@ namespace emu8080.Console
                             sb.Append(c);
                             ptr++;
                         }
-                        System.Console.Write(sb);
+                        System.Console.WriteLine(sb);
                     }
 
                     cpu.State.ProgramCounter++;

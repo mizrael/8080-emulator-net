@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace emu8080.Core
 {
     public class Cpu
     {
         private static readonly Dictionary<byte, Action<Memory, Cpu>> _ops;
+
+        private ILogger<Cpu> _logger;
 
         static Cpu()
         {
@@ -89,6 +92,9 @@ namespace emu8080.Core
             _ops.Add(0x87, Ops.ADC_A);
             _ops.Add(0x88, Ops.ADC_B);
             _ops.Add(0x89, Ops.ADC_C);
+            _ops.Add(0x8b, Ops.ADC_E);
+            _ops.Add(0x8c, Ops.ADC_H);
+            _ops.Add(0x8e, Ops.ADC_L);
             _ops.Add(0x90, Ops.SUB_B);
             _ops.Add(0x99, Ops.SBB_C);
             _ops.Add(0x9a, Ops.SBB_D);
@@ -116,6 +122,7 @@ namespace emu8080.Core
             _ops.Add(0xca, Ops.JZ);
             _ops.Add(0xcc, Ops.CZ);
             _ops.Add(0xcd, Ops.CALL);
+            _ops.Add(0xce, Ops.ACI);
             _ops.Add(0xd1, Ops.POP_DE);
             _ops.Add(0xd2, Ops.JNC);
             _ops.Add(0xd3, Ops.OUT);
@@ -126,7 +133,7 @@ namespace emu8080.Core
             _ops.Add(0xe1, Ops.POP_HL);
             _ops.Add(0xe2, Ops.JPO);
             _ops.Add(0xe5, Ops.PUSH_HL);
-            _ops.Add(0xe3, Ops.XTHL);
+            _ops.Add(0xe3, Ops.XTHL); 
             _ops.Add(0xe9, Ops.PCHL);
             _ops.Add(0xe6, Ops.ANI);
             _ops.Add(0xea, Ops.JPE);
@@ -146,10 +153,11 @@ namespace emu8080.Core
         public State State {get;}
         public Bus Bus { get; }
 
-        public Cpu(State state, Bus bus)
+        public Cpu(State state, Bus bus, ILogger<Cpu> logger)
         {
             State = state;
             Bus = bus;
+            _logger = logger;
         }
 
         public void Reset() => State.Reset();
@@ -157,6 +165,8 @@ namespace emu8080.Core
         public void Step(Memory memory)
         {
             var op = memory[State.ProgramCounter];
+
+            _logger.LogInformation($"processing op {op:X} at {State.ProgramCounter}");
 
             if (_ops.ContainsKey(op))
             {
