@@ -894,6 +894,16 @@ namespace emu8080.Core
             PUSH(cpu.State.DE, memory, cpu);
         }
 
+        // 0xd6 , A <- A - data
+        public static void SUI(Memory memory, Cpu cpu)
+        {
+            byte data = memory[cpu.State.ProgramCounter + 1];
+            ushort diff = (ushort)(cpu.State.A - data);
+            cpu.State.A = (byte)(diff & 0xFF);
+            cpu.State.Flags.CalcSZPC(diff);
+            cpu.State.ProgramCounter += 2;
+        }
+
         // 0xd8 , if CY, RET
         public static void RC(Memory memory, Cpu cpu)
         {
