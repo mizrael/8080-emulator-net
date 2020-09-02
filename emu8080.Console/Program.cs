@@ -21,7 +21,7 @@ namespace emu8080.Console
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            var provider = BuildServiceProvider();
+            using var provider = BuildServiceProvider();
             _logger = provider.GetRequiredService<ILogger<Program>>();
 
             var gameName = "cpudiag";
@@ -60,6 +60,7 @@ namespace emu8080.Console
             Run(cpu, memory);
             
             _logger.LogInformation("done!");
+            
         }
 
         private static ServiceProvider BuildServiceProvider()
@@ -76,37 +77,42 @@ namespace emu8080.Console
             {
                 if (cpu.State.ProgramCounter == 0x0000)
                     break;
-                else if (cpu.State.ProgramCounter == 0x689) //CPUER
-                {
-                    byte lo = memory[cpu.State.StackPointer];
-                    byte hi = memory[cpu.State.StackPointer + 1];
-                    var errLoc = (ushort)(Utils.GetValue(hi, lo) + 1);
-                    var errOp = memory[errLoc];
-                    System.Console.WriteLine($"cpu failed at op {errOp:X}");
-                    break;
-                }
-                else if (cpu.State.ProgramCounter == 0x0005)
+                //else if (cpu.State.ProgramCounter == 0x689) //CPUER
+                //{
+                //    byte lo = memory[cpu.State.StackPointer];
+                //    byte hi = memory[cpu.State.StackPointer + 1];
+                //    var errLoc = Utils.GetValue(hi, lo);
+                //    var errOp = memory[errLoc];
+                //    _logger.LogError($"cpu failed at {errLoc:X}, op {errOp:X}");
+                //    break;
+                //}
+
+                if (cpu.State.ProgramCounter == 0x0005)
                 {
                     if (cpu.State.C == 0x02)
-                        System.Console.Write(Encoding.ASCII.GetString(new[] {cpu.State.E}));
+                    {
+                        var c = (char) cpu.State.E;
+                        _logger.LogInformation(c.ToString());
+                    }
                     else if (cpu.State.C == 0x09)
                     {
-                        var ptr = cpu.State.DE+3; // skipping prefix ( \f\r\n )
+                        var ptr = cpu.State.DE + 3; // skipping prefix ( \f\r\n )
                         var sb = new StringBuilder();
                         while (true)
                         {
-                            var c = (char)memory[ptr];
+                            var c = (char) memory[ptr];
                             if (c == '$') break;
                             sb.Append(c);
                             ptr++;
                         }
-                        System.Console.WriteLine(sb);
-                    }
 
-                    cpu.State.ProgramCounter++;
+                        sb.Append($"{cpu.State.E:X}");
+                        _logger.LogInformation(sb.ToString());
+                        break;
+                    }
                 }
-                else
-                    cpu.Step(memory);
+
+                cpu.Step(memory);
             }
         }
     }

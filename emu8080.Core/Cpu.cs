@@ -127,6 +127,7 @@ namespace emu8080.Core
             _ops.Add(0xd2, Ops.JNC);
             _ops.Add(0xd3, Ops.OUT);
             _ops.Add(0xd5, Ops.PUSH_DE);
+            _ops.Add(0xd6, Ops.SUI);
             _ops.Add(0xd8, Ops.RC);
             _ops.Add(0xda, Ops.JC);
             _ops.Add(0xdb, Ops.IN_D8);
@@ -170,24 +171,11 @@ namespace emu8080.Core
 
             if (_ops.ContainsKey(op))
             {
-                try
-                {
-                    _ops[op](memory, this);
-                }
-                catch (Exception e)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write($"an error has occurred while executing op {op:X} : {e.Message}\n");
-                    Console.ResetColor();
-                    this.State.ProgramCounter++;
-                }
+                _ops[op](memory, this);
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($"not implemented: {op:X} \n");
-                Console.ResetColor();
-                this.State.ProgramCounter++;
+                _logger.LogError($"not implemented: {op:X} \n");
             }
 
         }
