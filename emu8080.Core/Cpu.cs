@@ -82,10 +82,20 @@ namespace emu8080.Core
             _ops.Add(0x7c, Ops.MOV_A_H);
             _ops.Add(0x7d, Ops.MOV_A_L);
             _ops.Add(0x7e, Ops.MOV_A_M);
+            _ops.Add(0x80, Ops.ADD_B);
             _ops.Add(0x81, Ops.ADD_C);
+            _ops.Add(0x87, Ops.ADC_A);
             _ops.Add(0x88, Ops.ADC_B);
+            _ops.Add(0x89, Ops.ADC_C);
             _ops.Add(0x90, Ops.SUB_B);
+            _ops.Add(0x99, Ops.SBB_C);
+            _ops.Add(0x9a, Ops.SBB_D);
+            _ops.Add(0x9b, Ops.SBB_E);
+            _ops.Add(0x9c, Ops.SBB_H);
+            _ops.Add(0x9d, Ops.SBB_L);
             _ops.Add(0x9e, Ops.SBB_M);
+            _ops.Add(0x9f, Ops.SBB_A);
+            _ops.Add(0xa0, Ops.ANA_B);
             _ops.Add(0xaa, Ops.XRA_D);
             _ops.Add(0xa7, Ops.ANA_A);
             _ops.Add(0xaf, Ops.XRA_A);
@@ -96,11 +106,13 @@ namespace emu8080.Core
             _ops.Add(0xc1, Ops.POP_BC);
             _ops.Add(0xc2, Ops.JNZ);
             _ops.Add(0xc3, Ops.JMP);
+            _ops.Add(0xc4, Ops.CNZ);
             _ops.Add(0xc5, Ops.PUSH_CD);
             _ops.Add(0xc6, Ops.ADI);
             _ops.Add(0xc8, Ops.RZ);
             _ops.Add(0xc9, Ops.RET);
             _ops.Add(0xca, Ops.JZ);
+            _ops.Add(0xcc, Ops.CZ);
             _ops.Add(0xcd, Ops.CALL);
             _ops.Add(0xd1, Ops.POP_DE);
             _ops.Add(0xd2, Ops.JNC);
@@ -117,6 +129,7 @@ namespace emu8080.Core
             _ops.Add(0xeb, Ops.XCHG);
             _ops.Add(0xf1, Ops.POP_PSW);
             _ops.Add(0xf3, Ops.DI);
+            _ops.Add(0xf4, Ops.JP);
             _ops.Add(0xf5, Ops.PUSH_PSW);
             _ops.Add(0xfa, Ops.JM);
             _ops.Add(0xfb, Ops.EI);
@@ -140,15 +153,28 @@ namespace emu8080.Core
         {
             var op = memory[State.ProgramCounter];
 
-            if (_ops.ContainsKey(op)){
-                _ops[op](memory, this);
-            }else
+            if (_ops.ContainsKey(op))
+            {
+                try
+                {
+                    _ops[op](memory, this);
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"an error has occurred while executing op {op:X} : {e.Message}\n");
+                    Console.ResetColor();
+                    this.State.ProgramCounter++;
+                }
+            }
+            else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($"not implemented: {op:X} ");
+                Console.Write($"not implemented: {op:X} \n");
                 Console.ResetColor();
                 this.State.ProgramCounter++;
             }
+
         }
     }
 }

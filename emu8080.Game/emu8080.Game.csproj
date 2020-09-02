@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
@@ -12,6 +12,12 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Content\roms\invaders\**" />
+    <EmbeddedResource Remove="Content\roms\invaders\**" />
+    <None Remove="Content\roms\invaders\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Icon.ico" />
@@ -45,22 +51,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Content\roms\invaders\invaders.e">
+    <None Update="Content\roms\8080PRE\8080PRE.COM">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Content\roms\invaders\invaders.f">
+    <None Update="Content\roms\CPUTEST\CPUTEST.COM">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Content\roms\invaders\invaders.g">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Content\roms\invaders\invaders.h">
+    <None Update="Content\roms\TST8080\TST8080.COM">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

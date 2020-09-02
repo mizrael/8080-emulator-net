@@ -67,7 +67,7 @@ namespace emu8080.Game
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            var gameName = "invaders";
+            var gameName = "CPUTEST";
             var gameRomsPath = Path.Combine(Content.RootDirectory, "roms", gameName);
             var files = Directory.GetFiles(gameRomsPath);
             var bytes = new List<byte>();

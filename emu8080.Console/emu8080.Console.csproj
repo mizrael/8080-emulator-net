@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +15,9 @@
 
   <ItemGroup>
     <None Update="dump.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="roms\CPUTEST\CPUTEST.COM">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="roms\invaders\invaders.e">
@@ -29,6 +32,13 @@
     <None Update="roms\invaders\invaders.h">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="roms\TST8080\TST8080.COM">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="roms\TST8080\" />
   </ItemGroup>
 
 </Project>

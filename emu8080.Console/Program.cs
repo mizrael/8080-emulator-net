@@ -17,7 +17,7 @@ namespace emu8080.Console
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            var gameName = "invaders";
+            var gameName = "TST8080";
 
             var romsBasePath = "roms";
 
@@ -33,7 +33,7 @@ namespace emu8080.Console
                 bytes.AddRange(romBytes);
             }
 
-            var memory = Memory.Load(bytes.ToArray());
+            var memory = Memory.Load(bytes.ToArray(), 0x100);
 
             System.Console.ForegroundColor = ConsoleColor.Yellow;
             System.Console.WriteLine("processing program, press ESC to quit");

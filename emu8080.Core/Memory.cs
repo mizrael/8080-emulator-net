@@ -29,9 +29,9 @@ namespace emu8080.Core
             System.Buffer.BlockCopy(_bytes, videoBufferStartAddress, _videoBuffer, 0, videoBufferSize);
         }
 
-        public static Memory Load(byte[] data){
-            var destBytes = new byte[0x10000]; // 16bit
-            System.Array.Copy(data, destBytes, data.Length);
+        public static Memory Load(byte[] data, int destLoc = 0){
+            var destBytes = new byte[0x10000]; // 64kb
+            System.Array.Copy(data, 0, destBytes, destLoc, data.Length);
 
             var memory = new Memory(destBytes);
             return memory;
