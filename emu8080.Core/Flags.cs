@@ -84,7 +84,15 @@ namespace emu8080.Core
         {
             Parity = Utils.GetParity(result);
         }
-        
+        public void CalcAuxCarryFlag(byte a, byte b)
+        {
+            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f)) > 0x0f;
+        }
+        public void CalcAuxCarryFlag(byte a, byte b, byte c)
+        {
+            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;
+        }
+
         /// Sign, Zero, Parity, Carry
         public void CalcSZPC(ushort val){
             this.CalcZeroFlag(val);
