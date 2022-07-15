@@ -135,6 +135,21 @@ namespace emu8080.Core.Tests
             cpu.Registers.ProgramCounter.Should().Be(2);
         }
 
+        [Fact]
+        public void MVI_B()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x06, 0x42
+            });
+
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0x42);
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
         private static Cpu BuildSut()
         {
             var registers = new Registers();
