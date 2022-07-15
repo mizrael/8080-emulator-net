@@ -84,10 +84,12 @@ namespace emu8080.Core
         {
             Parity = Utils.GetParity(result);
         }
+
         public void CalcAuxCarryFlag(byte a, byte b)
         {
-            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f)) > 0x0f;
+            AuxCarry = (a & b) == 0; 
         }
+
         public void CalcAuxCarryFlag(byte a, byte b, byte c)
         {
             AuxCarry = (byte)((a & 0x0f) + (b & 0x0f) + (c & 0x0f)) > 0x0f;

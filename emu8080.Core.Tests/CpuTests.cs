@@ -15,12 +15,10 @@ namespace emu8080.Core.Tests
                 0x01, 0x78, 0xab
             });
 
-            var oldPc = cpu.Registers.ProgramCounter;
-
             cpu.Step(memory);
 
             cpu.Registers.BC.Should().Be(0xab78);
-            cpu.Registers.ProgramCounter.Should().Be((ushort)(3 + oldPc));
+            cpu.Registers.ProgramCounter.Should().Be(3);
         }
 
         [Fact]
@@ -34,11 +32,11 @@ namespace emu8080.Core.Tests
             {
                 0x02
             });
-            var oldPc = cpu.Registers.ProgramCounter;
+
             cpu.Step(memory);
 
             memory[cpu.Registers.BC].Should().Be(0x71);
-            cpu.Registers.ProgramCounter.Should().Be((ushort)(1 + oldPc));
+            cpu.Registers.ProgramCounter.Should().Be(1);
         }
 
         [Fact]
@@ -50,11 +48,11 @@ namespace emu8080.Core.Tests
             {
                 0x03
             });
-            var oldPc = cpu.Registers.ProgramCounter;
+
             cpu.Step(memory);
 
             cpu.Registers.BC.Should().Be(0x1);
-            cpu.Registers.ProgramCounter.Should().Be((ushort)(1 + oldPc));
+            cpu.Registers.ProgramCounter.Should().Be(1);
         }
 
         [Fact]
@@ -64,13 +62,77 @@ namespace emu8080.Core.Tests
 
             var memory = Memory.Load(new byte[]
             {
-                0x04
+                0x04,
+                0x04,
+                0x04,
+                0x04,
             });
-            var oldPc = cpu.Registers.ProgramCounter;
-            cpu.Step(memory);
 
+            cpu.Step(memory);
             cpu.Registers.B.Should().Be(0x1);
-            cpu.Registers.ProgramCounter.Should().Be((ushort)(1 + oldPc));
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.B = 0x41;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0x42);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+
+            cpu.Registers.B = 0xFE;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xFF);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(3);
+
+            cpu.Registers.B = 0xFD;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xFE);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(4);
+        }
+
+        [Fact]
+        public void DCR_B()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x05,
+                0x05,
+                0x05,
+            });
+
+            cpu.Registers.B = 0x43;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0x42);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.B = 0xFF;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xFE);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(2);
         }
 
         private static Cpu BuildSut()

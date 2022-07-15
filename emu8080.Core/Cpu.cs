@@ -18,11 +18,10 @@ namespace emu8080.Core
                 { 0x01, Ops.LXI_B },
                 { 0x02, Ops.STAX_B },
                 { 0x03, Ops.INX_B },
-                { 0x04, Ops.INR_B }
+                { 0x04, Ops.INR_B },
+                { 0x05, Ops.DCR_B }
             };
 
-            //_ops.Add();
-            //_ops.Add(0x05, Ops.DCR_B);
             //_ops.Add(0x06, Ops.MVI_B);
             //_ops.Add(0x07, Ops.RLC);
             //_ops.Add(0x08, Ops.NOP);
