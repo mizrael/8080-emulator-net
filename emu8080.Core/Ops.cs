@@ -186,6 +186,7 @@ namespace emu8080.Core
             byte x = cpu.Registers.A;
             cpu.Registers.A = (byte) (((x & 0x80) >> 7) | (x << 1));
             cpu.Registers.Flags.Carry = (0x80 == (x & 0x80));
+            cpu.Registers.ProgramCounter++;
         }
 
         // 0x09 , HL = HL + BC
@@ -195,7 +196,7 @@ namespace emu8080.Core
         }
 
         // 0x0a , 	A <- (BC)
-        public static void LDAX_A(Memory memory, Cpu cpu)
+        public static void LDAX_B(Memory memory, Cpu cpu)
         {
             LDAX(cpu.Registers.BC, memory, cpu);
         }
