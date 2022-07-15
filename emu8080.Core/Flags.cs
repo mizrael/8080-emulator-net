@@ -12,11 +12,11 @@ namespace emu8080.Core
         public const byte ParityFlag = 0x04;      // 0=odd, 1=even
         public const byte CarryFlag = 0x01;       // 0=no carry, 1=carry
 
-        private byte _flags;
+        private byte _flags = 0;
        
         public void Reset()
         {
-            this._flags = 0;
+            _flags = 0;
         }
 
         public bool Carry
@@ -111,10 +111,10 @@ namespace emu8080.Core
         }
 
         public byte PSW{
-            get => this._flags;
+            get => _flags;
             set
             {
-                this._flags = value;
+                _flags = value;
                 //this.Zero  = (0x01 == (value & 0x01));
                 //this.Sign  = (0x02 == (value & 0x02));
                 //this.Parity  = (0x04 == (value & 0x04));

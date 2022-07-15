@@ -2,7 +2,7 @@
 {
     public static class Utils
     {
-        public static byte Decrement(byte a, State state)
+        public static byte Decrement(byte a, Registers state)
         {
             byte result = (byte)((a - 1) & 0xff);
             state.Flags.CalcZeroFlag(result);
@@ -12,7 +12,7 @@
             return result;
         }
 
-        public static byte Increment(byte a, State state)
+        public static byte Increment(byte a, Registers state)
         {
             byte result = (byte)((a + 1) & 0xff);
             state.Flags.CalcZeroFlag(result);

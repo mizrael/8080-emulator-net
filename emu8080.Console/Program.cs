@@ -49,13 +49,13 @@ namespace emu8080.Console
             
             _logger.LogWarning("processing program, press ESC to quit");
 
-            var registers = new State();
+            var registers = new Registers();
             var bus = new Bus();
 
             var logger = provider.GetService<ILogger<Cpu>>();
             var cpu = new Cpu(registers, bus, logger);
             cpu.Reset();
-            cpu.State.ProgramCounter = startPos;
+            cpu.Registers.ProgramCounter = startPos;
            
             Run(cpu, memory);
             
@@ -75,7 +75,7 @@ namespace emu8080.Console
         {
             while (true)
             {
-                if (cpu.State.ProgramCounter == 0x0000)
+                if (cpu.Registers.ProgramCounter == 0x0000)
                     break;
                 //else if (cpu.State.ProgramCounter == 0x689) //CPUER
                 //{
@@ -87,16 +87,16 @@ namespace emu8080.Console
                 //    break;
                 //}
 
-                if (cpu.State.ProgramCounter == 0x0005)
+                if (cpu.Registers.ProgramCounter == 0x0005)
                 {
-                    if (cpu.State.C == 0x02)
+                    if (cpu.Registers.C == 0x02)
                     {
-                        var c = (char) cpu.State.E;
+                        var c = (char) cpu.Registers.E;
                         _logger.LogInformation(c.ToString());
                     }
-                    else if (cpu.State.C == 0x09)
+                    else if (cpu.Registers.C == 0x09)
                     {
-                        var ptr = cpu.State.DE + 3; // skipping prefix ( \f\r\n )
+                        var ptr = cpu.Registers.DE + 3; // skipping prefix ( \f\r\n )
                         var sb = new StringBuilder();
                         while (true)
                         {
@@ -106,7 +106,7 @@ namespace emu8080.Console
                             ptr++;
                         }
 
-                        sb.Append($"{cpu.State.E:X}");
+                        sb.Append($"{cpu.Registers.E:X}");
                         _logger.LogInformation(sb.ToString());
                         break;
                     }

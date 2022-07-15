@@ -45,25 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Content\roms\8080PRE\8080PRE.COM">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Content\roms\CPUTEST\CPUTEST.COM">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Content\roms\invaders\invaders.e">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Content\roms\invaders\invaders.f">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Content\roms\invaders\invaders.g">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Content\roms\invaders\invaders.h">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Content\roms\TST8080\TST8080.COM">
+    <None Update="Content\roms\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

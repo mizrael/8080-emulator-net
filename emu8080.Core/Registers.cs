@@ -1,8 +1,8 @@
 ﻿namespace emu8080.Core
 {
-    public class State
+    public class Registers
     {
-        public State(){
+        public Registers(){
             this.Flags = new Flags();
         }
 

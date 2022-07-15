@@ -55,7 +55,7 @@ namespace emu8080.Game
 
             var sp = services.BuildServiceProvider();
 
-            var registers = new State();
+            var registers = new Registers();
             var bus = new Bus();
             bus.InterruptChanged += Bus_InterruptChanged;
 
@@ -141,7 +141,7 @@ namespace emu8080.Game
 
             //Set the PC to the low memory vector.    
             //This is identical to an "RST interrupt_num" instruction.    
-            _cpu.State.ProgramCounter = (ushort)(8 * interruptNum);
+            _cpu.Registers.ProgramCounter = (ushort)(8 * interruptNum);
         }
 
         private void UpdateVideoTexture()
