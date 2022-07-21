@@ -25,17 +25,15 @@ namespace emu8080.Core
                 { 0x08, Ops.NOP },
                 { 0x09, Ops.DAD_B },
                 { 0x0a, Ops.LDAX_B },
-                { 0x0b, Ops.DCX_B }
+                { 0x0b, Ops.DCX_B },
+                { 0x0d, Ops.DCR_C },
+                { 0x0e, Ops.MVI_C },
+                { 0x0f, Ops.RRC },
+                { 0x10, Ops.NOP },
+                { 0x11, Ops.LXI_D }
             };
 
-
             //_ops.Add();
-            //_ops.Add(0x0b, Ops.DCX_B);
-            //_ops.Add(0x0d, Ops.DCR_C);
-            //_ops.Add(0x0e, Ops.MVI_C);
-            //_ops.Add(0x0f, Ops.RRC);
-            //_ops.Add(0x10, Ops.NOP);
-            //_ops.Add(0x11, Ops.LXI_D);
             //_ops.Add(0x13, Ops.INX_D);
             //_ops.Add(0x14, Ops.INR_D);
             //_ops.Add(0x15, Ops.DCR_D);
