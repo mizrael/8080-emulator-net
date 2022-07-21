@@ -241,6 +241,13 @@ namespace emu8080.Core
             cpu.Registers.DE = LXI(memory, cpu);
         }
 
+        // 0x12 , (DE) <- A
+        public static void STAX_D(Memory memory, Cpu cpu)
+        {
+            WriteMemory(memory, cpu.Registers.DE, cpu.Registers.A);
+            cpu.Registers.ProgramCounter++;
+        }
+
         // 0x13 , DE <- DE + 1
         public static void INX_D(Memory memory, Cpu cpu)
         {
