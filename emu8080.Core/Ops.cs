@@ -305,6 +305,8 @@ namespace emu8080.Core
             cpu.Registers.Flags.Carry = ((byte) (cpu.Registers.A & 0x01) == 0x01);
 
             cpu.Registers.A = temp;
+
+            cpu.Registers.ProgramCounter++;
         }
 
         // 0x21 , H <- byte 3, L <- byte 2
