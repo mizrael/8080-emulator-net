@@ -2,6 +2,8 @@
 
 Simple intel 8080 emulator, written in C# with .NET Core 3.0. It's a learning project, just for fun.
 
+OpCode reference table can be found [here](http://www.emulator101.com/reference/8080-by-opcode.html).
+
 At the moment I have implemented only the bare minimun OPs to make Space Invaders "run".
 
 **No roms are included in the repo.**

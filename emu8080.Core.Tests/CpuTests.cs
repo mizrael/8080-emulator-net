@@ -599,6 +599,22 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void MVI_M()
+        {
+            Cpu cpu = BuildSut();
+            cpu.Registers.HL = 0x71;
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x36, 0x42
+            });
+
+            cpu.Step(memory);
+            memory[cpu.Registers.HL].Should().Be(0x42);
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
         public void RLC()
         {
             Cpu cpu = BuildSut();
@@ -811,6 +827,24 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
 
             cpu.Registers.A.Should().Be(0);
+
+            cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
+        public void STC()
+        {
+            Cpu cpu = BuildSut();
+            cpu.Registers.Flags.Carry = false;
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x37
+            });
+
+            cpu.Step(memory);
+            
+            cpu.Registers.Flags.Carry .Should().BeTrue();
 
             cpu.Registers.ProgramCounter.Should().Be(1);
         }
