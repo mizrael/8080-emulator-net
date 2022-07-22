@@ -56,10 +56,10 @@ namespace emu8080.Core
                 { 0x32, Ops.STA },
                 { 0x35, Ops.DCR_M },
                 { 0x36, Ops.MVI_M },
-                { 0x37, Ops.STC }
+                { 0x37, Ops.STC },
+                { 0x3a, Ops.LDA }
             };
 
-            //_ops.Add(0x3a, Ops.LDA);
             //_ops.Add(0x3c, Ops.INR_A);
             //_ops.Add(0x3d, Ops.DCR_A);
             //_ops.Add(0x3e, Ops.MVI_A);

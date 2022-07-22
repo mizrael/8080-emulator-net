@@ -737,6 +737,26 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void LDA()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x3a,
+                0x01, 0x20
+            });
+            memory[0x2001] = 0x71;
+
+            cpu.Step(memory);
+
+            cpu.Registers.A.Should().Be(0x71);
+
+            cpu.Registers.ProgramCounter.Should().Be(3);
+        }
+
+
+        [Fact]
         public void DCX_B()
         {
             Cpu cpu = BuildSut();
