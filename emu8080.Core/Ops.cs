@@ -318,8 +318,7 @@ namespace emu8080.Core
         // 0x22 , (adr) <-L; (adr+1)<-H
         public static void SHLD(Memory memory, Cpu cpu)
         {
-            //TODO: check
-            var address = Utils.GetValue(memory[cpu.Registers.ProgramCounter + 1], memory[cpu.Registers.ProgramCounter]);
+            var address = Utils.GetValue(memory[cpu.Registers.ProgramCounter + 2], memory[cpu.Registers.ProgramCounter + 1]);
             WriteMemory(memory, address, cpu.Registers.L);
             WriteMemory(memory, (ushort) (address + 1), cpu.Registers.H);
 

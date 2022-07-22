@@ -39,13 +39,16 @@ namespace emu8080.Core
                 { 0x1a, Ops.LDAX_D},
                 { 0x1c, Ops.INR_E },
                 { 0x1e, Ops.MVI_E },
-                { 0x1f, Ops.RAR }
+                { 0x1f, Ops.RAR },
+                { 0x20, Ops.NOP },
+                { 0x21, Ops.LXI_H },
+                { 0x22, Ops.SHLD }
             };
 
             //_ops.Add);
-            //_ops.Add(0x20, Ops.NOP);
-            //_ops.Add(0x21, Ops.LXI_H);
-            //_ops.Add(0x22, Ops.SHLD);
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
             //_ops.Add(0x23, Ops.INX_H);
             //_ops.Add(0x24, Ops.INR_H);
             //_ops.Add(0x25, Ops.DCR_H);

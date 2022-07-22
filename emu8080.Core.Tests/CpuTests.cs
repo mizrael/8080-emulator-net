@@ -39,6 +39,22 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void LXI_H()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x21, 0x78, 0xab
+            });
+
+            cpu.Step(memory);
+
+            cpu.Registers.HL.Should().Be(0xab78);
+            cpu.Registers.ProgramCounter.Should().Be(3);
+        }
+
+        [Fact]
         public void STAX_B()
         {
             Cpu cpu = BuildSut();
@@ -548,6 +564,26 @@ namespace emu8080.Core.Tests
             cpu.Registers.Flags.Carry.Should().BeFalse();
             cpu.Registers.A.Should().Be(0xb5);
             cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
+        public void SHLD()
+        {
+            Cpu cpu = BuildSut();
+            cpu.Registers.H = 0x42;
+            cpu.Registers.L = 0x71;
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x22, 0x01, 0x02
+            });
+
+            cpu.Step(memory);
+
+            memory[0x01].Should().Be(0x71);
+            memory[2].Should().Be(0x42);
+
+            cpu.Registers.ProgramCounter.Should().Be(3);
         }
 
         private static Cpu BuildSut()
