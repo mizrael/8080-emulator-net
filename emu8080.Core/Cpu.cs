@@ -72,15 +72,18 @@ namespace emu8080.Core
                 { 0x49, Ops.MOV_C_C },
                 { 0x4a, Ops.MOV_C_D },
                 { 0x4e, Ops.MOV_C_M },
-                { 0x4f, Ops.MOV_C_A }
+                { 0x4f, Ops.MOV_C_A },
+                { 0x54, Ops.MOV_D_H },
+                { 0x56, Ops.MOV_D_M },
+                { 0x57, Ops.MOV_D_A }
             };
             //_ops.Add();
             //_ops.Add();
             //_ops.Add();
             //_ops.Add();
-            //_ops.Add(0x54, Ops.MOV_D_H);
-            //_ops.Add(0x56, Ops.MOV_D_M);
-            //_ops.Add(0x57, Ops.MOV_D_A);
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
             //_ops.Add(0x5f, Ops.MOV_E_A);
             //_ops.Add(0x5e, Ops.MOV_E_M);
             //_ops.Add(0x61, Ops.MOV_H_C);

@@ -884,8 +884,11 @@ namespace emu8080.Core.Tests
                 0x46, // MOV_B_M
                 0x49, // MOV_C_C
                 0x4a, // MOV_C_D
-                0x4e, // Ops.MOV_C_M
-                0x4f, // Ops.MOV_C_A
+                0x4e, // MOV_C_M
+                0x4f, // MOV_C_A
+                0x54, // MOV_D_H
+                0x56, // MOV_D_M
+                0x57, // MOV_D_A
             });
 
             cpu.Registers.B = 0x42;
@@ -944,6 +947,22 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
             cpu.Registers.C.Should().Be(0x2a);
             cpu.Registers.ProgramCounter.Should().Be(11);
+
+            cpu.Registers.H = 0xd4;
+            cpu.Step(memory);
+            cpu.Registers.D.Should().Be(0xd4);
+            cpu.Registers.ProgramCounter.Should().Be(12);
+
+            cpu.Registers.HL = 0x4001;
+            memory[0x4001] = 0xf3;
+            cpu.Step(memory);
+            cpu.Registers.D.Should().Be(0xf3);
+            cpu.Registers.ProgramCounter.Should().Be(13);
+
+            cpu.Registers.A = 0xe3;
+            cpu.Step(memory);
+            cpu.Registers.D.Should().Be(0xe3);
+            cpu.Registers.ProgramCounter.Should().Be(14);
         }
 
         [Fact]
