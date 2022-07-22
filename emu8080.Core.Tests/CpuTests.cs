@@ -575,13 +575,13 @@ namespace emu8080.Core.Tests
 
             var memory = Memory.Load(new byte[]
             {
-                0x22, 0x01, 0x02
+                0x22, 0x01, 0x20
             });
 
             cpu.Step(memory);
 
-            memory[0x01].Should().Be(0x71);
-            memory[2].Should().Be(0x42);
+            memory[0x2001].Should().Be(0x71);
+            memory[0x2002].Should().Be(0x42);
 
             cpu.Registers.ProgramCounter.Should().Be(3);
         }
