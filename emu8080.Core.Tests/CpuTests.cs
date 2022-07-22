@@ -369,6 +369,55 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void INR_A()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x3c,
+                0x3c,
+                0x3c,
+                0x3c,
+            });
+
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x1);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.A = 0x41;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x42);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+
+            cpu.Registers.A = 0xFE;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xFF);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(3);
+
+            cpu.Registers.A = 0xFD;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xFE);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(4);
+        }
+
+        [Fact]
         public void DCR_B()
         {
             Cpu cpu = BuildSut();
@@ -524,6 +573,37 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void DCR_A()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x3d,
+                0x3d,
+                0x3d,
+            });
+
+            cpu.Registers.A = 0x43;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x42);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.A = 0xFF;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xFE);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
         public void MVI_B()
         {
             Cpu cpu = BuildSut();
@@ -611,6 +691,21 @@ namespace emu8080.Core.Tests
 
             cpu.Step(memory);
             memory[cpu.Registers.HL].Should().Be(0x42);
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
+        public void MVI_A()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x3e, 0x42
+            });
+
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x42);
             cpu.Registers.ProgramCounter.Should().Be(2);
         }
 
@@ -755,7 +850,6 @@ namespace emu8080.Core.Tests
             cpu.Registers.ProgramCounter.Should().Be(3);
         }
 
-
         [Fact]
         public void DCX_B()
         {
@@ -772,6 +866,84 @@ namespace emu8080.Core.Tests
 
             cpu.Registers.BC.Should().Be(0x42);
             cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
+        public void MOV_R1_R2()
+        {
+            Cpu cpu = BuildSut();
+            
+            var memory = Memory.Load(new byte[]
+            {
+                0x40, // MOV_B_B
+                0x41, // MOV_B_C
+                0x42, // MOV_B_D
+                0x43, // MOV_B_E
+                0x44, // MOV_B_H
+                0x45, // MOV_B_L
+                0x46, // MOV_B_M
+                0x49, // MOV_C_C
+                0x4a, // MOV_C_D
+                0x4e, // Ops.MOV_C_M
+                0x4f, // Ops.MOV_C_A
+            });
+
+            cpu.Registers.B = 0x42;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0x42);
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.C = 0x71;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0x71);
+            cpu.Registers.ProgramCounter.Should().Be(2);
+
+            cpu.Registers.D = 0xFF;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xFF);
+            cpu.Registers.ProgramCounter.Should().Be(3);
+
+            cpu.Registers.E = 0xa2;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xa2);
+            cpu.Registers.ProgramCounter.Should().Be(4);
+
+            cpu.Registers.H = 0xb3;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xb3);
+            cpu.Registers.ProgramCounter.Should().Be(5);
+
+            cpu.Registers.L = 0xd5;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xd5);
+            cpu.Registers.ProgramCounter.Should().Be(6);
+
+            cpu.Registers.HL = 0x2001;
+            memory[0x2001] = 0xd2;
+            cpu.Step(memory);
+            cpu.Registers.B.Should().Be(0xd2);
+            cpu.Registers.ProgramCounter.Should().Be(7);
+
+            cpu.Registers.C = 0x22;
+            cpu.Step(memory);
+            cpu.Registers.C.Should().Be(0x22);
+            cpu.Registers.ProgramCounter.Should().Be(8);
+
+            cpu.Registers.D = 0xe8;
+            cpu.Step(memory);
+            cpu.Registers.C.Should().Be(0xe8);
+            cpu.Registers.ProgramCounter.Should().Be(9);
+
+            cpu.Registers.HL = 0x3001;
+            memory[0x3001] = 0xf1;
+            cpu.Step(memory);
+            cpu.Registers.C.Should().Be(0xf1);
+            cpu.Registers.ProgramCounter.Should().Be(10);
+
+            cpu.Registers.A = 0x2a;
+            cpu.Step(memory);
+            cpu.Registers.C.Should().Be(0x2a);
+            cpu.Registers.ProgramCounter.Should().Be(11);
         }
 
         [Fact]
@@ -849,6 +1021,29 @@ namespace emu8080.Core.Tests
             cpu.Registers.A.Should().Be(0);
 
             cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
+        public void CMC()
+        {
+            Cpu cpu = BuildSut();
+            cpu.Registers.Flags.Carry = true;
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x3f,
+                0x3f
+            });
+
+            cpu.Step(memory);
+
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Step(memory);
+
+            cpu.Registers.Flags.Carry.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(2);
         }
 
         [Fact]

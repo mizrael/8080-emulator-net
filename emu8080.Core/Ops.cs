@@ -479,6 +479,13 @@ namespace emu8080.Core
             cpu.Registers.ProgramCounter++;
         }
 
+        // 0x45 , B <- L
+        public static void MOV_B_L(Memory memory, Cpu cpu)
+        {
+            cpu.Registers.B = cpu.Registers.L;
+            cpu.Registers.ProgramCounter++;
+        }
+
         // 0x46 , B <- (HL)
         public static void MOV_B_M(Memory memory, Cpu cpu)
         {
