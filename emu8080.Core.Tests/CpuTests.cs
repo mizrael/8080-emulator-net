@@ -493,6 +493,37 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void DCR_M()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x35, 
+                0x35, 
+                0x42, 0xFF
+            });
+
+            cpu.Registers.HL = 0x02;
+            cpu.Step(memory);
+            memory[cpu.Registers.HL].Should().Be(0x41);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.HL = 0x03;
+            cpu.Step(memory);
+            memory[cpu.Registers.HL].Should().Be(0xFE);
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
         public void MVI_B()
         {
             Cpu cpu = BuildSut();

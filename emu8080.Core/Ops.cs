@@ -388,7 +388,9 @@ namespace emu8080.Core
         // 0x35 , (HL) <- (HL)-1
         public static void DCR_M(Memory memory, Cpu cpu)
         {
-            memory[cpu.Registers.HL] = (byte) (memory[cpu.Registers.HL] - 1);
+            byte value = (byte)memory[cpu.Registers.HL];
+            memory[cpu.Registers.HL] = Utils.Decrement(value, cpu.Registers);
+
             cpu.Registers.ProgramCounter++;
         }
 
