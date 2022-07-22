@@ -368,6 +368,7 @@ namespace emu8080.Core
         public static void CMA(Memory memory, Cpu cpu)
         {
             cpu.Registers.A = (byte) ~cpu.Registers.A;
+            cpu.Registers.ProgramCounter++;
         }
 
         // 0x31 , SP.hi <- byte 3, SP.lo <- byte 2

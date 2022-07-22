@@ -42,24 +42,22 @@ namespace emu8080.Core
                 { 0x1f, Ops.RAR },
                 { 0x20, Ops.NOP },
                 { 0x21, Ops.LXI_H },
-                { 0x22, Ops.SHLD }
+                { 0x22, Ops.SHLD },
+                { 0x23, Ops.INX_H },
+                { 0x24, Ops.INR_H },
+                { 0x25, Ops.DCR_H },
+                { 0x26, Ops.MVI_H },
+                { 0x28, Ops.NOP },
+                { 0x29, Ops.DAD_H },
+                { 0x2e, Ops.MVI_L },
+                { 0x2f, Ops.CMA },
+                { 0x30, Ops.NOP },
+                { 0x31, Ops.LXI_SP },
+                { 0x32, Ops.STA }
             };
 
-            //_ops.Add);
             //_ops.Add();
             //_ops.Add();
-            //_ops.Add();
-            //_ops.Add(0x23, Ops.INX_H);
-            //_ops.Add(0x24, Ops.INR_H);
-            //_ops.Add(0x25, Ops.DCR_H);
-            //_ops.Add(0x26, Ops.MVI_H);
-            //_ops.Add(0x28, Ops.NOP);
-            //_ops.Add(0x29, Ops.DAD_H);
-            //_ops.Add(0x2e, Ops.MVI_L);
-            //_ops.Add(0x2f, Ops.CMA);
-            //_ops.Add(0x30, Ops.NOP);
-            //_ops.Add(0x31, Ops.LXI_SP);
-            //_ops.Add(0x32, Ops.STA);
             //_ops.Add(0x35, Ops.DCR_M);
             //_ops.Add(0x36, Ops.MVI_M);
             //_ops.Add(0x37, Ops.STC);
