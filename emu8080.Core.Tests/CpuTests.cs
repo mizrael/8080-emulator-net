@@ -889,6 +889,20 @@ namespace emu8080.Core.Tests
                 0x54, // MOV_D_H
                 0x56, // MOV_D_M
                 0x57, // MOV_D_A
+                0x5f, // MOV_E_A
+                0x5e, // MOV_E_M
+                0x61, // MOV_H_C
+                0x66, // MOV_H_M
+                0x67, // MOV_H_A
+                0x69, // MOV_L_C
+                0x6f, // MOV_L_A
+                0x77, // MOV_M_A
+                0x79, // MOV_A_C
+                0x7a, // MOV_A_D
+                0x7b, // MOV_A_E
+                0x7c, // MOV_A_H
+                0x7d, // MOV_A_L
+                0x7e, // MOV_A_M
             });
 
             cpu.Registers.B = 0x42;
@@ -963,6 +977,80 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
             cpu.Registers.D.Should().Be(0xe3);
             cpu.Registers.ProgramCounter.Should().Be(14);
+
+            cpu.Registers.A = 0xe7;
+            cpu.Step(memory);
+            cpu.Registers.E.Should().Be(0xe7);
+            cpu.Registers.ProgramCounter.Should().Be(15);
+
+            cpu.Registers.HL = 0x5002;
+            memory[0x5002] = 0xf1;
+            cpu.Step(memory);
+            cpu.Registers.E.Should().Be(0xf1);
+            cpu.Registers.ProgramCounter.Should().Be(16);
+
+            cpu.Registers.C = 0xe8;
+            cpu.Step(memory);
+            cpu.Registers.H.Should().Be(0xe8);
+            cpu.Registers.ProgramCounter.Should().Be(17);
+
+            cpu.Registers.HL = 0x6003;
+            memory[0x6003] = 0xd1;
+            cpu.Step(memory);
+            cpu.Registers.H.Should().Be(0xd1);
+            cpu.Registers.ProgramCounter.Should().Be(18);
+
+            cpu.Registers.A = 0xe8;
+            cpu.Step(memory);
+            cpu.Registers.H.Should().Be(0xe8);
+            cpu.Registers.ProgramCounter.Should().Be(19);
+
+            cpu.Registers.C = 0xe9;
+            cpu.Step(memory);
+            cpu.Registers.L.Should().Be(0xe9);
+            cpu.Registers.ProgramCounter.Should().Be(20);
+
+            cpu.Registers.A = 0xb9;
+            cpu.Step(memory);
+            cpu.Registers.L.Should().Be(0xb9);
+            cpu.Registers.ProgramCounter.Should().Be(21);
+
+            cpu.Registers.A = 0xb1;
+            cpu.Registers.HL = 0x4042;
+            cpu.Step(memory);
+            memory[cpu.Registers.HL].Should().Be(0xb1);
+            cpu.Registers.ProgramCounter.Should().Be(22);
+
+            cpu.Registers.C = 0xa9;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xa9);
+            cpu.Registers.ProgramCounter.Should().Be(23);
+
+            cpu.Registers.D = 0xa2;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xa2);
+            cpu.Registers.ProgramCounter.Should().Be(24);
+
+            cpu.Registers.E = 0xa4;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xa4);
+            cpu.Registers.ProgramCounter.Should().Be(25);
+
+            cpu.Registers.H = 0xa5;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xa5);
+            cpu.Registers.ProgramCounter.Should().Be(26);
+
+            cpu.Registers.L = 0xa6;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xa6);
+            cpu.Registers.ProgramCounter.Should().Be(27);
+
+            cpu.Registers.HL = 0x7004;
+            memory[0x7004] = 0xd2;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xd2);
+            cpu.Registers.ProgramCounter.Should().Be(28);
         }
 
         [Fact]

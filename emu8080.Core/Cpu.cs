@@ -75,29 +75,23 @@ namespace emu8080.Core
                 { 0x4f, Ops.MOV_C_A },
                 { 0x54, Ops.MOV_D_H },
                 { 0x56, Ops.MOV_D_M },
-                { 0x57, Ops.MOV_D_A }
+                { 0x57, Ops.MOV_D_A },
+                { 0x5f, Ops.MOV_E_A },
+                { 0x5e, Ops.MOV_E_M },
+                { 0x61, Ops.MOV_H_C },
+                { 0x66, Ops.MOV_H_M },
+                { 0x67, Ops.MOV_H_A },
+                { 0x69, Ops.MOV_L_C },
+                { 0x6f, Ops.MOV_L_A },
+                { 0x77, Ops.MOV_M_A },
+                { 0x79, Ops.MOV_A_C },
+                { 0x7a, Ops.MOV_A_D },
+                { 0x7b, Ops.MOV_A_E },
+                { 0x7c, Ops.MOV_A_H },
+                { 0x7d, Ops.MOV_A_L },
+                { 0x7e, Ops.MOV_A_M }
             };
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add(0x5f, Ops.MOV_E_A);
-            //_ops.Add(0x5e, Ops.MOV_E_M);
-            //_ops.Add(0x61, Ops.MOV_H_C);
-            //_ops.Add(0x66, Ops.MOV_H_M);
-            //_ops.Add(0x67, Ops.MOV_H_A);
-            //_ops.Add(0x69, Ops.MOV_L_C);
-            //_ops.Add(0x6f, Ops.MOV_L_A);
-            //_ops.Add(0x77, Ops.MOV_M_A);
-            //_ops.Add(0x79, Ops.MOV_A_C);
-            //_ops.Add(0x7a, Ops.MOV_A_D);
-            //_ops.Add(0x7b, Ops.MOV_A_E);
-            //_ops.Add(0x7c, Ops.MOV_A_H);
-            //_ops.Add(0x7d, Ops.MOV_A_L);
-            //_ops.Add(0x7e, Ops.MOV_A_M);
+
             //_ops.Add(0x80, Ops.ADD_B);
             //_ops.Add(0x81, Ops.ADD_C);
             //_ops.Add(0x87, Ops.ADC_A);
