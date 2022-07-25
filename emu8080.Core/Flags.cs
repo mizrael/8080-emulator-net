@@ -87,7 +87,7 @@ namespace emu8080.Core
 
         public void CalcAuxCarryFlag(byte a, byte b)
         {
-            AuxCarry = (a & b) == 0; 
+            AuxCarry = (byte)((a & 0x0f) + (b & 0x0f)) > 0x0f;
         }
 
         public void CalcAuxCarryFlag(byte a, byte b, byte c)

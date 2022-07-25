@@ -187,7 +187,7 @@ namespace emu8080.Core.Tests
 
             cpu.Step(memory);
             cpu.Registers.B.Should().Be(0x1);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -196,7 +196,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.B = 0x41;
             cpu.Step(memory);
             cpu.Registers.B.Should().Be(0x42);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -205,7 +205,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.B = 0xFE;
             cpu.Step(memory);
             cpu.Registers.B.Should().Be(0xFF);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -214,7 +214,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.B = 0xFD;
             cpu.Step(memory);
             cpu.Registers.B.Should().Be(0xFE);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -236,7 +236,7 @@ namespace emu8080.Core.Tests
 
             cpu.Step(memory);
             cpu.Registers.D.Should().Be(0x1);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -245,7 +245,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.D = 0x41;
             cpu.Step(memory);
             cpu.Registers.D.Should().Be(0x42);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -254,7 +254,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.D = 0xFE;
             cpu.Step(memory);
             cpu.Registers.D.Should().Be(0xFF);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -263,7 +263,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.D = 0xFD;
             cpu.Step(memory);
             cpu.Registers.D.Should().Be(0xFE);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -285,7 +285,7 @@ namespace emu8080.Core.Tests
 
             cpu.Step(memory);
             cpu.Registers.E.Should().Be(0x1);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -294,7 +294,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.E = 0x41;
             cpu.Step(memory);
             cpu.Registers.E.Should().Be(0x42);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -303,7 +303,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.E = 0xFE;
             cpu.Step(memory);
             cpu.Registers.E.Should().Be(0xFF);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -312,7 +312,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.E = 0xFD;
             cpu.Step(memory);
             cpu.Registers.E.Should().Be(0xFE);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -334,7 +334,7 @@ namespace emu8080.Core.Tests
 
             cpu.Step(memory);
             cpu.Registers.H.Should().Be(0x1);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -343,7 +343,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.H = 0x41;
             cpu.Step(memory);
             cpu.Registers.H.Should().Be(0x42);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -352,7 +352,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.H = 0xFE;
             cpu.Step(memory);
             cpu.Registers.H.Should().Be(0xFF);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -361,7 +361,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.H = 0xFD;
             cpu.Step(memory);
             cpu.Registers.H.Should().Be(0xFE);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -383,7 +383,7 @@ namespace emu8080.Core.Tests
 
             cpu.Step(memory);
             cpu.Registers.A.Should().Be(0x1);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -392,7 +392,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.A = 0x41;
             cpu.Step(memory);
             cpu.Registers.A.Should().Be(0x42);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeFalse();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -401,7 +401,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.A = 0xFE;
             cpu.Step(memory);
             cpu.Registers.A.Should().Be(0xFF);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeTrue();
@@ -410,7 +410,7 @@ namespace emu8080.Core.Tests
             cpu.Registers.A = 0xFD;
             cpu.Step(memory);
             cpu.Registers.A.Should().Be(0xFE);
-            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
             cpu.Registers.Flags.Zero.Should().BeFalse();
             cpu.Registers.Flags.Sign.Should().BeTrue();
             cpu.Registers.Flags.Parity.Should().BeFalse();
@@ -1051,6 +1051,40 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
             cpu.Registers.A.Should().Be(0xd2);
             cpu.Registers.ProgramCounter.Should().Be(28);
+        }
+
+        [Fact]
+        public void ADD()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x80, //ADD_B
+                0x81, //ADD_C
+            });
+
+            cpu.Registers.A = 0x6c;
+            cpu.Registers.B = 0x2e;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x9a);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.A = 0x03;
+            cpu.Registers.C = 0x40;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x43); 
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(2);
         }
 
         [Fact]
