@@ -92,15 +92,15 @@ namespace emu8080.Core
             return (byte)(result & 0xff);
         }
 
-        private static void SBB(Memory memory, Cpu cpu, byte value)
+        private static byte SBB(Memory memory, Cpu cpu, byte a, byte b)
         {
-            ushort result = (ushort) (cpu.Registers.A - value - (cpu.Registers.Flags.Carry ? 1 : 0));
+            ushort result = (ushort) (a - b - (cpu.Registers.Flags.Carry ? 1 : 0));
             cpu.Registers.Flags.CalcSZPC(result);
-            cpu.Registers.Flags.CalcAuxCarryFlag(cpu.Registers.A, (byte) (~value & 0xff), 1);
-
-            cpu.Registers.A = (byte) (result & 0xff);
+            cpu.Registers.Flags.CalcAuxCarryFlag(a, (byte) (~b & 0xff), 1);
 
             cpu.Registers.ProgramCounter++;
+
+            return (byte)(result & 0xff);
         }
 
         private static void ADD(Memory memory, Cpu cpu, byte value)
@@ -698,31 +698,31 @@ namespace emu8080.Core
         // 0x99 , A <- A - C - CY
         public static void SBB_C(Memory memory, Cpu cpu)
         {
-            SBB(memory, cpu, cpu.Registers.C);
+            cpu.Registers.A = SBB(memory, cpu, cpu.Registers.A, cpu.Registers.C);
         }
 
         // 0x9a , A <- A - D - CY
         public static void SBB_D(Memory memory, Cpu cpu)
         {
-            SBB(memory, cpu, cpu.Registers.D);
+            cpu.Registers.A = SBB(memory, cpu, cpu.Registers.A, cpu.Registers.D);
         }
 
         // 0x9b , A <- A - E - CY
         public static void SBB_E(Memory memory, Cpu cpu)
         {
-            SBB(memory, cpu, cpu.Registers.E);
+            cpu.Registers.A = SBB(memory, cpu, cpu.Registers.A, cpu.Registers.E);
         }
 
         // 0x9c , A <- A - H - CY
         public static void SBB_H(Memory memory, Cpu cpu)
         {
-            SBB(memory, cpu, cpu.Registers.H);
+            cpu.Registers.A = SBB(memory, cpu, cpu.Registers.A, cpu.Registers.H);
         }
 
         // 0x9d , A <- A - L - CY
         public static void SBB_L(Memory memory, Cpu cpu)
         {
-            SBB(memory, cpu, cpu.Registers.L);
+            cpu.Registers.A = SBB(memory, cpu, cpu.Registers.A, cpu.Registers.L);
         }
 
         // 0x9e , A <- A - (HL) - CY
@@ -730,13 +730,13 @@ namespace emu8080.Core
         {
             var mem = memory[cpu.Registers.HL];
 
-            SBB(memory, cpu, mem);
+            cpu.Registers.A = SBB(memory, cpu, cpu.Registers.A, mem);
         }
 
         // 0x9f , A <- A - A - CY
         public static void SBB_A(Memory memory, Cpu cpu)
         {
-            SBB(memory, cpu, cpu.Registers.A);
+            cpu.Registers.A = SBB(memory, cpu, cpu.Registers.A, cpu.Registers.A);
         }
 
         // 0xa0 , A <- A & B

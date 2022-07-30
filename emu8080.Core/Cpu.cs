@@ -97,12 +97,14 @@ namespace emu8080.Core
                 { 0x89, Ops.ADC_C },
                 { 0x8b, Ops.ADC_E },
                 { 0x8c, Ops.ADC_H },
-                { 0x8d, Ops.ADC_L }
+                { 0x8d, Ops.ADC_L },
+                { 0x90, Ops.SUB_B },
+                { 0x99, Ops.SBB_C }
             };
 
 
-            //_ops.Add(0x90, Ops.SUB_B);
-            //_ops.Add(0x99, Ops.SBB_C);
+            //_ops.Add();
+            //_ops.Add();
             //_ops.Add(0x9a, Ops.SBB_D);
             //_ops.Add(0x9b, Ops.SBB_E);
             //_ops.Add(0x9c, Ops.SBB_H);
