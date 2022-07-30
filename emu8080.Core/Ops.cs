@@ -74,24 +74,22 @@ namespace emu8080.Core
                 cpu.Registers.ProgramCounter++;
         }
 
-        private static void ADC(Memory memory, Cpu cpu, byte value)
+        private static byte ADC(Memory memory, Cpu cpu, byte a, byte b)
         {
-            var result = (ushort) (cpu.Registers.A + value);
+            var result = (ushort) (a + b);
             if (cpu.Registers.Flags.Carry)
             {
                 result++;
-                cpu.Registers.Flags.CalcAuxCarryFlag(cpu.Registers.A, value, 1);
+                cpu.Registers.Flags.CalcAuxCarryFlag(a, b, 1);
             }
             else
             {
-                cpu.Registers.Flags.CalcAuxCarryFlag(cpu.Registers.A, value);
+                cpu.Registers.Flags.CalcAuxCarryFlag(a, b);
             }
 
             cpu.Registers.Flags.CalcSZPC(result);
-
-            cpu.Registers.A = (byte) (result & 0xff);
-
             cpu.Registers.ProgramCounter++;
+            return (byte)(result & 0xff);
         }
 
         private static void SBB(Memory memory, Cpu cpu, byte value)
@@ -105,7 +103,7 @@ namespace emu8080.Core
             cpu.Registers.ProgramCounter++;
         }
 
-        private static void ADD_to_A(Memory memory, Cpu cpu, byte value)
+        private static void ADD(Memory memory, Cpu cpu, byte value)
         {
             ushort result = (ushort) (cpu.Registers.A + value);
             cpu.Registers.Flags.CalcSZPC(result);
@@ -116,7 +114,7 @@ namespace emu8080.Core
             cpu.Registers.A = (byte)(result & 0xff);
         }
 
-        private static void SUB_from_A(Memory memory, Cpu cpu, byte value)
+        private static void SUB(Memory memory, Cpu cpu, byte value)
         {
             ushort result = (ushort)(cpu.Registers.A - value);
             cpu.Registers.Flags.CalcSZPC(result);
@@ -654,50 +652,48 @@ namespace emu8080.Core
 
         // 0x80 , A <- A + B
         public static void ADD_B(Memory memory, Cpu cpu)
-            => ADD_to_A(memory, cpu, cpu.Registers.B);
+            => ADD(memory, cpu, cpu.Registers.B);
 
         // 0x81 , A <- A + C
         public static void ADD_C(Memory memory, Cpu cpu)
-            => ADD_to_A(memory, cpu, cpu.Registers.C);
+            => ADD(memory, cpu, cpu.Registers.C);
 
-        // 0x87 , 	A <- A + A + CY
-        public static void ADC_A(Memory memory, Cpu cpu)
-        {
-            ADC(memory, cpu, cpu.Registers.A);
-        }
+        // 0x87 , A <- A + A
+        public static void ADD_A(Memory memory, Cpu cpu)
+            => ADD(memory, cpu, cpu.Registers.A);
 
         // 0x88 , 	A <- A + B + CY
         public static void ADC_B(Memory memory, Cpu cpu)
         {
-            ADC(memory, cpu, cpu.Registers.B);
+            cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, cpu.Registers.B);
         }
 
         // 0x89 , 	A <- A + C + CY
         public static void ADC_C(Memory memory, Cpu cpu)
         {
-            ADC(memory, cpu, cpu.Registers.C);
+            cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, cpu.Registers.C);
         }
 
         // 0x8b , 	A <- A + E + CY
         public static void ADC_E(Memory memory, Cpu cpu)
         {
-            ADC(memory, cpu, cpu.Registers.E);
+            cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, cpu.Registers.E);
         }
 
         // 0x8c , 	A <- A + H + CY
         public static void ADC_H(Memory memory, Cpu cpu)
         {
-            ADC(memory, cpu, cpu.Registers.H);
+            cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, cpu.Registers.H);
         }
 
         // 0x8d , 	A <- A + L + CY
         public static void ADC_L(Memory memory, Cpu cpu)
         {
-            ADC(memory, cpu, cpu.Registers.L);
+            cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, cpu.Registers.L);
         }
 
         // 0x90 , A <- A - B
-        public static void SUB_B(Memory memory, Cpu cpu) => SUB_from_A(memory, cpu, cpu.Registers.B);
+        public static void SUB_B(Memory memory, Cpu cpu) => SUB(memory, cpu, cpu.Registers.B);
 
         // 0x99 , A <- A - C - CY
         public static void SBB_C(Memory memory, Cpu cpu)
