@@ -770,8 +770,11 @@ namespace emu8080.Core
         // 0xb0 , A <- A | B
         public static void ORA_B(Memory memory, Cpu cpu)
         {
-            cpu.Registers.B = (byte) ((cpu.Registers.A | cpu.Registers.B) & 0xff);
+            cpu.Registers.A = (byte) ((cpu.Registers.A | cpu.Registers.B) & 0xff);
             cpu.Registers.Flags.CalcSZPC(cpu.Registers.A);
+            cpu.Registers.Flags.Carry = false;
+            cpu.Registers.Flags.AuxCarry = false;
+
             cpu.Registers.ProgramCounter++;
         }
 
@@ -795,12 +798,7 @@ namespace emu8080.Core
 
         // 0xc0 , if NZ, RET
         public static void RNZ(Memory memory, Cpu cpu)
-        {
-            if (!cpu.Registers.Flags.Zero)
-                RET(memory, cpu);
-            else
-                cpu.Registers.StackPointer++;
-        }
+            => RET_FLAG(memory, cpu, !cpu.Registers.Flags.Zero);       
 
         // 0xc1 , C <- (sp); B <- (sp+1); sp <- sp+2
         public static void POP_BC(Memory memory, Cpu cpu)
@@ -852,20 +850,12 @@ namespace emu8080.Core
 
         // 0xc8 , if Z, RET
         public static void RZ(Memory memory, Cpu cpu)
-        {
-            if (cpu.Registers.Flags.Zero)
-                RET(memory, cpu);
-            else
-                cpu.Registers.ProgramCounter++;
-        }
+            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Zero);
 
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
         public static void RET(Memory memory, Cpu cpu)
         {
-            byte lo = memory[cpu.Registers.StackPointer];
-            byte hi = memory[cpu.Registers.StackPointer + 1];
-            cpu.Registers.ProgramCounter = Utils.GetValue(hi, lo);
-            cpu.Registers.StackPointer += 2;
+            cpu.Registers.ProgramCounter = POP(memory, cpu);
         }
 
         // 0xca , if Z, PC <- adr

@@ -105,23 +105,26 @@ namespace emu8080.Core
                 { 0x9c, Ops.SBB_H },
                 { 0x9d, Ops.SBB_L },
                 { 0x9e, Ops.SBB_M },
-                { 0x9f, Ops.SBB_A }
+                { 0x9f, Ops.SBB_A },
+                { 0xa0, Ops.ANA_B },
+                { 0xa7, Ops.ANA_A },
+                { 0xaa, Ops.XRA_D },
+                { 0xaf, Ops.XRA_A },
+                { 0xb0, Ops.ORA_B },
+                { 0xb6, Ops.ORA_M },
+                { 0xbe, Ops.CMP_M },
+                { 0xc0, Ops.RNZ },
+                { 0xc1, Ops.POP_BC }
             };
+
 
             //_ops.Add();
             //_ops.Add();
             //_ops.Add();
             //_ops.Add();
             //_ops.Add();
-            //_ops.Add(0xa0, Ops.ANA_B);
-            //_ops.Add(0xaa, Ops.XRA_D);
-            //_ops.Add(0xa7, Ops.ANA_A);
-            //_ops.Add(0xaf, Ops.XRA_A);
-            //_ops.Add(0xb0, Ops.ORA_B);
-            //_ops.Add(0xbe, Ops.CMP_M);
-            //_ops.Add(0xb6, Ops.ORA_M);
-            //_ops.Add(0xc0, Ops.RNZ);
-            //_ops.Add(0xc1, Ops.POP_BC);
+            //_ops.Add();
+            //_ops.Add();
             //_ops.Add(0xc2, Ops.JNZ);
             //_ops.Add(0xc3, Ops.JMP);
             //_ops.Add(0xc4, Ops.CNZ);

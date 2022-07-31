@@ -1262,6 +1262,130 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void ANA()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xa0, // ANA_B
+                0xa7, // ANA_A
+            });
+
+            cpu.Registers.A = 0xfc;
+            cpu.Registers.B = 0x0f;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x0c);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.A = 0xc1;            
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xc1);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
+        public void XRA()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xaa, // XRA_D
+                0xaf, // XRA_A
+            });
+
+            cpu.Registers.A = 0x5c;
+            cpu.Registers.D = 0x78;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x24);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.A = 0xc3;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
+        public void ORA()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xb0, // ORA_B
+                0xb6, // ORA_M
+            });
+
+            cpu.Registers.A = 0x33;
+            cpu.Registers.B = 0x0f;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x3f);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+
+            cpu.Registers.A = 0x33;
+            cpu.Registers.HL = 0x2071;
+            memory[cpu.Registers.HL] = 0xe1;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xf3);
+            cpu.Registers.Flags.Carry.Should().BeTrue();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
+        public void CMP()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xbe, // CMP_M
+            });
+
+            cpu.Registers.A = 0x0a;
+            cpu.Registers.HL = 0x2042;
+            memory[cpu.Registers.HL] = 0x05;
+            cpu.Step(memory);
+            
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse(); 
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();            
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
         public void ADC()
         {
             Cpu cpu = BuildSut();
@@ -1487,6 +1611,48 @@ namespace emu8080.Core.Tests
             cpu.Registers.Flags.Carry .Should().BeTrue();
 
             cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
+        public void RET()
+        {
+            Cpu cpu = BuildSut();
+            
+            var memory = Memory.Load(new byte[]
+            {
+                0xc0, 0xc0, // RNZ
+            });
+
+            cpu.Registers.Flags.CalcZeroFlag(1);
+            cpu.Registers.StackPointer = 0x2001;
+            memory[cpu.Registers.StackPointer] = 0x71;
+            memory[cpu.Registers.StackPointer+1] = 0x42;
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(0x4271);
+            cpu.Registers.StackPointer.Should().Be(0x2003);
+
+            cpu.Registers.Flags.CalcZeroFlag(0);
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(0x4272);
+            cpu.Registers.StackPointer.Should().Be(0x2003);
+        }
+
+        [Fact]
+        public void POP()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xc1, // POP_BC
+            });
+
+            cpu.Registers.StackPointer = 0x2001;
+            memory[cpu.Registers.StackPointer] = 0x71;
+            memory[cpu.Registers.StackPointer + 1] = 0x42;
+            cpu.Step(memory);
+            cpu.Registers.BC.Should().Be(0x4271);
+            cpu.Registers.StackPointer.Should().Be(0x2003);
         }
 
         private static Cpu BuildSut()
