@@ -1128,6 +1128,12 @@ namespace emu8080.Core.Tests
             var memory = Memory.Load(new byte[]
             {
                 0x99, 0x99, // SBB_C
+                0x9a, 0x9a, // SBB_D
+                0x9b, 0x9b, // SBB_E
+                0x9c, 0x9c, // SBB_H
+                0x9d, 0x9d, // SBB_L
+                0x9e, 0x9e, // SBB_M
+                0x9f, 0x9f, // SBB_A
             });
 
             cpu.Registers.A = 0x6c;
@@ -1145,7 +1151,114 @@ namespace emu8080.Core.Tests
             cpu.Registers.C = 0x2e;
             cpu.Registers.Flags.Carry = true;
             cpu.Step(memory);
-            cpu.Registers.A.Should().Be(0x3d);            
+            cpu.Registers.A.Should().Be(0x3d);
+
+            cpu.Registers.A = 0x6c;
+            cpu.Registers.D = 0x3e;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x2e);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(3);
+
+            cpu.Registers.A = 0x6c;
+            cpu.Registers.D = 0x3e;
+            cpu.Registers.Flags.Carry = true;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x2d);
+
+            cpu.Registers.A = 0x6d;
+            cpu.Registers.E = 0x3e;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x2f);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(5);
+
+            cpu.Registers.A = 0x6d;
+            cpu.Registers.E = 0x3e;
+            cpu.Registers.Flags.Carry = true;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x2e);
+
+            cpu.Registers.A = 0x4d;
+            cpu.Registers.H = 0x3e;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x0f);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(7);
+
+            cpu.Registers.A = 0x4d;
+            cpu.Registers.H = 0x3e;
+            cpu.Registers.Flags.Carry = true;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x0e);
+
+            cpu.Registers.A = 0x4d;
+            cpu.Registers.L = 0x2e;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x1f);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeFalse();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(9);
+
+            cpu.Registers.A = 0x4d;
+            cpu.Registers.L = 0x2e;
+            cpu.Registers.Flags.Carry = true;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x1e);
+
+            cpu.Registers.A = 0x4d;
+            cpu.Registers.HL = 0x202e;
+            memory[cpu.Registers.HL] = 0x1d;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x30);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(11);
+
+            cpu.Registers.A = 0xa2;
+            cpu.Registers.HL = 0x202f;
+            memory[cpu.Registers.HL] = 0x4d;
+            cpu.Registers.Flags.Carry = true;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x54);
+
+            cpu.Registers.A = 0x4d;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
+            cpu.Registers.Flags.Zero.Should().BeTrue();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(13);
+
+            cpu.Registers.A = 0x4d;            
+            cpu.Registers.Flags.Carry = true;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0xFF);
+            cpu.Registers.Flags.Carry.Should().BeTrue();
+            cpu.Registers.Flags.AuxCarry.Should().BeTrue();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeTrue();
         }
 
         [Fact]

@@ -99,18 +99,20 @@ namespace emu8080.Core
                 { 0x8c, Ops.ADC_H },
                 { 0x8d, Ops.ADC_L },
                 { 0x90, Ops.SUB_B },
-                { 0x99, Ops.SBB_C }
+                { 0x99, Ops.SBB_C },
+                { 0x9a, Ops.SBB_D },
+                { 0x9b, Ops.SBB_E },
+                { 0x9c, Ops.SBB_H },
+                { 0x9d, Ops.SBB_L },
+                { 0x9e, Ops.SBB_M },
+                { 0x9f, Ops.SBB_A }
             };
 
-
             //_ops.Add();
             //_ops.Add();
-            //_ops.Add(0x9a, Ops.SBB_D);
-            //_ops.Add(0x9b, Ops.SBB_E);
-            //_ops.Add(0x9c, Ops.SBB_H);
-            //_ops.Add(0x9d, Ops.SBB_L);
-            //_ops.Add(0x9e, Ops.SBB_M);
-            //_ops.Add(0x9f, Ops.SBB_A);
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
             //_ops.Add(0xa0, Ops.ANA_B);
             //_ops.Add(0xaa, Ops.XRA_D);
             //_ops.Add(0xa7, Ops.ANA_A);
