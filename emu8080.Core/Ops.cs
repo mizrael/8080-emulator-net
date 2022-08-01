@@ -61,8 +61,9 @@ namespace emu8080.Core
         private static void JUMP_FLAG(Memory memory, Cpu cpu, bool flag)
         {
             if (flag)
-                cpu.Registers.SetCounterToAddr(memory);
+                cpu.Registers.ProgramCounter = cpu.Registers.GetCurrentAddress(memory);
             else
+                //TODO: not sure this is correct. maybe it requires a +3 in every case.
                 cpu.Registers.ProgramCounter += 3;
         }
 
@@ -815,7 +816,7 @@ namespace emu8080.Core
         // 0xc3 , PC <= adr
         public static void JMP(Memory memory, Cpu cpu)
         {
-            cpu.Registers.SetCounterToAddr(memory);
+            JUMP_FLAG(memory, cpu, true);
         }
 
         // 0xc4 CNZ  adr 
@@ -883,7 +884,7 @@ namespace emu8080.Core
 
             cpu.Registers.StackPointer -= 2;
 
-            cpu.Registers.SetCounterToAddr(memory);
+            cpu.Registers.ProgramCounter = cpu.Registers.GetCurrentAddress(memory);
         }
 
         // 0xce , A <- A + data + CY

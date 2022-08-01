@@ -46,11 +46,11 @@
             }
         }
 
-        public void SetCounterToAddr(Memory memory)
+        public ushort GetCurrentAddress(Memory memory)
         {
             var lo = memory[this.ProgramCounter+1];
             var hi = memory[this.ProgramCounter+2];
-            this.ProgramCounter = Utils.GetValue(hi, lo);
+            return Utils.GetValue(hi, lo);
         }
 
         public void Reset()

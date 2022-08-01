@@ -114,7 +114,9 @@ namespace emu8080.Core
                 { 0xb6, Ops.ORA_M },
                 { 0xbe, Ops.CMP_M },
                 { 0xc0, Ops.RNZ },
-                { 0xc1, Ops.POP_BC }
+                { 0xc1, Ops.POP_BC },
+                { 0xc2, Ops.JNZ },
+                { 0xc3, Ops.JMP }
             };
 
 
@@ -125,8 +127,8 @@ namespace emu8080.Core
             //_ops.Add();
             //_ops.Add();
             //_ops.Add();
-            //_ops.Add(0xc2, Ops.JNZ);
-            //_ops.Add(0xc3, Ops.JMP);
+            //_ops.Add();
+            //_ops.Add();
             //_ops.Add(0xc4, Ops.CNZ);
             //_ops.Add(0xc5, Ops.PUSH_CD);
             //_ops.Add(0xc6, Ops.ADI);

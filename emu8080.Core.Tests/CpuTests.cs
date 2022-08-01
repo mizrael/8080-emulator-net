@@ -1629,7 +1629,8 @@ namespace emu8080.Core.Tests
             memory[cpu.Registers.StackPointer+1] = 0x42;
             cpu.Step(memory);
             cpu.Registers.ProgramCounter.Should().Be(0x4271);
-            cpu.Registers.StackPointer.Should().Be(0x2003);
+            //TODO: not sure this is correct. maybe it still requires a +1.
+            cpu.Registers.StackPointer.Should().Be(0x2003); 
 
             cpu.Registers.Flags.CalcZeroFlag(0);
             cpu.Step(memory);
@@ -1653,6 +1654,32 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
             cpu.Registers.BC.Should().Be(0x4271);
             cpu.Registers.StackPointer.Should().Be(0x2003);
+        }
+
+        [Fact]
+        public void JMP()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xc2, 0x71,0x42, // JNZ
+                0xc2, 
+                0xc3, 0x42,0x71, // JMP
+            });
+
+            cpu.Registers.Flags.CalcZeroFlag(1);
+            cpu.Step(memory);            
+            cpu.Registers.ProgramCounter.Should().Be(0x4271);
+
+            cpu.Registers.Flags.CalcZeroFlag(0);
+            cpu.Registers.ProgramCounter = 3;
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(0x06);
+
+            cpu.Registers.ProgramCounter = 4;
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(0x7142);
         }
 
         private static Cpu BuildSut()
