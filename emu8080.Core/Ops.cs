@@ -12,7 +12,7 @@ namespace emu8080.Core
 
         private static ushort LXI(Memory memory, Cpu cpu)
         {
-            var res = Utils.GetValue(memory[cpu.Registers.ProgramCounter + 2], memory[cpu.Registers.ProgramCounter + 1]);
+            var res = cpu.Registers.ReadImmediate(memory);
             cpu.Registers.ProgramCounter += 3;
             return res;
         }
@@ -30,21 +30,10 @@ namespace emu8080.Core
             cpu.Registers.ProgramCounter++;
         }
 
-        private static void WriteMemory(Memory memory, ushort address, byte value)
-        {
-            if (address < 0x2000)
-                return; // Writing ROM not allowed
-
-            if (address >= 0x4000)
-                return; // Writing out of Space Invaders RAM not allowed
-           
-            memory[address] = value;
-        }
-
         private static void PUSH(ushort val, Memory memory, Cpu cpu)
         {
-            WriteMemory(memory, (ushort) (cpu.Registers.StackPointer - 1), val.GetHigh());
-            WriteMemory(memory, (ushort) (cpu.Registers.StackPointer - 2), val.GetLow());
+            memory[cpu.Registers.StackPointer - 1] = val.GetHigh();
+            memory[cpu.Registers.StackPointer - 2] = val.GetLow();
 
             cpu.Registers.StackPointer -= 2;
             cpu.Registers.ProgramCounter += 1;
@@ -61,7 +50,7 @@ namespace emu8080.Core
         private static void JUMP_FLAG(Memory memory, Cpu cpu, bool flag)
         {
             if (flag)
-                cpu.Registers.ProgramCounter = cpu.Registers.GetCurrentAddress(memory);
+                cpu.Registers.ProgramCounter = cpu.Registers.ReadImmediate(memory);
             else
                 //TODO: not sure this is correct. maybe it requires a +3 in every case.
                 cpu.Registers.ProgramCounter += 3;
@@ -158,7 +147,7 @@ namespace emu8080.Core
         // 0x02 , (BC) <- A
         public static void STAX_B(Memory memory, Cpu cpu)
         {
-            WriteMemory(memory, cpu.Registers.BC, cpu.Registers.A);
+            memory[cpu.Registers.BC] = cpu.Registers.A;
             cpu.Registers.ProgramCounter++;
         }
 
@@ -254,7 +243,7 @@ namespace emu8080.Core
         // 0x12 , (DE) <- A
         public static void STAX_D(Memory memory, Cpu cpu)
         {
-            WriteMemory(memory, cpu.Registers.DE, cpu.Registers.A);
+            memory[cpu.Registers.DE] = cpu.Registers.A;
             cpu.Registers.ProgramCounter++;
         }
 
@@ -328,9 +317,9 @@ namespace emu8080.Core
         // 0x22 , (adr) <-L; (adr+1)<-H
         public static void SHLD(Memory memory, Cpu cpu)
         {
-            var address = Utils.GetValue(memory[cpu.Registers.ProgramCounter + 2], memory[cpu.Registers.ProgramCounter + 1]);
-            WriteMemory(memory, address, cpu.Registers.L);
-            WriteMemory(memory, (ushort) (address + 1), cpu.Registers.H);
+            var address = memory.ReadAddress(cpu.Registers.ProgramCounter + 1);
+            memory[address] = cpu.Registers.L;
+            memory[address + 1] = cpu.Registers.H;
 
             cpu.Registers.ProgramCounter += 3;
         }
@@ -390,7 +379,7 @@ namespace emu8080.Core
         // 0x32 , (adr) <- A
         public static void STA(Memory memory, Cpu cpu)
         {
-            var res = Utils.GetValue(memory[cpu.Registers.ProgramCounter + 2], memory[cpu.Registers.ProgramCounter + 1]);
+            var res = cpu.Registers.ReadImmediate(memory);
             memory[res] = cpu.Registers.A;
             cpu.Registers.ProgramCounter += 3;
         }
@@ -421,7 +410,7 @@ namespace emu8080.Core
         // 0x3a , A <- (adr)
         public static void LDA(Memory memory, Cpu cpu)
         {
-            var index = Utils.GetValue(memory[cpu.Registers.ProgramCounter + 2], memory[cpu.Registers.ProgramCounter + 1]);
+            var index = cpu.Registers.ReadImmediate(memory);
             cpu.Registers.A = memory[index];
             cpu.Registers.ProgramCounter += 3;
         }
@@ -877,14 +866,14 @@ namespace emu8080.Core
         // 0xcd , (SP-1)<-PC.hi;(SP-2)<-PC.lo;SP<-SP-2;PC=adr
         public static void CALL(Memory memory, Cpu cpu)
         {
-            var retAddr = cpu.Registers.ProgramCounter + 2;
+            var retAddr = cpu.Registers.ProgramCounter + 3;
 
             memory[cpu.Registers.StackPointer - 1] = retAddr.GetHigh();
             memory[cpu.Registers.StackPointer - 2] = retAddr.GetLow();
 
             cpu.Registers.StackPointer -= 2;
 
-            cpu.Registers.ProgramCounter = cpu.Registers.GetCurrentAddress(memory);
+            cpu.Registers.ProgramCounter = cpu.Registers.ReadImmediate(memory);
         }
 
         // 0xce , A <- A + data + CY

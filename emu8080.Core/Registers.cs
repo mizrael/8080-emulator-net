@@ -46,13 +46,6 @@
             }
         }
 
-        public ushort GetCurrentAddress(Memory memory)
-        {
-            var lo = memory[this.ProgramCounter+1];
-            var hi = memory[this.ProgramCounter+2];
-            return Utils.GetValue(hi, lo);
-        }
-
         public void Reset()
         {
             this.A = this.B = this.C = this.D = this.E = this.H = this.L = 0;
@@ -60,6 +53,9 @@
             this.StackPointer = 0;
             this.Flags.Reset();
         }
+
+        public ushort ReadImmediate(Memory memory)
+            => memory.ReadAddress(this.ProgramCounter + 1);
 
         public void DAD(ushort value)
         {

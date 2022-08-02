@@ -1654,6 +1654,7 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
             cpu.Registers.BC.Should().Be(0x4271);
             cpu.Registers.StackPointer.Should().Be(0x2003);
+            cpu.Registers.ProgramCounter.Should().Be(1);
         }
 
         [Fact]
@@ -1680,6 +1681,25 @@ namespace emu8080.Core.Tests
             cpu.Registers.ProgramCounter = 4;
             cpu.Step(memory);
             cpu.Registers.ProgramCounter.Should().Be(0x7142);
+        }
+
+        [Fact]
+        public void CALL()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xc4, 0x42, 0x71 // CNZ
+            });
+            // TODO: this test is broken. need to set PC to valid value and after set memory.
+            cpu.Registers.Flags.CalcZeroFlag(1);
+            cpu.Registers.StackPointer = 5;
+            cpu.Registers.ProgramCounter = 41394;
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(0x7142);
+            cpu.Registers.StackPointer.Should().Be(3);
+            memory[3].Should().Be(0x42);
         }
 
         private static Cpu BuildSut()

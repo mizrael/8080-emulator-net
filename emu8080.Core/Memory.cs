@@ -22,6 +22,13 @@ namespace emu8080.Core
             set => _bytes[index] = value;
         }
 
+        public ushort ReadAddress(int startLoc)
+        {
+            var lo = _bytes[startLoc];
+            var hi = _bytes[startLoc + 1];
+            return Utils.GetValue(hi, lo);
+        }
+
         public byte[] VideoBuffer => _videoBuffer;
 
         public void UpdateVideoBuffer()
