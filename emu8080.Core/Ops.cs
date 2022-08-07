@@ -818,7 +818,7 @@ namespace emu8080.Core
         }
 
         // 0xc5 , (sp-2)<-C; (sp-1)<-B; sp <- sp - 2
-        public static void PUSH_CD(Memory memory, Cpu cpu)
+        public static void PUSH_B(Memory memory, Cpu cpu)
         {
             PUSH(cpu.Registers.BC, memory, cpu);
         }
@@ -866,12 +866,13 @@ namespace emu8080.Core
         // 0xcd , (SP-1)<-PC.hi;(SP-2)<-PC.lo;SP<-SP-2;PC=adr
         public static void CALL(Memory memory, Cpu cpu)
         {
+            // adding +3 so that 
             var retAddr = cpu.Registers.ProgramCounter + 3;
 
             memory[cpu.Registers.StackPointer - 1] = retAddr.GetHigh();
             memory[cpu.Registers.StackPointer - 2] = retAddr.GetLow();
 
-            cpu.Registers.StackPointer -= 2;
+            cpu.Registers.StackPointer -= 2;// TODO: I'm not sure about this
 
             cpu.Registers.ProgramCounter = cpu.Registers.ReadImmediate(memory);
         }

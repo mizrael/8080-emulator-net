@@ -1692,14 +1692,58 @@ namespace emu8080.Core.Tests
             {
                 0xc4, 0x42, 0x71 // CNZ
             });
-            // TODO: this test is broken. need to set PC to valid value and after set memory.
+            
             cpu.Registers.Flags.CalcZeroFlag(1);
-            cpu.Registers.StackPointer = 5;
-            cpu.Registers.ProgramCounter = 41394;
+            cpu.Registers.StackPointer = 5;            
             cpu.Step(memory);
             cpu.Registers.ProgramCounter.Should().Be(0x7142);
             cpu.Registers.StackPointer.Should().Be(3);
-            memory[3].Should().Be(0x42);
+            memory[3].Should().Be(0x03);
+            memory[4].Should().Be(0x0);
+
+            cpu.Registers.ProgramCounter = 0;
+            cpu.Registers.Flags.CalcZeroFlag(0);            
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(3);
+        }
+
+        [Fact]
+        public void PUSH()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xc5, // PUSH_B
+            });
+
+            cpu.Registers.BC = 0x4271;
+            cpu.Registers.StackPointer = 2000;
+            cpu.Step(memory);
+            memory[cpu.Registers.StackPointer - 1] = 0x42;
+            memory[cpu.Registers.StackPointer - 2] = 0x71;
+            cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
+        public void ADI()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xc6, 0x42 // ADI
+            });
+
+            cpu.Registers.A = 0x14;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x56);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(2);
         }
 
         private static Cpu BuildSut()
