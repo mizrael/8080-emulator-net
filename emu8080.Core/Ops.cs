@@ -844,9 +844,7 @@ namespace emu8080.Core
 
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
         public static void RET(Memory memory, Cpu cpu)
-        {
-            cpu.Registers.ProgramCounter = POP(memory, cpu);
-        }
+            => RET_FLAG(memory, cpu, true);
 
         // 0xca , if Z, PC <- adr
         public static void JZ(Memory memory, Cpu cpu)
