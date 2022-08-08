@@ -52,7 +52,6 @@ namespace emu8080.Core
             if (flag)
                 cpu.Registers.ProgramCounter = cpu.Registers.ReadImmediate(memory);
             else
-                //TODO: not sure this is correct. maybe it requires a +3 in every case.
                 cpu.Registers.ProgramCounter += 3;
         }
 
@@ -64,7 +63,15 @@ namespace emu8080.Core
                 cpu.Registers.ProgramCounter++;
         }
 
-        private static byte ADC(Memory memory, Cpu cpu, byte a, byte b)
+        private static void CALL_FLAG(Memory memory, Cpu cpu, bool flag)
+        {
+            if (flag)
+                CALL(memory, cpu);
+            else
+                cpu.Registers.ProgramCounter += 3;
+        }
+
+    private static byte ADC(Memory memory, Cpu cpu, byte a, byte b)
         {
             var result = (ushort) (a + b);
             if (cpu.Registers.Flags.Carry)
@@ -848,18 +855,11 @@ namespace emu8080.Core
 
         // 0xca , if Z, PC <- adr
         public static void JZ(Memory memory, Cpu cpu)
-        {
-            JUMP_FLAG(memory, cpu, cpu.Registers.Flags.Zero);
-        }
+            => JUMP_FLAG(memory, cpu, cpu.Registers.Flags.Zero);
 
-        // 0xcc CZ  adr 
+        // 0xcc CZ,	if Z, CALL adr 
         public static void CZ(Memory memory, Cpu cpu)
-        {
-            if (cpu.Registers.Flags.Zero)
-                CALL(memory, cpu);
-            else
-                cpu.Registers.ProgramCounter += 3;
-        }
+            => CALL_FLAG(memory, cpu, cpu.Registers.Flags.Zero);
 
         // 0xcd , (SP-1)<-PC.hi;(SP-2)<-PC.lo;SP<-SP-2;PC=adr
         public static void CALL(Memory memory, Cpu cpu)
