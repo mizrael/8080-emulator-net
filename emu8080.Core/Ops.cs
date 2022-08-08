@@ -879,10 +879,20 @@ namespace emu8080.Core
         public static void ACI(Memory memory, Cpu cpu)
         {
             byte data = memory[cpu.Registers.ProgramCounter + 1];
-            ushort sum = (ushort) (cpu.Registers.A + data + (cpu.Registers.Flags.Carry ? 1 : 0));
-            cpu.Registers.A = (byte) (sum & 0xFF);
+            ushort sum = (ushort) (cpu.Registers.A + data);
+            if(cpu.Registers.Flags.Carry)
+            {
+                sum++;
+                cpu.Registers.Flags.CalcAuxCarryFlag(cpu.Registers.A, data, 1);
+            }
+            else
+            {
+                cpu.Registers.Flags.CalcAuxCarryFlag(cpu.Registers.A, data);
+            }            
 
-            cpu.Registers.Flags.CalcSZPC(cpu.Registers.A);
+            cpu.Registers.Flags.CalcSZPC(sum);
+            cpu.Registers.A = (byte)(sum & 0xFF);
+
             cpu.Registers.ProgramCounter += 2;
         }
 
