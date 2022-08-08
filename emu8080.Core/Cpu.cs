@@ -127,16 +127,23 @@ namespace emu8080.Core
                 { 0xcd, Ops.CALL },
                 { 0xce, Ops.ACI },
                 { 0xd1, Ops.POP_DE },
-                { 0xd2, Ops.JNC }
+                { 0xd2, Ops.JNC },
+                { 0xd3, Ops.OUT },
+                { 0xd5, Ops.PUSH_DE },
+                { 0xd6, Ops.SUI },
+                { 0xd8, Ops.RC },
+                { 0xda, Ops.JC },
+                { 0xdb, Ops.IN_D8 },
+                { 0xe1, Ops.POP_HL }
             };
 
-            //_ops.Add(0xd3, Ops.OUT);
-            //_ops.Add(0xd5, Ops.PUSH_DE);
-            //_ops.Add(0xd6, Ops.SUI);
-            //_ops.Add(0xd8, Ops.RC);
-            //_ops.Add(0xda, Ops.JC);
-            //_ops.Add(0xdb, Ops.IN_D8);
-            //_ops.Add(0xe1, Ops.POP_HL);
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
+            //_ops.Add();
             //_ops.Add(0xe2, Ops.JPO);
             //_ops.Add(0xe5, Ops.PUSH_HL);
             //_ops.Add(0xe3, Ops.XTHL); 

@@ -904,9 +904,7 @@ namespace emu8080.Core
 
         // 0xd2 , 	if NCY, PC<-adr
         public static void JNC(Memory memory, Cpu cpu)
-        {
-            JUMP_FLAG(memory, cpu, !cpu.Registers.Flags.Carry);
-        }
+            => JUMP_FLAG(memory, cpu, !cpu.Registers.Flags.Carry);
 
         // 0xd3
         public static void OUT(Memory memory, Cpu cpu)
@@ -917,9 +915,7 @@ namespace emu8080.Core
 
         // 0xd5 , (sp-2)<-E; (sp-1)<-D; sp <- sp - 2
         public static void PUSH_DE(Memory memory, Cpu cpu)
-        {
-            PUSH(cpu.Registers.DE, memory, cpu);
-        }
+            => PUSH(cpu.Registers.DE, memory, cpu);
 
         // 0xd6 , A <- A - data
         public static void SUI(Memory memory, Cpu cpu)
@@ -933,15 +929,11 @@ namespace emu8080.Core
 
         // 0xd8 , if CY, RET
         public static void RC(Memory memory, Cpu cpu)
-        {
-            RET_FLAG(memory, cpu, cpu.Registers.Flags.Carry);
-        }
+            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Carry);
 
         // 0xda , if CY, PC<-adr
         public static void JC(Memory memory, Cpu cpu)
-        {
-            JUMP_FLAG(memory, cpu, cpu.Registers.Flags.Carry);
-        }
+            => JUMP_FLAG(memory, cpu, cpu.Registers.Flags.Carry);
 
         // 0xdb
         public static void IN_D8(Memory memory, Cpu cpu)
