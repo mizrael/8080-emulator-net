@@ -851,7 +851,9 @@ namespace emu8080.Core
 
         // 0xc9 , PC.lo <- (sp); PC.hi<-(sp+1); SP <- SP+2
         public static void RET(Memory memory, Cpu cpu)
-            => RET_FLAG(memory, cpu, true);
+        {
+            cpu.Registers.ProgramCounter = POP(memory, cpu);
+        }
 
         // 0xca , if Z, PC <- adr
         public static void JZ(Memory memory, Cpu cpu)
@@ -950,9 +952,7 @@ namespace emu8080.Core
 
         // 0xe2 JPO adr 
         public static void JPO(Memory memory, Cpu cpu)
-        {
-            JUMP_FLAG(memory, cpu, !cpu.Registers.Flags.Parity);
-        }
+            => JUMP_FLAG(memory, cpu, !cpu.Registers.Flags.Parity);
 
         // 0xe3 , L <-> (SP); H <-> (SP+1)
         public static void XTHL(Memory memory, Cpu cpu)

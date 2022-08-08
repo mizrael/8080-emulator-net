@@ -13,5 +13,15 @@ namespace emu8080.Core.Tests
             flags.CalcZeroFlag(val);
             flags.Zero.Should().Be(expected);
         }
+
+        [Theory]
+        [InlineData(1, false)]
+        [InlineData(0, true)]
+        public void CalcParityFlag(byte val, bool expected)
+        {
+            var flags = new Flags();
+            flags.CalcParityFlag(val);
+            flags.Parity.Should().Be(expected);
+        }
     }
 }
