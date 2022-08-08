@@ -1727,6 +1727,22 @@ namespace emu8080.Core.Tests
             cpu.Registers.HL.Should().Be(0x4271);
             cpu.Registers.StackPointer.Should().Be(0x4003);
             cpu.Registers.ProgramCounter.Should().Be(1);
+
+            // POP_PSW
+            memory = Memory.Load(new byte[]
+            {
+                0xf1,
+            });
+            cpu.Registers.Flags.Reset();
+            cpu.Registers.ProgramCounter = 0;
+            cpu.Registers.StackPointer = 0x6534;
+            memory[cpu.Registers.StackPointer] = 0x71;
+            memory[cpu.Registers.StackPointer + 1] = 0x42;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x42);
+            cpu.Registers.ProgramCounter.Should().Be(1);
+            cpu.Registers.StackPointer.Should().Be(0x6536);
+            cpu.Registers.Flags.PSW.Should().Be(0x71);
         }
 
         [Fact]
@@ -1808,6 +1824,23 @@ namespace emu8080.Core.Tests
             cpu.Registers.ProgramCounter = 0;
             cpu.Registers.Flags.Reset();
             cpu.Registers.Flags.CalcParityFlag(0);
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(3);
+
+            // JPE
+            memory = Memory.Load(new byte[]
+            {
+                0xea, 0x71,0x42,
+            });
+            cpu.Registers.ProgramCounter = 0;
+            cpu.Registers.Flags.Reset();
+            cpu.Registers.Flags.CalcParityFlag(0);
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(0x4271);
+
+            cpu.Registers.ProgramCounter = 0;
+            cpu.Registers.Flags.Reset();
+            cpu.Registers.Flags.CalcParityFlag(1);
             cpu.Step(memory);
             cpu.Registers.ProgramCounter.Should().Be(3);
         }
@@ -2032,6 +2065,26 @@ namespace emu8080.Core.Tests
             cpu.Registers.HL = 0x4271;            
             cpu.Step(memory);
             cpu.Registers.ProgramCounter.Should().Be(0x4271);
+        }
+
+        [Fact]
+        public void XCHG()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xeb
+            });
+
+            cpu.Registers.D = 0x33;
+            cpu.Registers.E = 0x55;
+            cpu.Registers.H = 0x00;
+            cpu.Registers.L = 0xff;
+            cpu.Step(memory);
+            cpu.Registers.DE.Should().Be(0x00ff);
+            cpu.Registers.HL.Should().Be(0x3355);
+            cpu.Registers.ProgramCounter.Should().Be(1);
         }
 
         private static Cpu BuildSut()
