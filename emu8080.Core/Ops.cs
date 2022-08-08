@@ -1035,12 +1035,7 @@ namespace emu8080.Core
 
         // 0xf4 CP adr 
         public static void CP(Memory memory, Cpu cpu)
-        {
-            if (cpu.Registers.Flags.Parity)
-                CALL(memory, cpu);
-            else
-                cpu.Registers.ProgramCounter += 3;
-        }
+            => CALL_FLAG(memory, cpu, cpu.Registers.Flags.Parity);
 
         // 0xf5 , (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2
         public static void PUSH_PSW(Memory memory, Cpu cpu)
@@ -1054,9 +1049,7 @@ namespace emu8080.Core
 
         // 0xfa JM adr 
         public static void JM(Memory memory, Cpu cpu)
-        {
-            JUMP_FLAG(memory, cpu, cpu.Registers.Flags.Sign);
-        }
+            => JUMP_FLAG(memory, cpu, cpu.Registers.Flags.Sign);
 
         // 0xfb 
         public static void EI(Memory memory, Cpu cpu)

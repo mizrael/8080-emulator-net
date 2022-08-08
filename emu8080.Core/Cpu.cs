@@ -142,22 +142,17 @@ namespace emu8080.Core
                 { 0xe9, Ops.PCHL },
                 { 0xea, Ops.JPE },
                 { 0xeb, Ops.XCHG },
-                { 0xf1, Ops.POP_PSW }
+                { 0xf1, Ops.POP_PSW },
+                { 0xf2, Ops.JP },
+                { 0xf3, Ops.DI },
+                { 0xf4, Ops.CP },
+                { 0xf5, Ops.PUSH_PSW },
+                { 0xfa, Ops.JM },
+                { 0xfb, Ops.EI },
+                { 0xfc, Ops.CM },
+                { 0xfe, Ops.CPI },
+                { 0xff, Ops.RST_7 }
             };
-
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add();
-            //_ops.Add(0xf2, Ops.JP); 
-            //_ops.Add(0xf3, Ops.DI);
-            //_ops.Add(0xf4, Ops.CP);
-            //_ops.Add(0xf5, Ops.PUSH_PSW);
-            //_ops.Add(0xfa, Ops.JM);
-            //_ops.Add(0xfb, Ops.EI);
-            //_ops.Add(0xfc, Ops.CM);
-            //_ops.Add(0xfe, Ops.CPI);
-            //_ops.Add(0xff, Ops.RST_7);
         }
 
         public Registers Registers {get;}
