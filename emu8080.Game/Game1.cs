@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using emu8080.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,6 +21,8 @@ namespace emu8080.Game
         private SpriteBatch _spriteBatch;
         private Cpu _cpu;
         private Memory _memory;
+
+        private Color[] _textureData;
         private Texture2D _texture;
 
         private const ushort SCREEN_WIDTH = 224;
@@ -62,6 +61,7 @@ namespace emu8080.Game
             var logger = sp.GetRequiredService<ILogger<Cpu>>();
             _cpu = new Cpu(registers, bus, logger);
 
+            _textureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
             _texture = new Texture2D(this.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color);
 
             base.Initialize();
@@ -116,7 +116,6 @@ namespace emu8080.Game
 
                 _interruptToGenerate = (1 == _interruptToGenerate) ? 2 : 1;
 
-                _memory.UpdateVideoBuffer();
                 UpdateVideoTexture();
             }
 
@@ -132,36 +131,56 @@ namespace emu8080.Game
         private void Bus_InterruptChanged(bool value)
         {
         }
-        
+
         private void GenerateInterrupt(int interruptNum)
         {
             Ops.PUSH_PC(_memory, _cpu);
-            
+
             Ops.DI(_memory, _cpu);
 
             //Set the PC to the low memory vector.    
             //This is identical to an "RST interrupt_num" instruction.    
             _cpu.Registers.ProgramCounter = (ushort)(8 * interruptNum);
         }
-
+        
         private void UpdateVideoTexture()
         {
-            var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
+            var videoBuffer = _memory.VideoBuffer.Span;
+            const int rowSize = SCREEN_WIDTH / 8;
+            for (int i = 0; i < SCREEN_HEIGHT; i++) {
+                for (int j = 0; j < SCREEN_WIDTH; j++) {
+                    byte colorByte = videoBuffer[i * rowSize + j / 8]; // Get 1 byte containing 8 pixels
+                    int colorIndex = (colorByte >> (7 - (j % 8))) & 0x01; // Extract color bit
+                     _textureData[(255 - i) * 224 + j] = colorIndex == 1 ? Color.White : Color.Black; // Rotate and set color
+                    //_textureData[i * SCREEN_WIDTH + j] = colorIndex == 1 ? Color.White : Color.Black;
+                }
+            }
+            _texture.SetData(_textureData);
 
-            var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
-            bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
+            // ReadOnlySpan<byte> imageData = _memory.VideoBuffer;
+            // using var image = Image.LoadPixelData<SixLabors.ImageSharp.PixelFormats.L8>(imageData, SCREEN_WIDTH, SCREEN_HEIGHT);
+            // image.Mutate(x => x.Rotate(RotateMode.Rotate90));
 
-            var rect = new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            var bmpBits = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            // var bufferSize = SCREEN_WIDTH * SCREEN_HEIGHT;
+            // var bytes = new byte[bufferSize];
+            // image.CopyPixelDataTo()
 
-            var bufferSize = bmpBits.Height * bmpBits.Stride;
-            var bytes = new byte[bufferSize];
+            // var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
 
-            Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
+            // var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
+            // bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
 
-            _texture.SetData(bytes);
+            // var rect = new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            // var bmpBits = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-            bmp.UnlockBits(bmpBits);
+            // var bufferSize = bmpBits.Height * bmpBits.Stride;
+            // var bytes = new byte[bufferSize];
+
+            // Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
+
+            // _texture.SetData(bytes);
+
+            // bmp.UnlockBits(bmpBits);
         }
 
         /// <summary>
@@ -171,12 +190,12 @@ namespace emu8080.Game
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-      
+
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(_texture, Vector2.Zero, null, Color.White, 0f, 
+            _spriteBatch.Draw(_texture, Vector2.Zero, null, Color.White, 0f,
                             Vector2.Zero, Vector2.One * _scale, SpriteEffects.None, 0);
-          
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
