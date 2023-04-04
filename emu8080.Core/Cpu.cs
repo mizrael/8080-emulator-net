@@ -35,6 +35,7 @@ namespace emu8080.Core
                 { 0x13, Ops.INX_D },
                 { 0x14, Ops.INR_D },
                 { 0x15, Ops.DCR_D},
+                { 0x18, Ops.NOP },
                 { 0x19, Ops.DAD_D},
                 { 0x1a, Ops.LDAX_D},
                 { 0x1c, Ops.INR_E },
