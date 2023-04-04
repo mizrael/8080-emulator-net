@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace emu8080.Core.Tests
 {
