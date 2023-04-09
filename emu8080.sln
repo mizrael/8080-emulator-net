@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.Game", "emu8080.Gam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.Core", "emu8080.Core\emu8080.Core.csproj", "{997E8254-2C14-4BA2-AC83-AFC4C7005756}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.Console", "emu8080.Console\emu8080.Console.csproj", "{BD37BC05-0C8A-485A-9CB4-AEE68B1AD06E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.CpuTester", "emu8080.CpuTester\emu8080.CpuTester.csproj", "{BD37BC05-0C8A-485A-9CB4-AEE68B1AD06E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "emu8080.Core.Tests", "emu8080.Core.Tests\emu8080.Core.Tests.csproj", "{E88CFC7D-81D4-4B0E-ABFD-12A7360D01D6}"
 EndProject

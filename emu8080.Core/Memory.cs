@@ -7,7 +7,8 @@ namespace emu8080.Core
         private readonly byte[] _bytes;
         private ReadOnlyMemory<byte> _videoBuffer;
         private const ushort videoBufferStartAddress = 0x2400;
-        private const ushort videoBufferSize = 224 * 256 / 8;
+        private const ushort videoBufferEndAddress = 0x4000;
+        private const ushort videoBufferSize = videoBufferEndAddress - videoBufferStartAddress;
         
         private Memory(byte[] data)
         {

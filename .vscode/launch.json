@@ -5,7 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Launch console",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/emu8080.CpuTester/bin/Debug/net7.0/emu8080.CpuTester.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/emu8080.CpuTester",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Launch game",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",

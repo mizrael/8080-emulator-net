@@ -7,7 +7,7 @@ using emu8080.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace emu8080.Console
+namespace emu8080.CpuTester
 {
     class Program
     {
@@ -24,7 +24,7 @@ namespace emu8080.Console
             using var provider = BuildServiceProvider();
             _logger = provider.GetRequiredService<ILogger<Program>>();
 
-            var gameName = "cpudiag";
+            var gameName = "invaders";
             var gameRomsPath = Path.Combine(RomsBasePath, gameName);
 
             _logger.LogWarning($"loading roms from {gameRomsPath}...");
@@ -37,7 +37,7 @@ namespace emu8080.Console
                 bytes.AddRange(romBytes);
             }
 
-            ushort startPos = 0x100;
+            ushort startPos = 0; //0x100; cp/m
             var memory = Memory.Load(bytes.ToArray(), startPos);
 
             //memory[368] = 0x7;
@@ -60,7 +60,6 @@ namespace emu8080.Console
             Run(cpu, memory);
             
             _logger.LogInformation("done!");
-            
         }
 
         private static ServiceProvider BuildServiceProvider()
@@ -73,10 +72,19 @@ namespace emu8080.Console
 
         private static void Run(Cpu cpu, Memory memory)
         {
+            int step = 0;
             while (true)
             {
-                if (cpu.Registers.ProgramCounter == 0x0000)
-                    break;
+                // used https://bluishcoder.co.nz/js8080/ to check output
+                _logger.LogInformation($" af bc de hl pc sp flags\n {cpu.Registers.A:X} {cpu.Registers.BC:X} {cpu.Registers.DE:X} {cpu.Registers.HL:X} {cpu.Registers.ProgramCounter:X} {cpu.Registers.StackPointer:X} {cpu.Registers.Flags}");
+                
+                step++;
+                if(step>1000)
+                    Console.Read();
+
+                // if (cpu.Registers.ProgramCounter == 0x0000)
+                //     break;
+
                 //else if (cpu.State.ProgramCounter == 0x689) //CPUER
                 //{
                 //    byte lo = memory[cpu.State.StackPointer];
