@@ -50,7 +50,11 @@ namespace emu8080.Game
         protected override void Initialize()
         {
             var services = new ServiceCollection();
-            services.AddLogging(configure => configure.AddConsole());
+            services.AddLogging(configure =>
+            {
+                // logging should be disabled to prevent the app from stalling
+               // configure.AddConsole();
+            });
 
             var sp = services.BuildServiceProvider();
 
@@ -142,19 +146,36 @@ namespace emu8080.Game
             //This is identical to an "RST interrupt_num" instruction.    
             _cpu.Registers.ProgramCounter = (ushort)(8 * interruptNum);
         }
-        
+
         private void UpdateVideoTexture()
         {
             var videoBuffer = _memory.VideoBuffer.Span;
-            const int rowSize = SCREEN_WIDTH / 8;
-            for (int i = 0; i < SCREEN_HEIGHT; i++) {
-                for (int j = 0; j < SCREEN_WIDTH; j++) {
-                    byte colorByte = videoBuffer[i * rowSize + j / 8]; // Get 1 byte containing 8 pixels
-                    int colorIndex = (colorByte >> (7 - (j % 8))) & 0x01; // Extract color bit
-                     _textureData[(255 - i) * 224 + j] = colorIndex == 1 ? Color.White : Color.Black; // Rotate and set color
-                    //_textureData[i * SCREEN_WIDTH + j] = colorIndex == 1 ? Color.White : Color.Black;
+            
+            int index = 0;
+            Color[] tmpTextureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
+            for (int i = 0; i < videoBuffer.Length; i++)
+            {
+                var data = videoBuffer[i];
+                tmpTextureData[index++] = ((data & 0x1) == 1) ? Color.White : Color.Black;
+                tmpTextureData[index++] = ((data & 0x2) >> 1 == 1) ? Color.White : Color.Black;
+                tmpTextureData[index++] = ((data & 0x4) >> 2 == 1) ? Color.White : Color.Black;
+                tmpTextureData[index++] = ((data & 0x8) >> 3 == 1) ? Color.White : Color.Black;
+                tmpTextureData[index++] = ((data & 0x10) >> 4 == 1) ? Color.White : Color.Black;
+                tmpTextureData[index++] = ((data & 0x20) >> 5 == 1) ? Color.White : Color.Black;
+                tmpTextureData[index++] = ((data & 0x40) >> 6 == 1) ? Color.White : Color.Black;
+                tmpTextureData[index++] = ((data & 0x80) >> 7 == 1) ? Color.White : Color.Black;
+            }
+
+            // Rotate
+            index = 0;
+            for (var y = 0; y < SCREEN_HEIGHT; y++)
+            {
+                for (var x = (SCREEN_WIDTH - 1); x >= 0; x--)
+                {
+                    _textureData[index++] = tmpTextureData[x + (y * SCREEN_WIDTH)];
                 }
             }
+
             _texture.SetData(_textureData);
 
             // ReadOnlySpan<byte> imageData = _memory.VideoBuffer;
