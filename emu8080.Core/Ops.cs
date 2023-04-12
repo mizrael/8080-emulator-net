@@ -32,11 +32,12 @@ namespace emu8080.Core
 
         private static void PUSH(ushort val, Memory memory, Cpu cpu)
         {
-            memory[cpu.Registers.StackPointer - 1] = val.GetHigh();
-            memory[cpu.Registers.StackPointer - 2] = val.GetLow();
-
             cpu.Registers.StackPointer -= 2;
-            cpu.Registers.ProgramCounter += 1;
+
+            memory[cpu.Registers.StackPointer + 1] = val.GetHigh();
+            memory[cpu.Registers.StackPointer] = val.GetLow();
+
+            cpu.Registers.ProgramCounter++;
         }
 
         private static ushort POP(Memory memory, Cpu cpu)

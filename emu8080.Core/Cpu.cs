@@ -172,7 +172,7 @@ namespace emu8080.Core
         {
             var op = memory[Registers.ProgramCounter];
 
-            //_logger.LogInformation($"processing op {op:X} at {Registers.ProgramCounter:X}");
+            _logger.LogInformation($"processing op {op:X} at {Registers.ProgramCounter:X}");
 
             if (_ops.ContainsKey(op))
             {
