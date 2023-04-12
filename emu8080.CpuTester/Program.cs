@@ -76,10 +76,10 @@ namespace emu8080.CpuTester
             while (true)
             {
                 // used https://bluishcoder.co.nz/js8080/ to check output
-                _logger.LogInformation($" af bc de hl pc sp flags\n {cpu.Registers.A:X} {cpu.Registers.BC:X} {cpu.Registers.DE:X} {cpu.Registers.HL:X} {cpu.Registers.ProgramCounter:X} {cpu.Registers.StackPointer:X} {cpu.Registers.Flags}");
+                _logger.LogInformation($"{step} ******* \n af  bc  de  hl  pc  sp flags\n {cpu.Registers.A:X} {cpu.Registers.BC:X} {cpu.Registers.DE:X} {cpu.Registers.HL:X} {cpu.Registers.ProgramCounter:X} {cpu.Registers.StackPointer:X} {cpu.Registers.Flags}");
                 
                 step++;
-                if(step>1000)
+                if(step>50000)
                     Console.Read();
 
                 // if (cpu.Registers.ProgramCounter == 0x0000)

@@ -51,7 +51,7 @@ namespace emu8080.Core
         {
             if (flag)
                 cpu.Registers.ProgramCounter = cpu.Registers.ReadImmediate(memory);
-            else
+            else  
                 cpu.Registers.ProgramCounter += 3;
         }
 
