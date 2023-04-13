@@ -22,6 +22,7 @@ namespace emu8080.Game
         private Cpu _cpu;
         private Memory _memory;
 
+        private Color[] _tmpTextureData;
         private Color[] _textureData;
         private Texture2D _texture;
 
@@ -67,6 +68,7 @@ namespace emu8080.Game
             var logger = sp.GetRequiredService<ILogger<Cpu>>();
             _cpu = new Cpu(registers, bus, logger);
 
+            _tmpTextureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
             _textureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
             _texture = new Texture2D(this.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color);
 
@@ -118,7 +120,7 @@ namespace emu8080.Game
             {
                 _lastInterruptTime = gameTime.TotalGameTime;
 
-                GenerateInterrupt(_interruptToGenerate);
+               // GenerateInterrupt(_interruptToGenerate);
 
                 _interruptToGenerate = (1 == _interruptToGenerate) ? 2 : 1;
 
@@ -154,7 +156,7 @@ namespace emu8080.Game
             var videoBuffer = _memory.VideoBuffer.Span;
             
             int index = 0;
-            Color[] tmpTextureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
+            
             for (int i = 0; i < videoBuffer.Length; i++)
             {
                 // unpacking 8 pixels per byte
@@ -164,7 +166,7 @@ namespace emu8080.Game
                     // we shift data of j positions so that the bit we care about is in the
                     // least significant position. At this point we can check if it's on
                     // by masking it with 0x1 (binary 0000 0001) and comparing with 1
-                    tmpTextureData[index++] = ((data >> j) & 0x1) == 1 ? Color.White : Color.Black;
+                    _tmpTextureData[index++] = ((data >> j) & 0x1) == 1 ? Color.White : Color.Black;
                 }
             }
 
@@ -174,7 +176,7 @@ namespace emu8080.Game
             {
                 for (var y = 0; y < SCREEN_WIDTH; y++)
                 {
-                    _textureData[index++] = tmpTextureData[y * SCREEN_HEIGHT + x];
+                    _textureData[index++] = _tmpTextureData[y * SCREEN_HEIGHT + x];
                 }
             }
 
