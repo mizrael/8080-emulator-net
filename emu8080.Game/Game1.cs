@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using emu8080.Core;
+﻿using emu8080.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace emu8080.Game
@@ -53,7 +53,9 @@ namespace emu8080.Game
             services.AddLogging(configure =>
             {
                 // logging should be disabled to prevent the app from stalling
-               // configure.AddConsole();
+#if DEBUG
+                configure.AddConsole();
+#endif
             });
 
             var sp = services.BuildServiceProvider();
@@ -155,53 +157,28 @@ namespace emu8080.Game
             Color[] tmpTextureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
             for (int i = 0; i < videoBuffer.Length; i++)
             {
-                var data = videoBuffer[i];
-                tmpTextureData[index++] = ((data & 0x1) == 1) ? Color.White : Color.Black;
-                tmpTextureData[index++] = ((data & 0x2) >> 1 == 1) ? Color.White : Color.Black;
-                tmpTextureData[index++] = ((data & 0x4) >> 2 == 1) ? Color.White : Color.Black;
-                tmpTextureData[index++] = ((data & 0x8) >> 3 == 1) ? Color.White : Color.Black;
-                tmpTextureData[index++] = ((data & 0x10) >> 4 == 1) ? Color.White : Color.Black;
-                tmpTextureData[index++] = ((data & 0x20) >> 5 == 1) ? Color.White : Color.Black;
-                tmpTextureData[index++] = ((data & 0x40) >> 6 == 1) ? Color.White : Color.Black;
-                tmpTextureData[index++] = ((data & 0x80) >> 7 == 1) ? Color.White : Color.Black;
+                // unpacking 8 pixels per byte
+                byte data = videoBuffer[i];
+                for(int j = 0; j != 8; j++)
+                {
+                    // we shift data of j positions so that the bit we care about is in the
+                    // least significant position. At this point we can check if it's on
+                    // by masking it with 0x1 (binary 0000 0001) and comparing with 1
+                    tmpTextureData[index++] = ((data >> j) & 0x1) == 1 ? Color.White : Color.Black;
+                }
             }
 
-            // Rotate
+            // Rotate 90 degrees and flip on X
             index = 0;
-            for (var y = 0; y < SCREEN_HEIGHT; y++)
+            for (var x = SCREEN_HEIGHT - 1; x >= 0; x--)
             {
-                for (var x = (SCREEN_WIDTH - 1); x >= 0; x--)
+                for (var y = 0; y < SCREEN_WIDTH; y++)
                 {
-                    _textureData[index++] = tmpTextureData[x + (y * SCREEN_WIDTH)];
+                    _textureData[index++] = tmpTextureData[y * SCREEN_HEIGHT + x];
                 }
             }
 
             _texture.SetData(_textureData);
-
-            // ReadOnlySpan<byte> imageData = _memory.VideoBuffer;
-            // using var image = Image.LoadPixelData<SixLabors.ImageSharp.PixelFormats.L8>(imageData, SCREEN_WIDTH, SCREEN_HEIGHT);
-            // image.Mutate(x => x.Rotate(RotateMode.Rotate90));
-
-            // var bufferSize = SCREEN_WIDTH * SCREEN_HEIGHT;
-            // var bytes = new byte[bufferSize];
-            // image.CopyPixelDataTo()
-
-            // var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
-
-            // var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
-            // bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
-
-            // var rect = new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            // var bmpBits = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-
-            // var bufferSize = bmpBits.Height * bmpBits.Stride;
-            // var bytes = new byte[bufferSize];
-
-            // Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
-
-            // _texture.SetData(bytes);
-
-            // bmp.UnlockBits(bmpBits);
         }
 
         /// <summary>
