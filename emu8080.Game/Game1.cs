@@ -30,9 +30,11 @@ namespace emu8080.Game
         private const ushort SCREEN_HEIGHT = 256;
 
         private int _scale = 2;
-
-        private int _interruptToGenerate = 1;
+                
         private TimeSpan _lastInterruptTime = TimeSpan.Zero;
+        private const byte SCREEN_FLIP_X = 0xcf;
+        private const byte SCREEN_FLIP_Y = 0xd7;
+        private byte _currScreenOpcode = SCREEN_FLIP_Y;
 
         public Game1()
         {
@@ -115,40 +117,32 @@ namespace emu8080.Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            var canGenerateInterrupt = _cpu.Bus.InterruptEnabled && (gameTime.TotalGameTime - _lastInterruptTime).TotalMilliseconds > 8;
-            if (canGenerateInterrupt)
-            {
-                _lastInterruptTime = gameTime.TotalGameTime;
-
-               // GenerateInterrupt(_interruptToGenerate);
-
-                _interruptToGenerate = (1 == _interruptToGenerate) ? 2 : 1;
-
-                UpdateVideoTexture();
-            }
-
-            int cycles = 2000;
+            int cycles = 30000;
             while (0 != cycles--)
             {
                 _cpu.Step(_memory);
+
+                var canGenerateInterrupt = _cpu.Bus.InterruptEnabled && (gameTime.TotalGameTime - _lastInterruptTime).TotalMilliseconds > 8;
+                if (canGenerateInterrupt)
+                {
+                    _lastInterruptTime = gameTime.TotalGameTime;
+
+                    _cpu.AddInterrupt(_currScreenOpcode);
+
+                    if (_currScreenOpcode == SCREEN_FLIP_X)
+                        _currScreenOpcode = SCREEN_FLIP_Y;
+                    else
+                        _currScreenOpcode = SCREEN_FLIP_X;
+
+                    UpdateVideoTexture();
+                }
             }
 
             base.Update(gameTime);
         }
 
         private void Bus_InterruptChanged(bool value)
-        {
-        }
-
-        private void GenerateInterrupt(int interruptNum)
-        {
-            Ops.PUSH_PC(_memory, _cpu);
-
-            Ops.DI(_memory, _cpu);
-
-            //Set the PC to the low memory vector.    
-            //This is identical to an "RST interrupt_num" instruction.    
-            _cpu.Registers.ProgramCounter = (ushort)(8 * interruptNum);
+        {            
         }
 
         private void UpdateVideoTexture()

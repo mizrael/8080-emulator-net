@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +9,8 @@ namespace emu8080.Core
     {
         private static readonly Dictionary<byte, Action<Memory, Cpu>> _ops;
 
-        private ILogger<Cpu> _logger;
+        private readonly ILogger<Cpu> _logger;
+        private readonly ConcurrentQueue<byte> _interrupts;
 
         static Cpu()
         {
@@ -163,16 +165,32 @@ namespace emu8080.Core
         {
             Registers = registers;
             Bus = bus;
+
             _logger = logger;
+            _interrupts = new ConcurrentQueue<byte>();
         }
 
         public void Reset() => Registers.Reset();
 
+        public void AddInterrupt(byte op_code)
+        {
+            _interrupts.Enqueue(op_code);
+        }
+
         public void Step(Memory memory)
         {
-            var op = memory[Registers.ProgramCounter];
+            if(_interrupts.Count != 0 && _interrupts.TryDequeue(out var loc))                            
+                ProcessOp(memory, loc);
+            
+            else
+                ProcessOp(memory, Registers.ProgramCounter);
+        }
 
-            _logger.LogInformation($"processing op {op:X} at {Registers.ProgramCounter:X}");
+        private void ProcessOp(Memory memory, ushort loc)
+        {
+            var op = memory[loc];
+
+            _logger.LogInformation($"processing op {op:X} at {loc:X}");
 
             if (_ops.ContainsKey(op))
             {
