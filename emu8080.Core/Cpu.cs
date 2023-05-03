@@ -7,14 +7,14 @@ namespace emu8080.Core
 {
     public class Cpu
     {
-        private static readonly Dictionary<byte, Action<Memory, Cpu>> _ops;
+        private static readonly Dictionary<byte, Func<Memory, Cpu, int>> _ops;
 
         private readonly ILogger<Cpu> _logger;
         private readonly ConcurrentQueue<byte> _interrupts;
 
         static Cpu()
         {
-            _ops = new Dictionary<byte, Action<Memory, Cpu>>()
+            _ops = new Dictionary<byte, Func<Memory, Cpu, int>>()
             {
                 { 0x00, Ops.NOP },
                 { 0x01, Ops.LXI_B },
@@ -177,29 +177,26 @@ namespace emu8080.Core
             _interrupts.Enqueue(op_code);
         }
 
-        public void Step(Memory memory)
-        {
-            if(_interrupts.Count != 0 && _interrupts.TryDequeue(out var loc))                            
-                ProcessOp(memory, loc);
-            
-            else
-                ProcessOp(memory, Registers.ProgramCounter);
-        }
+        public int Step(Memory memory)
+        => (_interrupts.Count != 0 && _interrupts.TryDequeue(out var loc)) ?                           
+                ProcessOp(memory, loc) : ProcessOp(memory, Registers.ProgramCounter);        
 
-        private void ProcessOp(Memory memory, ushort loc)
+        private int ProcessOp(Memory memory, ushort loc)
         {
             var op = memory[loc];
 
-            _logger.LogInformation($"processing op {op:X} at {loc:X}");
+            _logger.LogDebug($"processing op {op:X} at {loc:X}");
 
             if (_ops.ContainsKey(op))
             {
-                _ops[op](memory, this);
+                return _ops[op](memory, this);
             }
             else
             {
                 _logger.LogError($"not implemented: {op:X} \n");
             }
+
+            return 4;
         }
     }
 }
