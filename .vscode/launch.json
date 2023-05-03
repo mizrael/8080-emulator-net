@@ -16,11 +16,11 @@
             "stopAtEntry": false
         },
         {
-            "name": "Launch game",
+            "name": "Launch game",            
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/emu8080.Game/bin/Debug/net7.0/emu8080.Game.dll",
+            "program": "${workspaceFolder}/emu8080.Game/bin/Release/net7.0/emu8080.Game.dll",
             "args": [],
             "cwd": "${workspaceFolder}/emu8080.Game",
             "console": "internalConsole",
