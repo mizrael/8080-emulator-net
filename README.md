@@ -6,8 +6,6 @@ OpCode reference table can be found [here](http://www.emulator101.com/reference/
 
 At the moment I have implemented only the bare minimun OPs to make Space Invaders "run".
 
-**No roms are included in the repo.**
-
 Rendering is handled with [Monogame](http://www.monogame.net/).
 
 ![Space Invaders](https://raw.githubusercontent.com/mizrael/8080-emulator-net/master/screenshots/space_invaders1.png)
