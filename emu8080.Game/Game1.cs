@@ -30,11 +30,13 @@ namespace emu8080.Game
         private const ushort SCREEN_HEIGHT = 256;
 
         private int _scale = 2;
-                
-        private TimeSpan _lastInterruptTime = TimeSpan.Zero;
-        private const byte SCREEN_FLIP_X = 0xcf;
-        private const byte SCREEN_FLIP_Y = 0xd7;
-        private byte _currScreenOpcode = SCREEN_FLIP_Y;
+
+        private TimeSpan _lastUpdate = TimeSpan.Zero;
+        private const byte START_VBLANK_OPCODE = 0xcf;
+        private const byte END_VBLANK_OPCODE = 0xd7;
+        private const int VBLANK_INTERRUPT = 16666;
+        private byte _nextVblankOpcode = END_VBLANK_OPCODE;
+        private int _vBlankCyclesCount = 0;
 
         public Game1()
         {
@@ -117,45 +119,51 @@ namespace emu8080.Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            int cycles = 30000;
-            while (0 != cycles--)
+            var newTimeValue = gameTime.TotalGameTime.TotalMilliseconds;
+            var diffTime = newTimeValue - _lastUpdate.TotalMilliseconds;
+            long cpuCyclesToRun = (long)(1000 * diffTime);
+            while (cpuCyclesToRun > 0)
             {
-                _cpu.Step(_memory);
+                int cycles = _cpu.Step(_memory);
 
-                var canGenerateInterrupt = _cpu.Bus.InterruptEnabled && (gameTime.TotalGameTime - _lastInterruptTime).TotalMilliseconds > 8;
-                if (canGenerateInterrupt)
+                cpuCyclesToRun -= cycles;
+
+                _vBlankCyclesCount += cycles;
+
+                if (_vBlankCyclesCount >= VBLANK_INTERRUPT)
                 {
-                    _lastInterruptTime = gameTime.TotalGameTime;
+                    _vBlankCyclesCount = 0;
 
-                    _cpu.AddInterrupt(_currScreenOpcode);
-
-                    if (_currScreenOpcode == SCREEN_FLIP_X)
-                        _currScreenOpcode = SCREEN_FLIP_Y;
+                    _cpu.AddInterrupt(_nextVblankOpcode);
+                    if (_nextVblankOpcode == START_VBLANK_OPCODE)
+                        _nextVblankOpcode = END_VBLANK_OPCODE;
                     else
-                        _currScreenOpcode = SCREEN_FLIP_X;
+                        _nextVblankOpcode = START_VBLANK_OPCODE;
 
                     UpdateVideoTexture();
                 }
             }
 
+            _lastUpdate = gameTime.TotalGameTime;
+
             base.Update(gameTime);
         }
 
         private void Bus_InterruptChanged(bool value)
-        {            
+        {
         }
 
         private void UpdateVideoTexture()
         {
             var videoBuffer = _memory.VideoBuffer.Span;
-            
+
             int index = 0;
-            
+
             for (int i = 0; i < videoBuffer.Length; i++)
             {
                 // unpacking 8 pixels per byte
                 byte data = videoBuffer[i];
-                for(int j = 0; j != 8; j++)
+                for (int j = 0; j != 8; j++)
                 {
                     // we shift data of j positions so that the bit we care about is in the
                     // least significant position. At this point we can check if it's on
