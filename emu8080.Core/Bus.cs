@@ -1,6 +1,7 @@
 ﻿namespace emu8080.Core
 {
-    public class Bus{
+    public class Bus
+    {
         public void Interrupt(bool value)
         {
             this.InterruptEnabled = value;

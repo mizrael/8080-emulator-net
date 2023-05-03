@@ -1,20 +1,20 @@
-﻿using System.Linq;
+﻿using System;
 
 namespace emu8080.Core
 {
     public class Memory
     {
         private readonly byte[] _bytes;
-        private byte[] _videoBuffer;
-
-        public const ushort videoBufferStartAddress = 0x2400;
-        public const ushort videoBufferEndAddress = 0x4000;
-        public const int videoBufferSize = videoBufferEndAddress - videoBufferStartAddress;
+        private ReadOnlyMemory<byte> _videoBuffer;
+        private const ushort videoBufferStartAddress = 0x2400;
+        private const ushort videoBufferEndAddress = 0x4000;
+        private const ushort videoBufferSize = videoBufferEndAddress - videoBufferStartAddress;
         
         private Memory(byte[] data)
         {
             _bytes = data;
-            _videoBuffer = new byte[videoBufferSize];
+             
+            _videoBuffer = new ReadOnlyMemory<byte>(data, videoBufferStartAddress, videoBufferSize);
         }
 
         public byte this[int index] {
@@ -22,14 +22,17 @@ namespace emu8080.Core
             set => _bytes[index] = value;
         }
 
-        public byte[] VideoBuffer => _videoBuffer;
-
-        public void UpdateVideoBuffer()
+        public ushort ReadAddress(int startLoc)
         {
-            System.Buffer.BlockCopy(_bytes, videoBufferStartAddress, _videoBuffer, 0, videoBufferSize);
+            var lo = _bytes[startLoc];
+            var hi = _bytes[startLoc + 1];
+            return Utils.GetValue(hi, lo);
         }
 
-        public static Memory Load(byte[] data, int destLoc = 0){
+        public ReadOnlyMemory<byte> VideoBuffer => _videoBuffer;
+
+        public static Memory Load(byte[] data, int destLoc = 0)
+        {
             var destBytes = new byte[0x10000]; // 64kb
             System.Array.Copy(data, 0, destBytes, destLoc, data.Length);
 

@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using emu8080.Core;
+﻿using emu8080.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace emu8080.Game
@@ -24,15 +21,20 @@ namespace emu8080.Game
         private SpriteBatch _spriteBatch;
         private Cpu _cpu;
         private Memory _memory;
+
+        private Color[] _tmpTextureData;
+        private Color[] _textureData;
         private Texture2D _texture;
 
         private const ushort SCREEN_WIDTH = 224;
         private const ushort SCREEN_HEIGHT = 256;
 
         private int _scale = 2;
-
-        private int _interruptToGenerate = 1;
+                
         private TimeSpan _lastInterruptTime = TimeSpan.Zero;
+        private const byte SCREEN_FLIP_X = 0xcf;
+        private const byte SCREEN_FLIP_Y = 0xd7;
+        private byte _currScreenOpcode = SCREEN_FLIP_Y;
 
         public Game1()
         {
@@ -51,17 +53,25 @@ namespace emu8080.Game
         protected override void Initialize()
         {
             var services = new ServiceCollection();
-            services.AddLogging(configure => configure.AddConsole());
+            services.AddLogging(configure =>
+            {
+                // logging should be disabled to prevent the app from stalling
+#if DEBUG
+                configure.AddConsole();
+#endif
+            });
 
             var sp = services.BuildServiceProvider();
 
-            var registers = new State();
+            var registers = new Registers();
             var bus = new Bus();
             bus.InterruptChanged += Bus_InterruptChanged;
 
             var logger = sp.GetRequiredService<ILogger<Cpu>>();
             _cpu = new Cpu(registers, bus, logger);
 
+            _tmpTextureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
+            _textureData = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
             _texture = new Texture2D(this.GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT, false, SurfaceFormat.Color);
 
             base.Initialize();
@@ -107,61 +117,64 @@ namespace emu8080.Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            var canGenerateInterrupt = _cpu.Bus.InterruptEnabled && (gameTime.TotalGameTime - _lastInterruptTime).TotalMilliseconds > 8;
-            if (canGenerateInterrupt)
-            {
-                _lastInterruptTime = gameTime.TotalGameTime;
-
-                GenerateInterrupt(_interruptToGenerate);
-
-                _interruptToGenerate = (1 == _interruptToGenerate) ? 2 : 1;
-
-                _memory.UpdateVideoBuffer();
-                UpdateVideoTexture();
-            }
-
-            int cycles = 2000;
+            int cycles = 30000;
             while (0 != cycles--)
             {
                 _cpu.Step(_memory);
+
+                var canGenerateInterrupt = _cpu.Bus.InterruptEnabled && (gameTime.TotalGameTime - _lastInterruptTime).TotalMilliseconds > 8;
+                if (canGenerateInterrupt)
+                {
+                    _lastInterruptTime = gameTime.TotalGameTime;
+
+                    _cpu.AddInterrupt(_currScreenOpcode);
+
+                    if (_currScreenOpcode == SCREEN_FLIP_X)
+                        _currScreenOpcode = SCREEN_FLIP_Y;
+                    else
+                        _currScreenOpcode = SCREEN_FLIP_X;
+
+                    UpdateVideoTexture();
+                }
             }
 
             base.Update(gameTime);
         }
 
         private void Bus_InterruptChanged(bool value)
-        {
-        }
-        
-        private void GenerateInterrupt(int interruptNum)
-        {
-            Ops.PUSH_PC(_memory, _cpu);
-            
-            Ops.DI(_memory, _cpu);
-
-            //Set the PC to the low memory vector.    
-            //This is identical to an "RST interrupt_num" instruction.    
-            _cpu.State.ProgramCounter = (ushort)(8 * interruptNum);
+        {            
         }
 
         private void UpdateVideoTexture()
         {
-            var gameScreen = Marshal.UnsafeAddrOfPinnedArrayElement(_memory.VideoBuffer, 0);
+            var videoBuffer = _memory.VideoBuffer.Span;
+            
+            int index = 0;
+            
+            for (int i = 0; i < videoBuffer.Length; i++)
+            {
+                // unpacking 8 pixels per byte
+                byte data = videoBuffer[i];
+                for(int j = 0; j != 8; j++)
+                {
+                    // we shift data of j positions so that the bit we care about is in the
+                    // least significant position. At this point we can check if it's on
+                    // by masking it with 0x1 (binary 0000 0001) and comparing with 1
+                    _tmpTextureData[index++] = ((data >> j) & 0x1) == 1 ? Color.White : Color.Black;
+                }
+            }
 
-            var bmp = new Bitmap(SCREEN_HEIGHT, SCREEN_WIDTH, 32, PixelFormat.Format1bppIndexed, gameScreen);
-            bmp.RotateFlip(RotateFlipType.Rotate90FlipX);
+            // Rotate 90 degrees and flip on X
+            index = 0;
+            for (var x = SCREEN_HEIGHT - 1; x >= 0; x--)
+            {
+                for (var y = 0; y < SCREEN_WIDTH; y++)
+                {
+                    _textureData[index++] = _tmpTextureData[y * SCREEN_HEIGHT + x];
+                }
+            }
 
-            var rect = new System.Drawing.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            var bmpBits = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-
-            var bufferSize = bmpBits.Height * bmpBits.Stride;
-            var bytes = new byte[bufferSize];
-
-            Marshal.Copy(bmpBits.Scan0, bytes, 0, bytes.Length);
-
-            _texture.SetData(bytes);
-
-            bmp.UnlockBits(bmpBits);
+            _texture.SetData(_textureData);
         }
 
         /// <summary>
@@ -171,12 +184,12 @@ namespace emu8080.Game
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-      
+
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(_texture, Vector2.Zero, null, Color.White, 0f, 
+            _spriteBatch.Draw(_texture, Vector2.Zero, null, Color.White, 0f,
                             Vector2.Zero, Vector2.One * _scale, SpriteEffects.None, 0);
-          
+
             _spriteBatch.End();
 
             base.Draw(gameTime);

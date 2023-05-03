@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29306.81
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "emu8080.Game", "emu8080.Game\emu8080.Game.csproj", "{847D788F-0281-438D-9EFF-30C5C8A145A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.Game", "emu8080.Game\emu8080.Game.csproj", "{847D788F-0281-438D-9EFF-30C5C8A145A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.Core", "emu8080.Core\emu8080.Core.csproj", "{997E8254-2C14-4BA2-AC83-AFC4C7005756}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.Console", "emu8080.Console\emu8080.Console.csproj", "{BD37BC05-0C8A-485A-9CB4-AEE68B1AD06E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "emu8080.CpuTester", "emu8080.CpuTester\emu8080.CpuTester.csproj", "{BD37BC05-0C8A-485A-9CB4-AEE68B1AD06E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "emu8080.Core.Tests", "emu8080.Core.Tests\emu8080.Core.Tests.csproj", "{E88CFC7D-81D4-4B0E-ABFD-12A7360D01D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{BD37BC05-0C8A-485A-9CB4-AEE68B1AD06E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD37BC05-0C8A-485A-9CB4-AEE68B1AD06E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD37BC05-0C8A-485A-9CB4-AEE68B1AD06E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E88CFC7D-81D4-4B0E-ABFD-12A7360D01D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E88CFC7D-81D4-4B0E-ABFD-12A7360D01D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E88CFC7D-81D4-4B0E-ABFD-12A7360D01D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E88CFC7D-81D4-4B0E-ABFD-12A7360D01D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

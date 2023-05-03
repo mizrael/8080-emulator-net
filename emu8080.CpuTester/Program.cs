@@ -7,7 +7,7 @@ using emu8080.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace emu8080.Console
+namespace emu8080.CpuTester
 {
     class Program
     {
@@ -24,7 +24,7 @@ namespace emu8080.Console
             using var provider = BuildServiceProvider();
             _logger = provider.GetRequiredService<ILogger<Program>>();
 
-            var gameName = "cpudiag";
+            var gameName = "invaders";
             var gameRomsPath = Path.Combine(RomsBasePath, gameName);
 
             _logger.LogWarning($"loading roms from {gameRomsPath}...");
@@ -37,7 +37,7 @@ namespace emu8080.Console
                 bytes.AddRange(romBytes);
             }
 
-            ushort startPos = 0x100;
+            ushort startPos = 0; //0x100; cp/m
             var memory = Memory.Load(bytes.ToArray(), startPos);
 
             //memory[368] = 0x7;
@@ -49,18 +49,17 @@ namespace emu8080.Console
             
             _logger.LogWarning("processing program, press ESC to quit");
 
-            var registers = new State();
+            var registers = new Registers();
             var bus = new Bus();
 
             var logger = provider.GetService<ILogger<Cpu>>();
             var cpu = new Cpu(registers, bus, logger);
             cpu.Reset();
-            cpu.State.ProgramCounter = startPos;
+            cpu.Registers.ProgramCounter = startPos;
            
             Run(cpu, memory);
             
             _logger.LogInformation("done!");
-            
         }
 
         private static ServiceProvider BuildServiceProvider()
@@ -73,10 +72,19 @@ namespace emu8080.Console
 
         private static void Run(Cpu cpu, Memory memory)
         {
+            int step = 0;
             while (true)
             {
-                if (cpu.State.ProgramCounter == 0x0000)
-                    break;
+                // used https://bluishcoder.co.nz/js8080/ to check output
+                _logger.LogInformation($"{step} ******* \n af  bc  de  hl  pc  sp flags\n {cpu.Registers.A:X} {cpu.Registers.BC:X} {cpu.Registers.DE:X} {cpu.Registers.HL:X} {cpu.Registers.ProgramCounter:X} {cpu.Registers.StackPointer:X} {cpu.Registers.Flags}");
+                
+                step++;
+                if(step>50000)
+                    Console.Read();
+
+                // if (cpu.Registers.ProgramCounter == 0x0000)
+                //     break;
+
                 //else if (cpu.State.ProgramCounter == 0x689) //CPUER
                 //{
                 //    byte lo = memory[cpu.State.StackPointer];
@@ -87,16 +95,16 @@ namespace emu8080.Console
                 //    break;
                 //}
 
-                if (cpu.State.ProgramCounter == 0x0005)
+                if (cpu.Registers.ProgramCounter == 0x0005)
                 {
-                    if (cpu.State.C == 0x02)
+                    if (cpu.Registers.C == 0x02)
                     {
-                        var c = (char) cpu.State.E;
+                        var c = (char) cpu.Registers.E;
                         _logger.LogInformation(c.ToString());
                     }
-                    else if (cpu.State.C == 0x09)
+                    else if (cpu.Registers.C == 0x09)
                     {
-                        var ptr = cpu.State.DE + 3; // skipping prefix ( \f\r\n )
+                        var ptr = cpu.Registers.DE + 3; // skipping prefix ( \f\r\n )
                         var sb = new StringBuilder();
                         while (true)
                         {
@@ -106,7 +114,7 @@ namespace emu8080.Console
                             ptr++;
                         }
 
-                        sb.Append($"{cpu.State.E:X}");
+                        sb.Append($"{cpu.Registers.E:X}");
                         _logger.LogInformation(sb.ToString());
                         break;
                     }

@@ -1,8 +1,8 @@
 ﻿namespace emu8080.Core
 {
-    public class State
+    public class Registers
     {
-        public State(){
+        public Registers(){
             this.Flags = new Flags();
         }
 
@@ -46,13 +46,6 @@
             }
         }
 
-        public void SetCounterToAddr(Memory memory)
-        {
-            var lo = memory[this.ProgramCounter+1];
-            var hi = memory[this.ProgramCounter+2];
-            this.ProgramCounter = Utils.GetValue(hi, lo);
-        }
-
         public void Reset()
         {
             this.A = this.B = this.C = this.D = this.E = this.H = this.L = 0;
@@ -60,6 +53,9 @@
             this.StackPointer = 0;
             this.Flags.Reset();
         }
+
+        public ushort ReadImmediate(Memory memory)
+            => memory.ReadAddress(this.ProgramCounter + 1);
 
         public void DAD(ushort value)
         {

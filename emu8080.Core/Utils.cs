@@ -1,8 +1,10 @@
-﻿namespace emu8080.Core
+﻿using System;
+
+namespace emu8080.Core
 {
     public static class Utils
     {
-        public static byte Decrement(byte a, State state)
+        public static byte Decrement(byte a, Registers state)
         {
             byte result = (byte)((a - 1) & 0xff);
             state.Flags.CalcZeroFlag(result);
@@ -12,14 +14,17 @@
             return result;
         }
 
-        public static byte Increment(byte a, State state)
+        public static byte Increment(byte a, Registers state)
         {
-            byte result = (byte)((a + 1) & 0xff);
+            UInt16 result = (UInt16)(a + 1);
             state.Flags.CalcZeroFlag(result);
             state.Flags.CalcSignFlag(result);
-            state.Flags.CalcParityFlag(result);
 
-            return result;
+            byte bRes = (byte)(result & 0xff);
+            state.Flags.CalcParityFlag(bRes);
+            state.Flags.CalcAuxCarryFlag(bRes, 0x0F);
+
+            return bRes; 
         }
 
         public static byte GetLow(this int value)
