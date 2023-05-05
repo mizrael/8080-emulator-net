@@ -52,6 +52,7 @@ namespace emu8080.Core
                 { 0x26, Ops.MVI_H },
                 { 0x28, Ops.NOP },
                 { 0x29, Ops.DAD_H },
+                { 0x2a, Ops.LHLD },
                 { 0x2e, Ops.MVI_L },
                 { 0x2f, Ops.CMA },
                 { 0x30, Ops.NOP },
@@ -150,6 +151,7 @@ namespace emu8080.Core
                 { 0xf3, Ops.DI },
                 { 0xf4, Ops.CP },
                 { 0xf5, Ops.PUSH_PSW },
+                { 0xf6, Ops.ORI_D },
                 { 0xfa, Ops.JM },
                 { 0xfb, Ops.EI },
                 { 0xfc, Ops.CM },
@@ -158,7 +160,7 @@ namespace emu8080.Core
             };
         }
 
-        public Registers Registers {get;}
+        public Registers Registers { get; }
         public Bus Bus { get; }
 
         public Cpu(Registers registers, Bus bus, ILogger<Cpu> logger)
@@ -178,14 +180,14 @@ namespace emu8080.Core
         }
 
         public int Step(Memory memory)
-        => (_interrupts.Count != 0 && _interrupts.TryDequeue(out var loc)) ?                           
-                ProcessOp(memory, loc) : ProcessOp(memory, Registers.ProgramCounter);        
+        => (_interrupts.Count != 0 && _interrupts.TryDequeue(out var loc)) ?
+                ProcessOp(memory, loc) : ProcessOp(memory, Registers.ProgramCounter);
 
         private int ProcessOp(Memory memory, ushort loc)
         {
             var op = memory[loc];
 
-            _logger.LogDebug($"processing op {op:X} at {loc:X}");
+            // _logger.LogDebug($"processing op {op:X} at {loc:X}");
 
             if (_ops.ContainsKey(op))
             {

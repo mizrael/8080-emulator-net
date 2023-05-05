@@ -155,6 +155,22 @@ namespace emu8080.Core
             return 4;
         }
 
+        private static int AOR(Memory memory, Cpu cpu, byte value)
+        {
+            byte result = (byte)(cpu.Registers.A & value);
+
+            cpu.Registers.Flags.Carry = false;
+            cpu.Registers.Flags.AuxCarry = false;
+            cpu.Registers.Flags.CalcZeroFlag(result);
+            cpu.Registers.Flags.CalcSignFlag(result);
+            cpu.Registers.Flags.CalcParityFlag(result);
+
+            cpu.Registers.A = (byte)(result & 0xff);
+            cpu.Registers.ProgramCounter++;
+
+            return 7;
+        }
+
         #endregion Private methods
 
         // 0x00
@@ -421,6 +437,17 @@ namespace emu8080.Core
             cpu.Registers.DAD(cpu.Registers.HL);
 
             return 10;
+        }
+
+        // 0x2a , LHLD adr 	L <- (adr); H<-(adr+1)
+        public static int LHLD(Memory memory, Cpu cpu)
+        {
+            //TODO tests
+            var adr = cpu.Registers.ReadImmediate(memory);
+            cpu.Registers.L = memory[adr];
+            cpu.Registers.H = memory[adr + 1];
+            cpu.Registers.ProgramCounter += 3;
+            return 16;
         }
 
         // 0x2e , L <- byte 2
@@ -1186,6 +1213,16 @@ namespace emu8080.Core
             return 11;
         }
 
+        // 0xf6 ORI D8 A <- A | data
+        public static int ORI_D(Memory memory, Cpu cpu)
+        {
+            // TODO: tests
+            var data = memory[cpu.Registers.ProgramCounter + 1];
+            AOR(memory, cpu, data);
+            cpu.Registers.ProgramCounter++;
+            return 7;
+        }
+
         // 0xfa JM adr 
         public static int JM(Memory memory, Cpu cpu)
             => JUMP_FLAG(memory, cpu, cpu.Registers.Flags.Sign);
@@ -1204,7 +1241,7 @@ namespace emu8080.Core
             if (cpu.Registers.Flags.Sign)
             {
                 CALL(memory, cpu);
-                return 17;                
+                return 17;
             }
 
             cpu.Registers.ProgramCounter += 3;

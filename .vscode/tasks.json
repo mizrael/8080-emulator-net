@@ -12,7 +12,7 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary",
                 "-c",
-                "Release"
+                "Debug"
             ],
             "group": {
                 "kind": "build",
