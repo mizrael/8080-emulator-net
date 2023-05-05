@@ -155,6 +155,22 @@ namespace emu8080.Core
             return 4;
         }
 
+        private static int XOR(Memory memory, Cpu cpu, byte value)
+        {
+            byte result = (byte)(cpu.Registers.A ^ value);
+
+            cpu.Registers.Flags.Carry = false;
+            cpu.Registers.Flags.AuxCarry = false;
+            cpu.Registers.Flags.CalcZeroFlag(result);
+            cpu.Registers.Flags.CalcSignFlag(result);
+            cpu.Registers.Flags.CalcParityFlag(result);
+
+            cpu.Registers.A = (byte)(result & 0xff);
+            cpu.Registers.ProgramCounter++;
+
+            return 4;
+        }
+
         private static int AOR(Memory memory, Cpu cpu, byte value)
         {
             byte result = (byte)(cpu.Registers.A & value);
@@ -510,6 +526,14 @@ namespace emu8080.Core
             return 4;
         }
 
+        // 0x39 , 	HL = HL + SP
+        public static int DAD_SP(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            cpu.Registers.DAD(cpu.Registers.StackPointer);
+            return 10;
+        }
+
         // 0x3a , A <- (adr)
         public static int LDA(Memory memory, Cpu cpu)
         {
@@ -711,6 +735,15 @@ namespace emu8080.Core
             return 5;
         }
 
+        // 0x6d , L <- L
+        public static int MOV_L_L(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            cpu.Registers.L = cpu.Registers.L;
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
         // 0x6f , 	L <- (HL)
         public static int MOV_L_A(Memory memory, Cpu cpu)
         {
@@ -723,6 +756,15 @@ namespace emu8080.Core
         public static int MOV_M_A(Memory memory, Cpu cpu)
         {
             memory[cpu.Registers.HL] = cpu.Registers.A;
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
+        // 0x78 , A <- B
+        public static int MOV_A_B(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            cpu.Registers.A = cpu.Registers.B;
             cpu.Registers.ProgramCounter++;
             return 5;
         }
@@ -775,6 +817,15 @@ namespace emu8080.Core
             return 7;
         }
 
+        // 0x7f , A <- A
+        public static int MOV_A_A(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            cpu.Registers.A = cpu.Registers.A;
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
         // 0x80 , A <- A + B
         public static int ADD_B(Memory memory, Cpu cpu)
             => ADD(memory, cpu, cpu.Registers.B);
@@ -820,6 +871,15 @@ namespace emu8080.Core
         {
             cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, cpu.Registers.L);
             return 4;
+        }
+
+        // 0x8e , A <- A + (HL) + CY
+        public static int ADC_M(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            var value = memory[ cpu.Registers.HL ];
+            cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, value);
+            return 7;
         }
 
         // 0x90 , A <- A - B
@@ -1047,6 +1107,10 @@ namespace emu8080.Core
             return 7;
         }
 
+        // 0xd0 , if NCY, RET
+        public static int RNC(Memory memory, Cpu cpu)
+            => RET_FLAG(memory, cpu, !cpu.Registers.Flags.Carry); //TODO: test
+
         // 0xd1 , E <- (sp); D <- (sp+1); sp <- sp+2
         public static int POP_DE(Memory memory, Cpu cpu)
         {
@@ -1170,6 +1234,20 @@ namespace emu8080.Core
             return 5;
         }
 
+        // 0xec CPE adr, if PE, CALL adr
+        public static int CPE(Memory memory, Cpu cpu)
+            => CALL_FLAG(memory, cpu, cpu.Registers.Flags.Parity); // TODO: test
+
+        // 0xee XRI A <- A ^ data
+        public static int XRI(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            var data = memory[cpu.Registers.ProgramCounter + 1];
+            XOR(memory, cpu, data);
+            cpu.Registers.ProgramCounter++;
+            return 7;
+        }
+
         // 0xf1 , flags <- (sp); A <- (sp+1); sp <- sp+2
         public static int POP_PSW(Memory memory, Cpu cpu)
         {
@@ -1200,7 +1278,7 @@ namespace emu8080.Core
 
         // 0xf4 CP adr 
         public static int CP(Memory memory, Cpu cpu)
-            => CALL_FLAG(memory, cpu, cpu.Registers.Flags.Parity);
+            => CALL_FLAG(memory, cpu, cpu.Registers.Flags.Sign); //TODO: test
 
         // 0xf5 , (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2
         public static int PUSH_PSW(Memory memory, Cpu cpu)
@@ -1222,6 +1300,10 @@ namespace emu8080.Core
             cpu.Registers.ProgramCounter++;
             return 7;
         }
+
+        // 0xf8 , 	if M, RET
+        public static int RM(Memory memory, Cpu cpu)
+            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Sign); // TODO: test
 
         // 0xfa JM adr 
         public static int JM(Memory memory, Cpu cpu)
