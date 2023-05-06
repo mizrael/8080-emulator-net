@@ -483,6 +483,14 @@ namespace emu8080.Core
             return 16;
         }
 
+        // 0x2b , 	HL = HL-1
+        public static int DCX_HL(Memory memory, Cpu cpu)
+        {
+            cpu.Registers.HL = (ushort)(cpu.Registers.HL - 1); //TODO: test
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
         // 0x2e , L <- byte 2
         public static int MVI_L(Memory memory, Cpu cpu)
         {
@@ -644,6 +652,22 @@ namespace emu8080.Core
         public static int MOV_B_M(Memory memory, Cpu cpu)
         {
             cpu.Registers.B = memory[cpu.Registers.HL];
+            cpu.Registers.ProgramCounter++;
+            return 7;
+        }
+
+        // 0x47 , MOV B,A
+        public static int MOV_B_A(Memory memory, Cpu cpu)
+        {
+            cpu.Registers.B = cpu.Registers.A;
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
+        // 0x48 , MOV C,B
+        public static int MOV_C_B(Memory memory, Cpu cpu)
+        {
+            cpu.Registers.C = cpu.Registers.B;
             cpu.Registers.ProgramCounter++;
             return 7;
         }
@@ -1030,6 +1054,14 @@ namespace emu8080.Core
             return 7;
         }
 
+        // 0xb8 , CMP B, A - B
+        public static int CMP_B(Memory memory, Cpu cpu)
+            => CMP(memory, cpu, cpu.Registers.B); //TODO: test
+
+         // 0xb9 , CMP B, A - C
+        public static int CMP_C(Memory memory, Cpu cpu)
+            => CMP(memory, cpu, cpu.Registers.C); //TODO: test
+
         // 0xba , A - D
         public static int CMP_D(Memory memory, Cpu cpu)
             => CMP(memory, cpu, cpu.Registers.D); //TODO: test
@@ -1065,6 +1097,7 @@ namespace emu8080.Core
         }
 
         // 0xc3 , PC <= adr
+        // 0xcb - special
         public static int JMP(Memory memory, Cpu cpu)
         {
             JUMP_FLAG(memory, cpu, true);
@@ -1302,6 +1335,14 @@ namespace emu8080.Core
             XOR(memory, cpu, data);
             cpu.Registers.ProgramCounter++;
             return 7;
+        }
+
+        // 0xef , CALL $28
+        public static int RST_5(Memory memory, Cpu cpu)
+        {
+            CALL(memory, cpu);
+            cpu.Registers.ProgramCounter = 0x28;
+            return 11;
         }
 
         // 0xf1 , flags <- (sp); A <- (sp+1); sp <- sp+2
