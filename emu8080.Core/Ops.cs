@@ -187,6 +187,14 @@ namespace emu8080.Core
             return 7;
         }
 
+        private static int CMP(Memory memory, Cpu cpu, byte value)
+        {
+            ushort res = (ushort)(cpu.Registers.A - value);
+            cpu.Registers.Flags.CalcSZPC(res);
+            cpu.Registers.ProgramCounter++;
+            return 7;
+        }
+
         #endregion Private methods
 
         // 0x00
@@ -364,6 +372,15 @@ namespace emu8080.Core
         // 0x1c , E <-E+1
         public static int INR_E(Memory memory, Cpu cpu)
         {
+            cpu.Registers.E = Utils.Decrement(cpu.Registers.E, cpu.Registers);
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
+        // 0x1d, E <-E-1
+        public static int DCR_E(Memory memory, Cpu cpu)
+        {
+            //TODO: test
             cpu.Registers.E = Utils.Increment(cpu.Registers.E, cpu.Registers);
             cpu.Registers.ProgramCounter++;
             return 5;
@@ -703,10 +720,28 @@ namespace emu8080.Core
             return 5;
         }
 
+        // 0x60 , H <- B
+        public static int MOV_H_B(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            cpu.Registers.H = cpu.Registers.B;
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
         // 0x61 , H <- C
         public static int MOV_H_C(Memory memory, Cpu cpu)
         {
             cpu.Registers.H = cpu.Registers.C;
+            cpu.Registers.ProgramCounter++;
+            return 5;
+        }
+
+        // 0x64 , H <- H
+        public static int MOV_H_H(Memory memory, Cpu cpu)
+        {
+            // TODO: test
+            cpu.Registers.H = cpu.Registers.H;
             cpu.Registers.ProgramCounter++;
             return 5;
         }
@@ -750,6 +785,13 @@ namespace emu8080.Core
             cpu.Registers.L = cpu.Registers.A;
             cpu.Registers.ProgramCounter++;
             return 5;
+        }
+
+        // 0x76 , HLT
+        public static int HLT(Memory memory, Cpu cpu)
+        {
+            // halts the execution, doesn't increment PC
+            return 7;
         }
 
         // 0x77 , (HL) <- A
@@ -833,6 +875,10 @@ namespace emu8080.Core
         // 0x81 , A <- A + C
         public static int ADD_C(Memory memory, Cpu cpu)
             => ADD(memory, cpu, cpu.Registers.C);
+
+        // 0x82 , A <- A + D
+        public static int ADD_D(Memory memory, Cpu cpu)
+            => ADD(memory, cpu, cpu.Registers.D); //TODO: test
 
         // 0x87 , A <- A + A
         public static int ADD_A(Memory memory, Cpu cpu)
@@ -984,14 +1030,20 @@ namespace emu8080.Core
             return 7;
         }
 
+        // 0xba , A - D
+        public static int CMP_D(Memory memory, Cpu cpu)
+            => CMP(memory, cpu, cpu.Registers.D); //TODO: test
+
+        // 0xbb , A - E
+        public static int CMP_E(Memory memory, Cpu cpu)
+            => CMP(memory, cpu, cpu.Registers.E); //TODO: test
+
         // 0xbe , A - (HL)
         public static int CMP_M(Memory memory, Cpu cpu)
         {
-            var mem = (ushort)memory[cpu.Registers.HL];
-            ushort res = (ushort)(cpu.Registers.A - mem);
-            cpu.Registers.Flags.CalcSZPC(res);
-            cpu.Registers.ProgramCounter++;
-            return 7;
+            //TODO: test
+            byte mem = memory[cpu.Registers.HL];
+            return CMP(memory, cpu, mem);
         }
 
         // 0xc0 , if NZ, RET
@@ -1203,6 +1255,10 @@ namespace emu8080.Core
             cpu.Registers.ProgramCounter++;
             return 7;
         }
+
+        // 0xe8 , if PE, RET
+        public static int RPE(Memory memory, Cpu cpu)
+            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Parity); // TODO: test
 
         // 0xe9 , PC.hi <- H; PC.lo <- L
         public static int PCHL(Memory memory, Cpu cpu)
