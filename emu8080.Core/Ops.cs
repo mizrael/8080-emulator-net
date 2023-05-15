@@ -372,7 +372,7 @@ namespace emu8080.Core
         // 0x1c , E <-E+1
         public static int INR_E(Memory memory, Cpu cpu)
         {
-            cpu.Registers.E = Utils.Decrement(cpu.Registers.E, cpu.Registers);
+            cpu.Registers.E = Utils.Increment(cpu.Registers.E, cpu.Registers);
             cpu.Registers.ProgramCounter++;
             return 5;
         }
@@ -380,8 +380,7 @@ namespace emu8080.Core
         // 0x1d, E <-E-1
         public static int DCR_E(Memory memory, Cpu cpu)
         {
-            //TODO: test
-            cpu.Registers.E = Utils.Increment(cpu.Registers.E, cpu.Registers);
+            cpu.Registers.E = Utils.Decrement(cpu.Registers.E, cpu.Registers);
             cpu.Registers.ProgramCounter++;
             return 5;
         }
@@ -1194,7 +1193,7 @@ namespace emu8080.Core
 
         // 0xd0 , if NCY, RET
         public static int RNC(Memory memory, Cpu cpu)
-            => RET_FLAG(memory, cpu, !cpu.Registers.Flags.Carry); //TODO: test
+            => RET_FLAG(memory, cpu, !cpu.Registers.Flags.Carry); 
 
         // 0xd1 , E <- (sp); D <- (sp+1); sp <- sp+2
         public static int POP_DE(Memory memory, Cpu cpu)
@@ -1375,7 +1374,7 @@ namespace emu8080.Core
 
         // 0xf4 CP adr 
         public static int CP(Memory memory, Cpu cpu)
-            => CALL_FLAG(memory, cpu, cpu.Registers.Flags.Sign); //TODO: test
+            => CALL_FLAG(memory, cpu, cpu.Registers.Flags.Sign); 
 
         // 0xf5 , (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2
         public static int PUSH_PSW(Memory memory, Cpu cpu)
@@ -1400,7 +1399,7 @@ namespace emu8080.Core
 
         // 0xf8 , 	if M, RET
         public static int RM(Memory memory, Cpu cpu)
-            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Sign); // TODO: test
+            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Sign);
 
         // 0xfa JM adr 
         public static int JM(Memory memory, Cpu cpu)
