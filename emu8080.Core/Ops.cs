@@ -158,13 +158,7 @@ namespace emu8080.Core
         private static int XOR(Memory memory, Cpu cpu, byte value)
         {
             byte result = (byte)(cpu.Registers.A ^ value);
-
-            cpu.Registers.Flags.Carry = false;
-            cpu.Registers.Flags.AuxCarry = false;
-            cpu.Registers.Flags.CalcZeroFlag(result);
-            cpu.Registers.Flags.CalcSignFlag(result);
-            cpu.Registers.Flags.CalcParityFlag(result);
-
+            cpu.Registers.Flags.CalcSZPC(result);    
             cpu.Registers.A = (byte)(result & 0xff);
             cpu.Registers.ProgramCounter++;
 
@@ -1015,21 +1009,11 @@ namespace emu8080.Core
 
         // 0xaa , A <- A ^ D
         public static int XRA_D(Memory memory, Cpu cpu)
-        {
-            cpu.Registers.A = (byte)((cpu.Registers.A ^ cpu.Registers.D) & 0xff);
-            cpu.Registers.Flags.CalcSZPC(cpu.Registers.A);
-            cpu.Registers.ProgramCounter++;
-            return 4;
-        }
+        => XOR(memory, cpu, cpu.Registers.D);
 
         // 0xaf , A <- A ^ A
         public static int XRA_A(Memory memory, Cpu cpu)
-        {
-            cpu.Registers.A = (byte)((cpu.Registers.A ^ cpu.Registers.A) & 0xff);
-            cpu.Registers.Flags.CalcSZPC(cpu.Registers.A);
-            cpu.Registers.ProgramCounter++;
-            return 4;
-        }
+        => XOR(memory, cpu, cpu.Registers.A);
 
         // 0xb0 , A <- A | B
         public static int ORA_B(Memory memory, Cpu cpu)
@@ -1329,7 +1313,6 @@ namespace emu8080.Core
         // 0xee XRI A <- A ^ data
         public static int XRI(Memory memory, Cpu cpu)
         {
-            // TODO: test
             var data = memory[cpu.Registers.ProgramCounter + 1];
             XOR(memory, cpu, data);
             cpu.Registers.ProgramCounter++;

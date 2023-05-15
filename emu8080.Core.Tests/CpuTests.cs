@@ -1382,6 +1382,28 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void XRI()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0xee, // XRI
+                0x78
+            });
+
+            cpu.Registers.A = 0x5c;
+            cpu.Step(memory);
+            cpu.Registers.A.Should().Be(0x24);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.Flags.AuxCarry.Should().BeFalse();
+            cpu.Registers.Flags.Zero.Should().BeFalse();
+            cpu.Registers.Flags.Parity.Should().BeTrue();
+            cpu.Registers.Flags.Sign.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(2);
+        }
+
+        [Fact]
         public void CMP()
         {
             Cpu cpu = BuildSut();
