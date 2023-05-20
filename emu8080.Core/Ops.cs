@@ -273,7 +273,7 @@ namespace emu8080.Core
         // 0x0b , 	BC = BC-1
         public static int DCX_B(Memory memory, Cpu cpu)
         {
-            cpu.Registers.BC = (ushort)(cpu.Registers.BC - 1); //TODO: check
+            cpu.Registers.BC = (ushort)(cpu.Registers.BC - 1); //TODO: test
             cpu.Registers.ProgramCounter++;
             return 5;
         }
@@ -547,7 +547,6 @@ namespace emu8080.Core
         // 0x39 , 	HL = HL + SP
         public static int DAD_SP(Memory memory, Cpu cpu)
         {
-            // TODO: test
             cpu.Registers.DAD(cpu.Registers.StackPointer);
             return 10;
         }
@@ -740,7 +739,6 @@ namespace emu8080.Core
         // 0x60 , H <- B
         public static int MOV_H_B(Memory memory, Cpu cpu)
         {
-            // TODO: test
             cpu.Registers.H = cpu.Registers.B;
             cpu.Registers.ProgramCounter++;
             return 5;
@@ -1274,7 +1272,7 @@ namespace emu8080.Core
 
         // 0xe8 , if PE, RET
         public static int RPE(Memory memory, Cpu cpu)
-            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Parity); // TODO: test
+            => RET_FLAG(memory, cpu, cpu.Registers.Flags.Parity); 
 
         // 0xe9 , PC.hi <- H; PC.lo <- L
         public static int PCHL(Memory memory, Cpu cpu)

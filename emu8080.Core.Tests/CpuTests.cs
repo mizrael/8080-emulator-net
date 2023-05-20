@@ -811,6 +811,27 @@ namespace emu8080.Core.Tests
         }
 
         [Fact]
+        public void DAD_SP()
+        {
+            Cpu cpu = BuildSut();
+
+            var memory = Memory.Load(new byte[]
+            {
+                0x39
+            });
+
+            cpu.Registers.H = 0x12;
+            cpu.Registers.L = 0x15;
+            cpu.Registers.StackPointer = 0x4271;
+
+            cpu.Step(memory);
+
+            cpu.Registers.HL.Should().Be(0x5486);
+            cpu.Registers.Flags.Carry.Should().BeFalse();
+            cpu.Registers.ProgramCounter.Should().Be(1);
+        }
+
+        [Fact]
         public void LDAX_B()
         {
             Cpu cpu = BuildSut();
@@ -922,6 +943,7 @@ namespace emu8080.Core.Tests
                 0x7c, // MOV_A_H
                 0x7d, // MOV_A_L
                 0x7e, // MOV_A_M
+                0x60, // MOV_H_B
             });
 
             cpu.Registers.B = 0x42;
@@ -1070,6 +1092,12 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
             cpu.Registers.A.Should().Be(0xd2);
             cpu.Registers.ProgramCounter.Should().Be(28);
+
+            cpu.Registers.H = 0;
+            cpu.Registers.B = 0xe8;
+            cpu.Step(memory);
+            cpu.Registers.H.Should().Be(0xe8);
+            cpu.Registers.ProgramCounter.Should().Be(29);
         }
 
         [Fact]
@@ -1677,7 +1705,8 @@ namespace emu8080.Core.Tests
                 0xc8, // RZ
                 0xc9, // RET
                 0xf8, // RM
-                0xd0 // RNC
+                0xd0, // RNC
+                0xe8, // RPE
             });
 
             cpu.Registers.Flags.CalcZeroFlag(1);
@@ -1747,7 +1776,22 @@ namespace emu8080.Core.Tests
             cpu.Step(memory);
             cpu.Registers.ProgramCounter.Should().Be(6);
 
-            memory = Memory.Load(new byte[]
+            // RPE
+            cpu.Registers.ProgramCounter = 6;
+            cpu.Registers.Flags.CalcParityFlag(0);
+            cpu.Registers.StackPointer = 0x2042;
+            memory[cpu.Registers.StackPointer] = 0x71;
+            memory[cpu.Registers.StackPointer + 1] = 0x31;
+            cpu.Step(memory);
+            cpu.Registers.ProgramCounter.Should().Be(0x3171);
+            cpu.Registers.StackPointer.Should().Be(0x2044);
+        }
+
+        [Fact]
+        public void RC()
+        {
+            Cpu cpu = BuildSut();
+            var memory = Memory.Load(new byte[]
             {
                 0xd8 // RC
             });
