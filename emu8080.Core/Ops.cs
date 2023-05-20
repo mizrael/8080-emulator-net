@@ -273,7 +273,7 @@ namespace emu8080.Core
         // 0x0b , 	BC = BC-1
         public static int DCX_B(Memory memory, Cpu cpu)
         {
-            cpu.Registers.BC = (ushort)(cpu.Registers.BC - 1); //TODO: test
+            cpu.Registers.BC = (ushort)(cpu.Registers.BC - 1); 
             cpu.Registers.ProgramCounter++;
             return 5;
         }
@@ -479,7 +479,7 @@ namespace emu8080.Core
         // 0x2b , 	HL = HL-1
         public static int DCX_HL(Memory memory, Cpu cpu)
         {
-            cpu.Registers.HL = (ushort)(cpu.Registers.HL - 1); //TODO: test
+            cpu.Registers.HL = (ushort)(cpu.Registers.HL - 1); 
             cpu.Registers.ProgramCounter++;
             return 5;
         }
@@ -933,7 +933,6 @@ namespace emu8080.Core
         // 0x8e , A <- A + (HL) + CY
         public static int ADC_M(Memory memory, Cpu cpu)
         {
-            // TODO: test
             var value = memory[ cpu.Registers.HL ];
             cpu.Registers.A = ADC(memory, cpu, cpu.Registers.A, value);
             return 7;
@@ -1033,15 +1032,15 @@ namespace emu8080.Core
 
         // 0xb8 , CMP B, A - B
         public static int CMP_B(Memory memory, Cpu cpu)
-            => CMP(memory, cpu, cpu.Registers.B); //TODO: test
+            => CMP(memory, cpu, cpu.Registers.B); 
 
          // 0xb9 , CMP B, A - C
         public static int CMP_C(Memory memory, Cpu cpu)
-            => CMP(memory, cpu, cpu.Registers.C); //TODO: test
+            => CMP(memory, cpu, cpu.Registers.C); 
 
         // 0xba , A - D
         public static int CMP_D(Memory memory, Cpu cpu)
-            => CMP(memory, cpu, cpu.Registers.D); //TODO: test
+            => CMP(memory, cpu, cpu.Registers.D); 
 
         // 0xbb , A - E
         public static int CMP_E(Memory memory, Cpu cpu)
