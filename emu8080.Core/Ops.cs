@@ -755,7 +755,6 @@ namespace emu8080.Core
         // 0x64 , H <- H
         public static int MOV_H_H(Memory memory, Cpu cpu)
         {
-            // TODO: test
             cpu.Registers.H = cpu.Registers.H;
             cpu.Registers.ProgramCounter++;
             return 5;
@@ -788,7 +787,6 @@ namespace emu8080.Core
         // 0x6d , L <- L
         public static int MOV_L_L(Memory memory, Cpu cpu)
         {
-            // TODO: test
             cpu.Registers.L = cpu.Registers.L;
             cpu.Registers.ProgramCounter++;
             return 5;
@@ -820,7 +818,6 @@ namespace emu8080.Core
         // 0x78 , A <- B
         public static int MOV_A_B(Memory memory, Cpu cpu)
         {
-            // TODO: test
             cpu.Registers.A = cpu.Registers.B;
             cpu.Registers.ProgramCounter++;
             return 5;
@@ -877,7 +874,6 @@ namespace emu8080.Core
         // 0x7f , A <- A
         public static int MOV_A_A(Memory memory, Cpu cpu)
         {
-            // TODO: test
             cpu.Registers.A = cpu.Registers.A;
             cpu.Registers.ProgramCounter++;
             return 5;
@@ -893,7 +889,7 @@ namespace emu8080.Core
 
         // 0x82 , A <- A + D
         public static int ADD_D(Memory memory, Cpu cpu)
-            => ADD(memory, cpu, cpu.Registers.D); //TODO: test
+            => ADD(memory, cpu, cpu.Registers.D);
 
         // 0x87 , A <- A + A
         public static int ADD_A(Memory memory, Cpu cpu)
